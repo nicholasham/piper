@@ -2,7 +2,6 @@ package optional
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/nicholasham/piper/pkg/types/iterator"
 	"testing"
 )
 
@@ -26,9 +25,9 @@ func TestOptional(t *testing.T) {
 		assert.NotEqual(t, Some(1), Some(2))
 	})
 
-	t.Run("IsDefined is only true for something", func(t *testing.T) {
-		assert.True(t, Some(1).IsDefined())
-		assert.False(t, None().IsDefined())
+	t.Run("IsSome is true when in some state", func(t *testing.T) {
+		assert.True(t, Some(1).IsSome())
+		assert.False(t, None().IsSome())
 	})
 
 
@@ -58,9 +57,9 @@ func TestOptional(t *testing.T) {
 		assert.Equal(t, 200, None().GetOrElse(200))
 	})
 
-	t.Run("IsEmpty is only true for none", func(t *testing.T) {
-		assert.True(t, None().IsEmpty())
-		assert.False(t, Some(1).IsEmpty())
+	t.Run("IsNone is only true for none", func(t *testing.T) {
+		assert.True(t, None().IsNone())
+		assert.False(t, Some(1).IsNone())
 	})
 
 	t.Run("Exists returns true if the predicate matches the value ", func(t *testing.T) {
@@ -127,37 +126,5 @@ func TestOptional(t *testing.T) {
 		actual := Some(200).Filter(isEqualTo(100))
 		assert.Equal(t, expected, actual)
 	})
-
-
-	t.Run("Iterator returns iterator that iterates once when some", func(t *testing.T) {
-
-		iterator := Some(200).Iterator()
-
-		assert.True(t, iterator.HasNext())
-		value, err := iterator.Next()
-
-		assert.NoError(t, err)
-		assert.Equal(t, 200, value)
-		assert.False(t, iterator.HasNext())
-
-	})
-
-	t.Run("Iterator returns iterator that is empty when none", func(t *testing.T) {
-
-
-		i := None().Iterator()
-
-		assert.False(t, i.HasNext())
-		value, err := i.Next()
-
-		assert.Error(t, err)
-		assert.Equal(t, iterator.EmptyError, err)
-		assert.Nil(t, value)
-
-
-	})
-
-
-
 
 }
