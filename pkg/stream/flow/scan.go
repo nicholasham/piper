@@ -1,9 +1,8 @@
 package flow
 
 import (
+	"github.com/nicholasham/piper/pkg/stream"
 	"sync"
-
-	"github.com/form3.tech/piper/pkg/stream"
 )
 
 // verify scanOperator implements Operator interface

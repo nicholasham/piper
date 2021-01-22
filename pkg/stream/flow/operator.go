@@ -2,12 +2,11 @@ package flow
 
 import (
 	"context"
-
-	"github.com/form3.tech/piper/pkg/stream/attribute"
+	"github.com/nicholasham/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream/attribute"
 
 	"github.com/gammazero/workerpool"
 
-	"github.com/form3.tech/piper/pkg/stream"
 )
 
 // verify operatorFlowStage implements stream.FlowStage interface

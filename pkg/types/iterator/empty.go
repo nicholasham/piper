@@ -7,7 +7,7 @@ type emptyIterator struct {
 }
 
 
-func (e *emptyIterator) ToList() []T {
+func (e *emptyIterator) ToList() []interface{} {
 	return toList(e)
 }
 
@@ -15,7 +15,7 @@ func (e *emptyIterator) HasNext() bool {
 	return false
 }
 
-func (e *emptyIterator) Next() (T, error) {
+func (e *emptyIterator) Next() (interface{}, error) {
 	return nil, EmptyError
 }
 

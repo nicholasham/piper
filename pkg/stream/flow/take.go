@@ -3,7 +3,7 @@ package flow
 import (
 	"sync/atomic"
 
-	"github.com/form3.tech/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream"
 )
 
 // verify takeOperator implements Operator interface

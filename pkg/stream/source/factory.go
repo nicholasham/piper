@@ -16,7 +16,7 @@ func Iterator(iterator iterator.Iterator, attributes ...attribute.StageAttribute
 	return stream.SourceFrom(iteratorSource(iterator, attributes))
 }
 
-func List(values []types.T, attributes ...attribute.StageAttribute) *stream.SourceGraph {
+func List(values []interface{}, attributes ...attribute.StageAttribute) *stream.SourceGraph {
 	return Iterator(iterator.Slice(values), append(attributes, attribute.Name("ListSource"))...)
 }
 

@@ -2,10 +2,8 @@ package sink
 
 import (
 	"context"
-
-	"github.com/form3.tech/piper/pkg/stream/attribute"
-
-	"github.com/form3.tech/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream/attribute"
 )
 
 type Collector interface {

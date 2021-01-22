@@ -1,7 +1,7 @@
 package flow
 
 import (
-	"github.com/form3.tech/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream"
 )
 
 type MapFunc func(value interface{}) (interface{}, error)

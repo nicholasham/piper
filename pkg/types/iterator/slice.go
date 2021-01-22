@@ -5,10 +5,10 @@ var _ Iterator = (*sliceIterator)(nil)
 
 type sliceIterator struct {
 	current int
-	values []T
+	values []interface{}
 }
 
-func (s *sliceIterator) ToList() []T {
+func (s *sliceIterator) ToList() []interface{} {
 	return toList(s)
 }
 
@@ -16,7 +16,7 @@ func (s *sliceIterator) HasNext() bool {
 	return len(s.values) >= (s.current + 1)
 }
 
-func (s *sliceIterator) Next() (T, error) {
+func (s *sliceIterator) Next() (interface{}, error) {
 	if s.HasNext() {
 		value := s.values[s.current]
 		s.current = s.current + 1
@@ -28,12 +28,12 @@ func (s *sliceIterator) Next() (T, error) {
 	return nil, EndOfError
 }
 
-func Slice(values ...T) Iterator {
+func Slice(values ...interface{}) Iterator {
 	return &sliceIterator{
 		values: values,
 	}
 }
 
-func Single(value T) Iterator {
+func Single(value interface{}) Iterator {
 	return Slice(value)
 }

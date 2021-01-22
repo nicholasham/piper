@@ -3,8 +3,7 @@ package sink
 import (
 	"context"
 	"fmt"
-
-	"github.com/form3.tech/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream"
 )
 
 var Ignored error = fmt.Errorf("output ignored")
