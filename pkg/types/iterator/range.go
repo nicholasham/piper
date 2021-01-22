@@ -10,7 +10,7 @@ type rangeIterator struct {
 	current int
 }
 
-func (r *rangeIterator) ToList() []T {
+func (r *rangeIterator) ToList() []interface{} {
 	return toList(r)
 }
 
@@ -18,7 +18,7 @@ func (r *rangeIterator) HasNext() bool {
 	return r.current < (r.end * r.step)
 }
 
-func (r *rangeIterator) Next() (T, error) {
+func (r *rangeIterator) Next() (interface{}, error) {
 	if r.HasNext() {
 		r.current = r.current + r.step
 		return r.current, nil

@@ -1,16 +1,16 @@
 package iterator
 
 import (
-	"github.com/nicholasham/piper/pkg/types/optional"
+	"github.com/nicholasham/piper/pkg/types"
 )
 
-type UnfoldFunc func(state interface{}) optional.Option
+type UnfoldFunc func(state interface{}) types.Option
 
 // verify unfoldIterator implements Iterator interface
 var _ Iterator = (*unfoldIterator)(nil)
 
 type unfoldIterator struct {
-	result optional.Option
+	result types.Option
 	f      UnfoldFunc
 }
 
@@ -18,7 +18,7 @@ func (u *unfoldIterator) HasNext() bool {
 	return u.result.IsSome()
 }
 
-func (u *unfoldIterator) Next() (T, error) {
+func (u *unfoldIterator) Next() (interface{}, error) {
 
 	value, err := u.result.Get()
 
@@ -32,13 +32,13 @@ func (u *unfoldIterator) Next() (T, error) {
 
 }
 
-func (u *unfoldIterator) ToList() []T {
+func (u *unfoldIterator) ToList() []interface{} {
 	return toList(u)
 }
 
 func Unfold(state interface{}, f UnfoldFunc) Iterator {
 	return &unfoldIterator{
-		result: optional.Some(state),
+		result: types.Some(state),
 		f:      f,
 	}
 }

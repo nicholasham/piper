@@ -2,20 +2,19 @@ package iterator
 
 import "fmt"
 
-type T interface{}
 
 type Iterator interface {
 	HasNext() bool
-	Next() (T, error)
-	ToList() []T
+	Next() (interface{}, error)
+	ToList() []interface{}
 }
 
 var EndOfError error = fmt.Errorf("iterator reached end")
 var EmptyError error = fmt.Errorf("iterator empty")
 
 
-func toList(iterator Iterator) []T {
-	var values []T
+func toList(iterator Iterator) []interface{} {
+	var values []interface{}
 	for iterator.HasNext() {
 
 		value, _ := iterator.Next()
