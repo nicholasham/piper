@@ -116,5 +116,5 @@ else ifeq ($(GITHUB_TOKEN), )
 	$(error "GitHub token is required (GITHUB_TOKEN)")
 else
 	git tag -a v$(RELEASE_VERSION) -m "New $(RELEASE_VERSION) version" && \
-	git push origin v$(RELEASE_VERSION) && \
+	git push origin v$(RELEASE_VERSION)
 endif
