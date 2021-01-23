@@ -24,7 +24,7 @@ func Failed(cause error, attributes ...piper.StageAttribute) *piper.SourceGraph 
 }
 
 func Empty(attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return piper.SourceFrom(emptySource(attributes))
+	return Iterator("EmptySource", iterator.Empty(), attributes...)
 }
 
 func Unfold(state interface{}, f iterator.UnfoldFunc, attributes ...piper.StageAttribute) *piper.SourceGraph {
