@@ -4,8 +4,6 @@ import (
 	"context"
 )
 
-type SourceGraphFactory func(attributes ...StageAttribute) *SourceGraph
-
 type SourceGraph struct {
 	stage  SourceStage
 	stages []Stage

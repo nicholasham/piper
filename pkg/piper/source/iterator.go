@@ -46,8 +46,8 @@ func (receiver *iteratorSourceStage) Outlet() *piper.Outlet {
 	return receiver.outlet
 }
 
-func iteratorSource(iterator iterator.Iterator, attributes []piper.StageAttribute) piper.SourceStage {
-	stageAttributes := piper.NewAttributes("IteratorSource", attributes...)
+func iteratorSource(name string, iterator iterator.Iterator, attributes []piper.StageAttribute) piper.SourceStage {
+	stageAttributes := piper.NewAttributes(name, attributes...)
 	return &iteratorSourceStage{
 		attributes: stageAttributes,
 		outlet:     piper.NewOutlet(stageAttributes),

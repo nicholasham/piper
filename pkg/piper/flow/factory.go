@@ -36,20 +36,14 @@ func TakeWhile(f FilterFunc, attributes ...piper.StageAttribute) *piper.FlowGrap
 	return piper.FlowFrom(OperatorFlow(takeWhile(f), append(attributes, piper.Name("TakeWhileFlow"))...))
 }
 
-func Concat(graphs ...*piper.FlowGraph) piper.FlowGraphFactory {
-	return func(attributes ...piper.StageAttribute) *piper.FlowGraph {
-		return piper.CombineFlows(graphs, piper.ConcatStrategy(), append(attributes, piper.Name("ConcatFlow"))...)
-	}
+func Concat(graphs []*piper.FlowGraph, attributes ...piper.StageAttribute) *piper.FlowGraph {
+	return piper.CombineFlows("ConcatFlow",graphs, piper.ConcatStrategy(), attributes...)
 }
 
-func Merge(graphs ...*piper.FlowGraph) piper.FlowGraphFactory {
-	return func(attributes ...piper.StageAttribute) *piper.FlowGraph {
-		return piper.CombineFlows(graphs, piper.MergeStrategy(), append(attributes, piper.Name("MergeFlow"))...)
-	}
+func Merge(graphs []*piper.FlowGraph, attributes ...piper.StageAttribute) *piper.FlowGraph {
+	return piper.CombineFlows("MergeFlow", graphs, piper.MergeStrategy(), attributes...)
 }
 
-func Interleave(segmentSize int, graphs ...*piper.FlowGraph) piper.FlowGraphFactory {
-	return func(attributes ...piper.StageAttribute) *piper.FlowGraph {
-		return piper.CombineFlows(graphs, piper.InterleaveStrategy(segmentSize), append(attributes, piper.Name("InterleaveFlow"))...)
-	}
+func Interleave(segmentSize int, graphs []*piper.FlowGraph, attributes ...piper.StageAttribute) *piper.FlowGraph  {
+	return piper.CombineFlows("InterleaveFlow", graphs, piper.InterleaveStrategy(segmentSize), attributes...)
 }

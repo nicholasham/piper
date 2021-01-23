@@ -8,15 +8,15 @@ import (
 
 // Range Emit each integer in a stepped range.
 func Range(start int, end int, step int, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return Iterator(iterator.Range(start, end, step), append(attributes, piper.Name("RangeSource"))...)
+	return Iterator("RangeSource", iterator.Range(start, end, step), attributes...)
 }
 
-func Iterator(iterator iterator.Iterator, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return piper.SourceFrom(iteratorSource(iterator, attributes))
+func Iterator(name string, iterator iterator.Iterator, attributes ...piper.StageAttribute) *piper.SourceGraph {
+	return piper.SourceFrom(iteratorSource(name, iterator, attributes))
 }
 
 func List(values []interface{}, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return Iterator(iterator.Slice(values...), append(attributes, piper.Name("ListSource"))...)
+	return Iterator("ListSource", iterator.Slice(values...),attributes...)
 }
 
 func Failed(cause error, attributes ...piper.StageAttribute) *piper.SourceGraph {
@@ -28,29 +28,27 @@ func Empty(attributes ...piper.StageAttribute) *piper.SourceGraph {
 }
 
 func Unfold(state interface{}, f iterator.UnfoldFunc, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return Iterator(iterator.Unfold(state, f), attributes...)
+	return Iterator("UnfoldSource", iterator.Unfold(state, f), attributes...)
 }
 
 func Repeat(value interface{}, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return Unfold(value, func(state interface{}) types.Option {
+	f := func(state interface{}) types.Option {
 		return types.Some(value)
-	}, attributes...)
+	}
+	return Iterator("RepeatSource", iterator.Unfold(value, f), attributes...)
 }
 
-func Concat(graphs ...*piper.SourceGraph) piper.SourceGraphFactory {
-	return func(attributes ...piper.StageAttribute) *piper.SourceGraph {
-		return piper.CombineSources(graphs, piper.ConcatStrategy(), append(attributes, piper.Name("ConcatSource"))...)
-	}
+func Concat(graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph  {
+	return piper.CombineSources("ConcatSource", graphs, piper.ConcatStrategy(), attributes...)
+
 }
 
-func Merge(graphs ...*piper.SourceGraph) piper.SourceGraphFactory {
-	return func(attributes ...piper.StageAttribute) *piper.SourceGraph {
-		return piper.CombineSources(graphs, piper.MergeStrategy(), append(attributes, piper.Name("MergeSource"))...)
-	}
+func Merge(graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph {
+	return piper.CombineSources("MergeSource",graphs, piper.MergeStrategy(), attributes...)
+
 }
 
-func Interleave(segmentSize int, graphs ...*piper.SourceGraph) piper.SourceGraphFactory {
-	return func(attributes ...piper.StageAttribute) *piper.SourceGraph {
-		return piper.CombineSources(graphs, piper.InterleaveStrategy(segmentSize), append(attributes, piper.Name("InterleaveSource"))...)
-	}
+func Interleave(segmentSize int, graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph {
+	return piper.CombineSources("InterleaveSource",graphs, piper.InterleaveStrategy(segmentSize), attributes...)
+
 }

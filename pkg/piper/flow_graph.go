@@ -1,7 +1,5 @@
 package piper
 
-type FlowGraphFactory func(attributes ...StageAttribute) *FlowGraph
-
 type FlowGraph struct {
 	stages []Stage
 	stage  FlowStage

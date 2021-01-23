@@ -34,9 +34,10 @@ func (receiver *fanInFlowStage) Wire(stage SourceStage) {
 	receiver.inlets = append(receiver.inlets, inlet)
 }
 
-func fanInFlow(stages []SourceStage, strategy FanInStrategy, attributes []StageAttribute) *fanInFlowStage {
-	stageAttributes := NewAttributes("FanInFlow", attributes...)
+func fanInFlow( name string, stages []SourceStage, strategy FanInStrategy, attributes []StageAttribute) *fanInFlowStage {
+	stageAttributes := NewAttributes(name, attributes...)
 	flow := fanInFlowStage{
+		attributes: stageAttributes,
 		outlet: NewOutlet(stageAttributes),
 		fanIn:  strategy,
 	}
@@ -48,7 +49,7 @@ func fanInFlow(stages []SourceStage, strategy FanInStrategy, attributes []StageA
 	return &flow
 }
 
-func CombineSources(graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
+func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
 	var stages []SourceStage
 	var otherStages []Stage
 	for _, graph := range graphs {
@@ -57,10 +58,10 @@ func CombineSources(graphs []*SourceGraph, strategy FanInStrategy, attributes ..
 			otherStages = append(otherStages, stage)
 		}
 	}
-	return SourceFrom(fanInFlow(stages, strategy, attributes), removeDuplicates(otherStages)...)
+	return SourceFrom(fanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
 }
 
-func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
+func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
 	var stages []SourceStage
 	var otherStages []Stage
 	for _, graph := range graphs {
@@ -69,7 +70,7 @@ func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy, attributes ...Sta
 			otherStages = append(otherStages, stage)
 		}
 	}
-	return FlowFrom(fanInFlow(stages, strategy, attributes), removeDuplicates(otherStages)...)
+	return FlowFrom(fanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
 }
 
 func ConcatStrategy() FanInStrategy {
