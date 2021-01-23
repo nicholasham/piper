@@ -1,4 +1,4 @@
-package attribute
+package piper
 
 type StageAttributes struct {
 	Name             string
@@ -27,7 +27,7 @@ func Parallelism(value int) StageAttribute {
 	}
 }
 
-func Default(name string, attributes ...StageAttribute) *StageAttributes {
+func NewAttributes(name string, attributes ...StageAttribute) *StageAttributes {
 
 	stageAttributes := &StageAttributes{
 		Name:             name,

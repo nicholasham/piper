@@ -18,16 +18,19 @@ func (r *RunnableGraph) Run(ctx context.Context) Future {
 
 func sourceRunnable(sourceGraph *SourceGraph, sinkGraph *SinkGraph) *RunnableGraph {
 	sinkGraph.stage.WireTo(sourceGraph.stage)
+	combinedStages := combineStages(sourceGraph.stages, sinkGraph.stages)
+
 	return &RunnableGraph{
-		stages: sourceGraph.combineStages(sinkGraph.stages),
+		stages: combinedStages,
 		sink:   sinkGraph.stage,
 	}
 }
 
 func flowRunnable(flowGraph *FlowGraph, sinkGraph *SinkGraph) *RunnableGraph {
 	sinkGraph.stage.WireTo(flowGraph.stage)
+	combinedStages := combineStages(flowGraph.stages, sinkGraph.stages)
 	return &RunnableGraph{
-		stages: flowGraph.combineStages(sinkGraph.stages),
+		stages: combinedStages,
 		sink:   sinkGraph.stage,
 	}
 }

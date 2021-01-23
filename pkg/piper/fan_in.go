@@ -2,20 +2,16 @@ package piper
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 	"sync"
-
 )
 
 // verify fanInFlowStage implements piper.FlowStage interface
 var _ FlowStage = (*fanInFlowStage)(nil)
 
-type FanInStrategyFactory func(option ...Option) FanInStrategy
-
 type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
 
 type fanInFlowStage struct {
-	attributes *attribute.StageAttributes
+	attributes *StageAttributes
 	inlets     []*Inlet
 	outlet     *Outlet
 	fanIn      FanInStrategy
@@ -38,8 +34,8 @@ func (receiver *fanInFlowStage) Wire(stage SourceStage) {
 	receiver.inlets = append(receiver.inlets, inlet)
 }
 
-func fanInFlow(stages []SourceStage, strategy FanInStrategy, attributes []attribute.StageAttribute) *fanInFlowStage {
-	stageAttributes := attribute.Default("FanInFlow", attributes...)
+func fanInFlow(stages []SourceStage, strategy FanInStrategy, attributes []StageAttribute) *fanInFlowStage {
+	stageAttributes := NewAttributes("FanInFlow", attributes...)
 	flow := fanInFlowStage{
 		outlet: NewOutlet(stageAttributes),
 		fanIn:  strategy,
@@ -52,8 +48,8 @@ func fanInFlow(stages []SourceStage, strategy FanInStrategy, attributes []attrib
 	return &flow
 }
 
-func CombineSources(graphs []*SourceGraph) func(strategy FanInStrategy, attributes ...attribute.StageAttribute) *SourceGraph {
-	return func(strategy FanInStrategy, attributes ...attribute.StageAttribute) *SourceGraph {
+func CombineSources(graphs []*SourceGraph) func(strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
+	return func(strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
 		var stages []SourceStage
 		var otherStages []Stage
 		for _, graph := range graphs {
@@ -66,8 +62,8 @@ func CombineSources(graphs []*SourceGraph) func(strategy FanInStrategy, attribut
 	}
 }
 
-func CombineFlows(graphs []*FlowGraph) func(strategy FanInStrategy, attributes ...attribute.StageAttribute) *FlowGraph {
-	return func(strategy FanInStrategy, attributes ...attribute.StageAttribute) *FlowGraph {
+func CombineFlows(graphs []*FlowGraph) func(strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
+	return func(strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
 		var stages []SourceStage
 		var otherStages []Stage
 		for _, graph := range graphs {

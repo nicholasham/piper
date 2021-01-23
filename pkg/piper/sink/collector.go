@@ -3,7 +3,6 @@ package sink
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/piper"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 )
 
 type Collector interface {
@@ -48,7 +47,7 @@ var _ piper.SinkStage = (*collectorSinkStage)(nil)
 
 type collectorSinkStage struct {
 	collector  Collector
-	attributes *attribute.StageAttributes
+	attributes *piper.StageAttributes
 	inlet      *piper.Inlet
 	promise    *piper.Promise
 }
@@ -103,8 +102,8 @@ func (c *collectorSinkStage) Result() piper.Future {
 	return c.promise
 }
 
-func CollectorSink(collector Collector, attributes []attribute.StageAttribute) piper.SinkStage {
-	stageAttributes := attribute.Default("CollectorSink", attributes...)
+func CollectorSink(collector Collector, attributes []piper.StageAttribute) piper.SinkStage {
+	stageAttributes := piper.NewAttributes("CollectorSink", attributes...)
 	return &collectorSinkStage{
 		collector:  collector,
 		attributes: stageAttributes,

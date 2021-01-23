@@ -2,10 +2,6 @@ package piper
 
 import "context"
 
-type RunSink func(ctx context.Context, inlet Inlet, result Promise)
-type RunSource func(ctx context.Context, outlet Outlet)
-type RunFlow func(ctx context.Context, inlet Inlet, outlet Outlet)
-
 type Stage interface {
 	Name() string
 	Run(ctx context.Context)
@@ -21,8 +17,6 @@ type SinkStage interface {
 type Future interface {
 	Await() (interface{}, error)
 }
-
-type SourceStageFactory func(options ...Option) SourceStage
 
 type SourceStage interface {
 	Stage

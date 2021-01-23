@@ -2,11 +2,8 @@ package flow
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/piper"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
-
 	"github.com/gammazero/workerpool"
-
+	"github.com/nicholasham/piper/pkg/piper"
 )
 
 // verify operatorFlowStage implements piper.FlowStage interface
@@ -65,7 +62,7 @@ type SendElement func(element piper.Element)
 type OnPush func(element piper.Element, actions OperatorActions)
 
 type operatorFlowStage struct {
-	attributes *attribute.StageAttributes
+	attributes *piper.StageAttributes
 	inlet      *piper.Inlet
 	outlet     *piper.Outlet
 	operator   Operator
@@ -136,12 +133,12 @@ func (receiver *operatorFlowStage) Wire(stage piper.SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func OperatorFlow(operator Operator, attributes ...attribute.StageAttribute) piper.FlowStage {
+func OperatorFlow(operator Operator, attributes ...piper.StageAttribute) piper.FlowStage {
 	if !operator.SupportsParallelism() {
-		attributes = append(attributes, attribute.Parallelism(1))
+		attributes = append(attributes, piper.Parallelism(1))
 	}
 
-	stageAttributes := attribute.Default("HeadSink", attributes...)
+	stageAttributes := piper.NewAttributes("HeadSink", attributes...)
 
 	return &operatorFlowStage{
 		attributes: stageAttributes,

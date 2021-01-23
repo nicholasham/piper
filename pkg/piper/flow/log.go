@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/gammazero/workerpool"
 	"github.com/nicholasham/piper/pkg/piper"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 )
 
 // verify logFlowStage implements piper.FlowStage interface
@@ -12,7 +11,7 @@ var _ piper.FlowStage = (*logFlowStage)(nil)
 
 type logFlowStage struct {
 	name       string
-	attributes *attribute.StageAttributes
+	attributes *piper.StageAttributes
 	inlet      *piper.Inlet
 	outlet     *piper.Outlet
 }
@@ -22,7 +21,7 @@ func (l *logFlowStage) Name() string {
 }
 
 func (l *logFlowStage) Run(ctx context.Context) {
-	go func(ctx context.Context, parallelism int, logger attribute.Logger, inlet *piper.Inlet, outlet *piper.Outlet) {
+	go func(ctx context.Context, parallelism int, logger piper.Logger, inlet *piper.Inlet, outlet *piper.Outlet) {
 		wp := workerpool.New(parallelism)
 		defer func() {
 			outlet.Close()
@@ -68,8 +67,8 @@ func (l *logFlowStage) Wire(stage piper.SourceStage) {
 	l.inlet.WireTo(stage.Outlet())
 }
 
-func logFlow(name string, attributes ...attribute.StageAttribute) piper.FlowStage {
-	stageAttributes := attribute.Default("HeadSink", attributes...)
+func logFlow(name string, attributes ...piper.StageAttribute) piper.FlowStage {
+	stageAttributes := piper.NewAttributes("HeadSink", attributes...)
 	return &logFlowStage{
 		name:       name,
 		attributes: stageAttributes,

@@ -3,7 +3,6 @@ package source
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/piper"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 	"github.com/nicholasham/piper/pkg/types/iterator"
 )
 
@@ -11,7 +10,7 @@ import (
 var _ piper.SourceStage = (*iteratorSourceStage)(nil)
 
 type iteratorSourceStage struct {
-	attributes *attribute.StageAttributes
+	attributes *piper.StageAttributes
 	outlet     *piper.Outlet
 	iterator   iterator.Iterator
 }
@@ -47,8 +46,8 @@ func (receiver *iteratorSourceStage) Outlet() *piper.Outlet {
 	return receiver.outlet
 }
 
-func iteratorSource(iterator iterator.Iterator, attributes []attribute.StageAttribute) piper.SourceStage {
-	stageAttributes := attribute.Default("IteratorSource", attributes...)
+func iteratorSource(iterator iterator.Iterator, attributes []piper.StageAttribute) piper.SourceStage {
+	stageAttributes := piper.NewAttributes("IteratorSource", attributes...)
 	return &iteratorSourceStage{
 		attributes: stageAttributes,
 		outlet:     piper.NewOutlet(stageAttributes),

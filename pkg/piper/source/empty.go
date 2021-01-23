@@ -3,14 +3,13 @@ package source
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/piper"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 )
 
 // verify emptySourceStage implements SourceStage interface
 var _ piper.SourceStage = (*emptySourceStage)(nil)
 
 type emptySourceStage struct {
-	attributes *attribute.StageAttributes
+	attributes *piper.StageAttributes
 	outlet     *piper.Outlet
 }
 
@@ -29,8 +28,8 @@ func (receiver *emptySourceStage) Outlet() *piper.Outlet {
 	return receiver.outlet
 }
 
-func emptySource(attributes []attribute.StageAttribute) piper.SourceStage {
-	stageAttributes := attribute.Default("FailedSource", attributes...)
+func emptySource(attributes []piper.StageAttribute) piper.SourceStage {
+	stageAttributes := piper.NewAttributes("FailedSource", attributes...)
 	return &emptySourceStage{
 		attributes: stageAttributes,
 		outlet:     piper.NewOutlet(stageAttributes)}

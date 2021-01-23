@@ -1,9 +1,7 @@
 package piper
 
 import (
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 	"sync"
-
 )
 
 type Inlet struct {
@@ -43,7 +41,7 @@ func NewInletOld(name string) *Inlet {
 	}
 }
 
-func NewInlet(stageAttributes *attribute.StageAttributes) *Inlet {
+func NewInlet(stageAttributes *StageAttributes) *Inlet {
 	return &Inlet{
 		name: stageAttributes.Name + ".in",
 		in:   make(chan Element),

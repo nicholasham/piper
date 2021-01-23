@@ -2,14 +2,13 @@ package piper
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 )
 
 // verify alsoToFlowStage implements FlowStage interface
 var _ FlowStage = (*alsoToFlowStage)(nil)
 
 type alsoToFlowStage struct {
-	attributes      *attribute.StageAttributes
+	attributes      *StageAttributes
 	inlet           *Inlet
 	defaultOutlet   *Outlet
 	diversionOutlet *Outlet
@@ -57,13 +56,13 @@ func (receiver *alsoToFlowStage) Wire(stage SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func alsoTo(source SourceStage, sink SinkStage, attributes []attribute.StageAttribute) FlowStage {
-	stageAttributes := attribute.Default("AlsoToFlow", attributes...)
+func alsoTo(source SourceStage, sink SinkStage, attributes []StageAttribute) FlowStage {
+	stageAttributes := NewAttributes("AlsoToFlow", attributes...)
 	flow := &alsoToFlowStage{
 		attributes:      stageAttributes,
 		inlet:           NewInlet(stageAttributes),
 		defaultOutlet:   NewOutlet(stageAttributes),
-		diversionOutlet: NewOutlet(attribute.Default(stageAttributes.Name + "-Also")),
+		diversionOutlet: NewOutlet(NewAttributes(stageAttributes.Name + "-Also")),
 	}
 	flow.Wire(source)
 	sink.Inlet().WireTo(flow.diversionOutlet)

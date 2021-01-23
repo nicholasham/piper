@@ -2,7 +2,6 @@ package piper
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 )
 
 // verify diversionFlowStage implements piper.FlowStage interface
@@ -11,7 +10,7 @@ var _ FlowStage = (*diversionFlowStage)(nil)
 type PredicateFunc func(element Element) bool
 
 type diversionFlowStage struct {
-	attributes      *attribute.StageAttributes
+	attributes      *StageAttributes
 	inlet           *Inlet
 	defaultOutlet   *Outlet
 	diversionOutlet *Outlet
@@ -62,13 +61,13 @@ func (receiver *diversionFlowStage) Wire(stage SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, attributes []attribute.StageAttribute) FlowStage {
-	stageAttributes := attribute.Default("DiversionFlow", attributes...)
+func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, attributes []StageAttribute) FlowStage {
+	stageAttributes := NewAttributes("DiversionFlow", attributes...)
 	flow := &diversionFlowStage{
 		attributes:      stageAttributes,
 		inlet:           NewInlet(stageAttributes),
 		defaultOutlet:   NewOutlet(stageAttributes),
-		diversionOutlet: NewOutlet(attribute.Default(stageAttributes.Name + "-Diversion")),
+		diversionOutlet: NewOutlet(NewAttributes(stageAttributes.Name + "-Diversion")),
 		f:               predicate,
 	}
 	flow.Wire(source)

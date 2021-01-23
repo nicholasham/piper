@@ -3,14 +3,13 @@ package source
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/piper"
-	"github.com/nicholasham/piper/pkg/piper/attribute"
 )
 
 // verify failedSourceStage implements SourceStage interface
 var _ piper.SourceStage = (*failedSourceStage)(nil)
 
 type failedSourceStage struct {
-	attributes *attribute.StageAttributes
+	attributes *piper.StageAttributes
 	cause      error
 	outlet     *piper.Outlet
 }
@@ -31,8 +30,8 @@ func (receiver *failedSourceStage) Outlet() *piper.Outlet {
 	return receiver.outlet
 }
 
-func failedSource(cause error, attributes []attribute.StageAttribute) piper.SourceStage {
-	stageAttributes := attribute.Default("FailedSource", attributes...)
+func failedSource(cause error, attributes []piper.StageAttribute) piper.SourceStage {
+	stageAttributes := piper.NewAttributes("FailedSource", attributes...)
 	return &failedSourceStage{
 		attributes: stageAttributes,
 		cause:      cause,
