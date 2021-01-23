@@ -38,18 +38,18 @@ func TakeWhile(f FilterFunc, attributes ...piper.StageAttribute) *piper.FlowGrap
 
 func Concat(graphs ...*piper.FlowGraph) piper.FlowGraphFactory {
 	return func(attributes ...piper.StageAttribute) *piper.FlowGraph {
-		return piper.CombineFlows(graphs)(piper.ConcatStrategy(), append(attributes, piper.Name("ConcatFlow"))...)
+		return piper.CombineFlows(graphs, piper.ConcatStrategy(), append(attributes, piper.Name("ConcatFlow"))...)
 	}
 }
 
 func Merge(graphs ...*piper.FlowGraph) piper.FlowGraphFactory {
 	return func(attributes ...piper.StageAttribute) *piper.FlowGraph {
-		return piper.CombineFlows(graphs)(piper.MergeStrategy(), append(attributes, piper.Name("MergeFlow"))...)
+		return piper.CombineFlows(graphs, piper.MergeStrategy(), append(attributes, piper.Name("MergeFlow"))...)
 	}
 }
 
 func Interleave(segmentSize int, graphs ...*piper.FlowGraph) piper.FlowGraphFactory {
 	return func(attributes ...piper.StageAttribute) *piper.FlowGraph {
-		return piper.CombineFlows(graphs)(piper.InterleaveStrategy(segmentSize), append(attributes, piper.Name("InterleaveFlow"))...)
+		return piper.CombineFlows(graphs, piper.InterleaveStrategy(segmentSize), append(attributes, piper.Name("InterleaveFlow"))...)
 	}
 }

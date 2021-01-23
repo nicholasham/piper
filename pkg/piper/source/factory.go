@@ -39,18 +39,18 @@ func Repeat(value interface{}, attributes ...piper.StageAttribute) *piper.Source
 
 func Concat(graphs ...*piper.SourceGraph) piper.SourceGraphFactory {
 	return func(attributes ...piper.StageAttribute) *piper.SourceGraph {
-		return piper.CombineSources(graphs)(piper.ConcatStrategy(), append(attributes, piper.Name("ConcatSource"))...)
+		return piper.CombineSources(graphs, piper.ConcatStrategy(), append(attributes, piper.Name("ConcatSource"))...)
 	}
 }
 
 func Merge(graphs ...*piper.SourceGraph) piper.SourceGraphFactory {
 	return func(attributes ...piper.StageAttribute) *piper.SourceGraph {
-		return piper.CombineSources(graphs)(piper.MergeStrategy(), append(attributes, piper.Name("MergeSource"))...)
+		return piper.CombineSources(graphs, piper.MergeStrategy(), append(attributes, piper.Name("MergeSource"))...)
 	}
 }
 
 func Interleave(segmentSize int, graphs ...*piper.SourceGraph) piper.SourceGraphFactory {
 	return func(attributes ...piper.StageAttribute) *piper.SourceGraph {
-		return piper.CombineSources(graphs)(piper.InterleaveStrategy(segmentSize), append(attributes, piper.Name("InterleaveSource"))...)
+		return piper.CombineSources(graphs, piper.InterleaveStrategy(segmentSize), append(attributes, piper.Name("InterleaveSource"))...)
 	}
 }

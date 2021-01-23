@@ -48,32 +48,28 @@ func fanInFlow(stages []SourceStage, strategy FanInStrategy, attributes []StageA
 	return &flow
 }
 
-func CombineSources(graphs []*SourceGraph) func(strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
-	return func(strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
-		var stages []SourceStage
-		var otherStages []Stage
-		for _, graph := range graphs {
-			stages = append(stages, graph.stage)
-			for _, stage := range graph.stages {
-				otherStages = append(otherStages, stage)
-			}
+func CombineSources(graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
+	var stages []SourceStage
+	var otherStages []Stage
+	for _, graph := range graphs {
+		stages = append(stages, graph.stage)
+		for _, stage := range graph.stages {
+			otherStages = append(otherStages, stage)
 		}
-		return SourceFrom(fanInFlow(stages, strategy, attributes), removeDuplicates(otherStages)...)
 	}
+	return SourceFrom(fanInFlow(stages, strategy, attributes), removeDuplicates(otherStages)...)
 }
 
-func CombineFlows(graphs []*FlowGraph) func(strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
-	return func(strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
-		var stages []SourceStage
-		var otherStages []Stage
-		for _, graph := range graphs {
-			stages = append(stages, graph.stage)
-			for _, stage := range graph.stages {
-				otherStages = append(otherStages, stage)
-			}
+func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
+	var stages []SourceStage
+	var otherStages []Stage
+	for _, graph := range graphs {
+		stages = append(stages, graph.stage)
+		for _, stage := range graph.stages {
+			otherStages = append(otherStages, stage)
 		}
-		return FlowFrom(fanInFlow(stages, strategy, attributes), removeDuplicates(otherStages)...)
 	}
+	return FlowFrom(fanInFlow(stages, strategy, attributes), removeDuplicates(otherStages)...)
 }
 
 func ConcatStrategy() FanInStrategy {
