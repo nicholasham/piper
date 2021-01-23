@@ -1,13 +1,13 @@
 package flow
 
 import (
-	"github.com/nicholasham/piper/pkg/piper"
 	"sync"
 
+	"github.com/nicholasham/piper/pkg/piper"
 )
 
-// verify foldOperator implements Operator interface
-var _ Operator = (*foldOperator)(nil)
+// verify foldOperator implements OperatorLogic interface
+var _ OperatorLogic = (*foldOperator)(nil)
 
 type AggregateFunc func(acc interface{}, out interface{}) (interface{}, error)
 
@@ -38,7 +38,7 @@ func (receiver *foldOperator) SupportsParallelism() bool {
 	return true
 }
 
-func fold(zero interface{}, f AggregateFunc) Operator {
+func fold(zero interface{}, f AggregateFunc) OperatorLogic {
 	return &foldOperator{
 		current: zero,
 		f:       f,

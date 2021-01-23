@@ -34,12 +34,12 @@ func (receiver *fanInFlowStage) Wire(stage SourceStage) {
 	receiver.inlets = append(receiver.inlets, inlet)
 }
 
-func fanInFlow( name string, stages []SourceStage, strategy FanInStrategy, attributes []StageAttribute) *fanInFlowStage {
+func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attributes []StageAttribute) *fanInFlowStage {
 	stageAttributes := NewAttributes(name, attributes...)
 	flow := fanInFlowStage{
 		attributes: stageAttributes,
-		outlet: NewOutlet(stageAttributes),
-		fanIn:  strategy,
+		outlet:     NewOutlet(stageAttributes),
+		fanIn:      strategy,
 	}
 
 	for _, stage := range stages {
@@ -58,7 +58,7 @@ func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, 
 			otherStages = append(otherStages, stage)
 		}
 	}
-	return SourceFrom(fanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
+	return SourceFrom(FanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
 }
 
 func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
@@ -70,7 +70,7 @@ func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attr
 			otherStages = append(otherStages, stage)
 		}
 	}
-	return FlowFrom(fanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
+	return FlowFrom(FanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
 }
 
 func ConcatStrategy() FanInStrategy {

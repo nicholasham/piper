@@ -2,7 +2,6 @@ package iterator
 
 import "fmt"
 
-
 type Iterator interface {
 	HasNext() bool
 	Next() (interface{}, error)
@@ -11,7 +10,6 @@ type Iterator interface {
 
 var EndOfError error = fmt.Errorf("iterator reached end")
 var EmptyError error = fmt.Errorf("iterator empty")
-
 
 func toList(iterator Iterator) []interface{} {
 	var values []interface{}
@@ -22,4 +20,3 @@ func toList(iterator Iterator) []interface{} {
 	}
 	return values
 }
-

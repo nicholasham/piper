@@ -6,7 +6,6 @@ var _ Iterator = (*emptyIterator)(nil)
 type emptyIterator struct {
 }
 
-
 func (e *emptyIterator) ToList() []interface{} {
 	return toList(e)
 }

@@ -2,14 +2,14 @@ package sink
 
 import (
 	"context"
+	"testing"
+
 	"github.com/nicholasham/piper/pkg/piper/source"
 	"github.com/nicholasham/piper/pkg/types/iterator"
-	"testing"
 
 	"go.uber.org/goleak"
 
 	"github.com/stretchr/testify/assert"
-
 )
 
 func TestSliceSink(t *testing.T) {

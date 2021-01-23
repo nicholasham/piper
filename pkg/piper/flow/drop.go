@@ -1,13 +1,13 @@
 package flow
 
 import (
-	"github.com/nicholasham/piper/pkg/piper"
 	"sync/atomic"
 
+	"github.com/nicholasham/piper/pkg/piper"
 )
 
-// verify dropOperator implements Operator interface
-var _ Operator = (*dropOperator)(nil)
+// verify dropOperator implements OperatorLogic interface
+var _ OperatorLogic = (*dropOperator)(nil)
 
 type dropOperator struct {
 	op     uint64
@@ -34,6 +34,6 @@ func (receiver *dropOperator) SupportsParallelism() bool {
 	return true
 }
 
-func drop(number int) Operator {
+func drop(number int) OperatorLogic {
 	return &dropOperator{number: number}
 }

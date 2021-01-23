@@ -2,6 +2,7 @@ package flow
 
 import (
 	"context"
+
 	"github.com/gammazero/workerpool"
 	"github.com/nicholasham/piper/pkg/piper"
 )
@@ -9,7 +10,7 @@ import (
 // verify operatorFlowStage implements piper.FlowStage interface
 var _ piper.FlowStage = (*operatorFlowStage)(nil)
 
-type Operator interface {
+type OperatorLogic interface {
 	SupportsParallelism() bool
 	Start(actions OperatorActions)
 	Apply(element piper.Element, actions OperatorActions)
@@ -65,7 +66,7 @@ type operatorFlowStage struct {
 	attributes *piper.StageAttributes
 	inlet      *piper.Inlet
 	outlet     *piper.Outlet
-	operator   Operator
+	operator   OperatorLogic
 }
 
 func (receiver *operatorFlowStage) Name() string {
@@ -73,7 +74,7 @@ func (receiver *operatorFlowStage) Name() string {
 }
 
 func (receiver *operatorFlowStage) Run(ctx context.Context) {
-	go func(ctx context.Context, parallelism int, operator Operator, inlet *piper.Inlet, outlet *piper.Outlet) {
+	go func(ctx context.Context, parallelism int, operator OperatorLogic, inlet *piper.Inlet, outlet *piper.Outlet) {
 		wp := workerpool.New(parallelism)
 		defer func() {
 			outlet.Close()
@@ -133,12 +134,12 @@ func (receiver *operatorFlowStage) Wire(stage piper.SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func OperatorFlow(operator Operator, attributes ...piper.StageAttribute) piper.FlowStage {
+func OperatorFlow(name string, operator OperatorLogic, attributes ...piper.StageAttribute) piper.FlowStage {
 	if !operator.SupportsParallelism() {
 		attributes = append(attributes, piper.Parallelism(1))
 	}
 
-	stageAttributes := piper.NewAttributes("HeadSink", attributes...)
+	stageAttributes := piper.NewAttributes(name, attributes...)
 
 	return &operatorFlowStage{
 		attributes: stageAttributes,

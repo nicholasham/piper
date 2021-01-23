@@ -15,7 +15,7 @@ func (receiver *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Futur
 
 func (receiver *SourceGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageAttribute) *SourceGraph {
 	diversionStage := diversion(receiver.stage, that.stage, predicate, attributes)
-	combinedStages :=  combineStages(receiver.stages, that.stages)
+	combinedStages := combineStages(receiver.stages, that.stages)
 	return SourceFrom(diversionStage, combinedStages...)
 }
 
@@ -24,8 +24,6 @@ func (receiver *SourceGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribut
 	combinedStages := combineStages(receiver.stages, that.stages)
 	return SourceFrom(diversionStage, combinedStages...)
 }
-
-
 
 // Transform this FlowStage by appending the given processing steps.
 func (receiver *SourceGraph) Via(that *FlowGraph) *FlowGraph {
@@ -41,5 +39,5 @@ func (receiver *SourceGraph) To(that *SinkGraph) *RunnableGraph {
 func SourceFrom(sourceStage SourceStage, stages ...Stage) *SourceGraph {
 	return &SourceGraph{
 		stage:  sourceStage,
-		stages: append(stages, sourceStage)}
+		stages: removeDuplicates(append(stages, sourceStage))}
 }

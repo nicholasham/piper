@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestOptional(t *testing.T) {
@@ -30,7 +31,6 @@ func TestOptional(t *testing.T) {
 		assert.False(t, None().IsSome())
 	})
 
-
 	t.Run("Get returns value when has some value", func(t *testing.T) {
 		expected := 100
 		actual, err := Some(100).Get()
@@ -46,8 +46,6 @@ func TestOptional(t *testing.T) {
 		assert.Error(t, err)
 		assert.Equal(t, EmptyError, err)
 	})
-
-
 
 	t.Run("GetOrElse returns value when has some value", func(t *testing.T) {
 		assert.Equal(t, 100, Some(100).GetOrElse(200))
@@ -82,7 +80,7 @@ func TestOptional(t *testing.T) {
 
 	t.Run("Map returns wrapped mapped value for something", func(t *testing.T) {
 		expected := Some(2)
-		actual :=  Some(1).Map(add(1))
+		actual := Some(1).Map(add(1))
 		assert.Equal(t, expected, actual)
 	})
 
@@ -94,7 +92,7 @@ func TestOptional(t *testing.T) {
 
 	t.Run("FlatMap returns mapped something", func(t *testing.T) {
 		expected := Some(2)
-		actual :=  Some(1).FlatMap(func(value T) Option {
+		actual := Some(1).FlatMap(func(value T) Option {
 			return Some(2)
 		})
 		assert.Equal(t, expected, actual)
@@ -108,10 +106,9 @@ func TestOptional(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	})
 
-
 	t.Run("Filter returns none when none", func(t *testing.T) {
 		expected := None()
-		actual :=  expected.Filter(isEqualTo(100))
+		actual := expected.Filter(isEqualTo(100))
 		assert.Equal(t, expected, actual)
 	})
 

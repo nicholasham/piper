@@ -4,8 +4,8 @@ import (
 	"github.com/nicholasham/piper/pkg/piper"
 )
 
-// verify takeWhileOperator implements Operator interface
-var _ Operator = (*takeWhileOperator)(nil)
+// verify takeWhileOperator implements OperatorLogic interface
+var _ OperatorLogic = (*takeWhileOperator)(nil)
 
 type takeWhileOperator struct {
 	f FilterFunc
@@ -32,6 +32,6 @@ func (receiver *takeWhileOperator) SupportsParallelism() bool {
 	return true
 }
 
-func takeWhile(f FilterFunc) Operator {
+func takeWhile(f FilterFunc) OperatorLogic {
 	return &takeWhileOperator{f: f}
 }

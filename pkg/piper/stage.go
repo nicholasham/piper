@@ -22,4 +22,3 @@ func combineStages(upstreamStages []Stage, downstreamStages []Stage) []Stage {
 	}
 	return removeDuplicates(result)
 }
-

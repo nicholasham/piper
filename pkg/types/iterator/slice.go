@@ -5,7 +5,7 @@ var _ Iterator = (*sliceIterator)(nil)
 
 type sliceIterator struct {
 	current int
-	values []interface{}
+	values  []interface{}
 }
 
 func (s *sliceIterator) ToList() []interface{} {

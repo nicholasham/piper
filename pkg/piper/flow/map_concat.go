@@ -6,8 +6,8 @@ import (
 
 type MapConcatFunc func(value interface{}) ([]interface{}, error)
 
-// verify mapConcatOperator implements Operator interface
-var _ Operator = (*mapConcatOperator)(nil)
+// verify mapConcatOperator implements OperatorLogic interface
+var _ OperatorLogic = (*mapConcatOperator)(nil)
 
 type mapConcatOperator struct {
 	f MapConcatFunc
@@ -39,7 +39,7 @@ func (m *mapConcatOperator) End(actions OperatorActions) {
 
 }
 
-func mapConcat(f MapConcatFunc) Operator {
+func mapConcat(f MapConcatFunc) OperatorLogic {
 	return &mapConcatOperator{
 		f: f,
 	}

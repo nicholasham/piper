@@ -1,12 +1,13 @@
 package flow
 
 import (
-	"github.com/nicholasham/piper/pkg/piper"
 	"sync"
+
+	"github.com/nicholasham/piper/pkg/piper"
 )
 
-// verify scanOperator implements Operator interface
-var _ Operator = (*scanOperator)(nil)
+// verify scanOperator implements OperatorLogic interface
+var _ OperatorLogic = (*scanOperator)(nil)
 
 type scanOperator struct {
 	current interface{}
@@ -36,7 +37,7 @@ func (receiver *scanOperator) Apply(element piper.Element, actions OperatorActio
 func (receiver *scanOperator) End(actions OperatorActions) {
 }
 
-func scan(zero interface{}, f AggregateFunc) Operator {
+func scan(zero interface{}, f AggregateFunc) OperatorLogic {
 	return &scanOperator{
 		current: zero,
 		f:       f,

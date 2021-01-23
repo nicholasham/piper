@@ -6,8 +6,8 @@ import (
 	"github.com/nicholasham/piper/pkg/piper"
 )
 
-// verify takeOperator implements Operator interface
-var _ Operator = (*takeOperator)(nil)
+// verify takeOperator implements OperatorLogic interface
+var _ OperatorLogic = (*takeOperator)(nil)
 
 type takeOperator struct {
 	op     uint64
@@ -36,6 +36,6 @@ func (receiver *takeOperator) SupportsParallelism() bool {
 	return true
 }
 
-func take(number int) Operator {
+func take(number int) OperatorLogic {
 	return &takeOperator{number: number}
 }

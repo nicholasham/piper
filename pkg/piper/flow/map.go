@@ -6,8 +6,8 @@ import (
 
 type MapFunc func(value interface{}) (interface{}, error)
 
-// verify mapOperator implements Operator interface
-var _ Operator = (*mapOperator)(nil)
+// verify mapOperator implements OperatorLogic interface
+var _ OperatorLogic = (*mapOperator)(nil)
 
 type mapOperator struct {
 	f MapFunc
@@ -32,7 +32,7 @@ func (m *mapOperator) Apply(element piper.Element, actions OperatorActions) {
 func (m *mapOperator) End(actions OperatorActions) {
 }
 
-func mapOp(f MapFunc) Operator {
+func mapOp(f MapFunc) OperatorLogic {
 	return &mapOperator{
 		f: f,
 	}

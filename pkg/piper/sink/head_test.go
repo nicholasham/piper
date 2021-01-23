@@ -3,8 +3,9 @@ package sink
 import (
 	"context"
 	"fmt"
-	"github.com/nicholasham/piper/pkg/piper/source"
 	"testing"
+
+	"github.com/nicholasham/piper/pkg/piper/source"
 
 	"go.uber.org/goleak"
 

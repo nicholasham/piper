@@ -6,8 +6,8 @@ import (
 
 type FilterFunc func(value interface{}) bool
 
-// verify filterOperator implements Operator interface
-var _ Operator = (*filterOperator)(nil)
+// verify filterOperator implements OperatorLogic interface
+var _ OperatorLogic = (*filterOperator)(nil)
 
 type filterOperator struct {
 	f FilterFunc
@@ -31,7 +31,7 @@ func (m *filterOperator) Apply(element piper.Element, actions OperatorActions) {
 func (m *filterOperator) End(actions OperatorActions) {
 }
 
-func filter(f FilterFunc) Operator {
+func filter(f FilterFunc) OperatorLogic {
 	return &filterOperator{
 		f: f,
 	}

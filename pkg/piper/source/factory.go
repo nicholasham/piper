@@ -16,7 +16,7 @@ func Iterator(name string, iterator iterator.Iterator, attributes ...piper.Stage
 }
 
 func List(values []interface{}, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return Iterator("ListSource", iterator.Slice(values...),attributes...)
+	return Iterator("ListSource", iterator.Slice(values...), attributes...)
 }
 
 func Failed(cause error, attributes ...piper.StageAttribute) *piper.SourceGraph {
@@ -38,17 +38,17 @@ func Repeat(value interface{}, attributes ...piper.StageAttribute) *piper.Source
 	return Iterator("RepeatSource", iterator.Unfold(value, f), attributes...)
 }
 
-func Concat(graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph  {
+func Concat(graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph {
 	return piper.CombineSources("ConcatSource", graphs, piper.ConcatStrategy(), attributes...)
 
 }
 
 func Merge(graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return piper.CombineSources("MergeSource",graphs, piper.MergeStrategy(), attributes...)
+	return piper.CombineSources("MergeSource", graphs, piper.MergeStrategy(), attributes...)
 
 }
 
 func Interleave(segmentSize int, graphs []*piper.SourceGraph, attributes ...piper.StageAttribute) *piper.SourceGraph {
-	return piper.CombineSources("InterleaveSource",graphs, piper.InterleaveStrategy(segmentSize), attributes...)
+	return piper.CombineSources("InterleaveSource", graphs, piper.InterleaveStrategy(segmentSize), attributes...)
 
 }

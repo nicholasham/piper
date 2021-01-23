@@ -27,7 +27,6 @@ func (receiver *FlowGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribute)
 	return FlowFrom(diversionStage, combinedStages...)
 }
 
-
 func FlowFrom(stage FlowStage, stages ...Stage) *FlowGraph {
 	return &FlowGraph{
 		stages: append(stages, stage),

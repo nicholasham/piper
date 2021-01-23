@@ -3,6 +3,7 @@ package sink
 import (
 	"context"
 	"fmt"
+
 	"github.com/nicholasham/piper/pkg/piper"
 )
 
