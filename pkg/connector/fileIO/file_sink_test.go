@@ -1,10 +1,10 @@
-package io
+package fileIO
 
 import (
 	"context"
 	"testing"
 
-	"github.com/nicholasham/piper/pkg/connector/io/testfs"
+	"github.com/nicholasham/piper/pkg/connector/fileIO/testfs"
 	"github.com/nicholasham/piper/pkg/stream"
 	"github.com/nicholasham/piper/pkg/stream/flow"
 	"github.com/nicholasham/piper/pkg/stream/source"
@@ -25,7 +25,7 @@ func TestFileSink(t *testing.T) {
 		result := source.
 			List(expectedLines).
 			Via(flow.Map(ByteString)).
-			RunWith(context.Background(), Sink(targetFile, Create))
+			RunWith(context.Background(), ToPath(targetFile, Create))
 
 		value, err := result.Await()
 

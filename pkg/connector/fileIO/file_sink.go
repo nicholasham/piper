@@ -1,4 +1,4 @@
-package io
+package fileIO
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func (f *fileCollector) End(ctx context.Context, actions sink.CollectActions) {
 	f.file.Close()
 }
 
-func Sink(filePath string, factory FileFactory) *stream.SinkGraph {
+func ToPath(filePath string, factory FileFactory) *stream.SinkGraph {
 	return sink.Collector("FileSink",
 		&fileCollector{
 			filePath: filePath,
