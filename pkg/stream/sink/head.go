@@ -6,8 +6,8 @@ import (
 	"github.com/nicholasham/piper/pkg/stream"
 )
 
-// verify headCollector implements Collector interface
-var _ Collector = (*headCollector)(nil)
+// verify headCollector implements CollectorLogic interface
+var _ CollectorLogic = (*headCollector)(nil)
 
 type headCollector struct {
 }
@@ -24,6 +24,6 @@ func (h *headCollector) Collect(ctx context.Context, element stream.Element, act
 func (h *headCollector) End(ctx context.Context, actions CollectActions) {
 }
 
-func head() Collector {
+func head() CollectorLogic {
 	return &headCollector{}
 }

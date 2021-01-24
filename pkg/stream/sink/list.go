@@ -6,8 +6,8 @@ import (
 	"github.com/nicholasham/piper/pkg/stream"
 )
 
-// verify listCollector implements Collector interface
-var _ Collector = (*listCollector)(nil)
+// verify listCollector implements CollectorLogic interface
+var _ CollectorLogic = (*listCollector)(nil)
 
 type listCollector struct {
 	buffer stream.ConcurrentBuffer
@@ -27,7 +27,7 @@ func (l *listCollector) End(ctx context.Context, actions CollectActions) {
 	actions.CompleteStage(l.buffer.Result())
 }
 
-func list() Collector {
+func list() CollectorLogic {
 	return &listCollector{
 		buffer: stream.NewConcurrentBuffer(),
 	}

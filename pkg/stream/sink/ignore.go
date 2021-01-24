@@ -9,8 +9,8 @@ import (
 
 var Ignored error = fmt.Errorf("output ignored")
 
-// verify ignoredCollector implements Collector interface
-var _ Collector = (*ignoredCollector)(nil)
+// verify ignoredCollector implements CollectorLogic interface
+var _ CollectorLogic = (*ignoredCollector)(nil)
 
 type ignoredCollector struct {
 }
@@ -25,6 +25,6 @@ func (h *ignoredCollector) Collect(ctx context.Context, element stream.Element, 
 func (h *ignoredCollector) End(ctx context.Context, actions CollectActions) {
 }
 
-func ignore() Collector {
+func ignore() CollectorLogic {
 	return &headCollector{}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/nicholasham/piper/pkg/stream"
 )
 
-type Collector interface {
+type CollectorLogic interface {
 	Start(ctx context.Context, actions CollectActions)
 	Collect(ctx context.Context, element stream.Element, actions CollectActions)
 	End(ctx context.Context, actions CollectActions)
@@ -47,7 +47,7 @@ func (c *collectActions) CompleteStage(value interface{}) {
 var _ stream.SinkStage = (*collectorSinkStage)(nil)
 
 type collectorSinkStage struct {
-	collector  Collector
+	collector  CollectorLogic
 	attributes *stream.StageAttributes
 	inlet      *stream.Inlet
 	promise    *stream.Promise
@@ -88,6 +88,7 @@ func (c *collectorSinkStage) Run(ctx context.Context) {
 			}
 		}
 		c.collector.End(ctx, c.newActions())
+		c.promise.Resolve(stream.NotUsed)
 	}()
 }
 
@@ -103,8 +104,8 @@ func (c *collectorSinkStage) Result() stream.Future {
 	return c.promise
 }
 
-func CollectorSink(collector Collector, attributes []stream.StageAttribute) stream.SinkStage {
-	stageAttributes := stream.NewAttributes("CollectorSink", attributes...)
+func CollectorSink(name string, collector CollectorLogic, attributes []stream.StageAttribute) stream.SinkStage {
+	stageAttributes := stream.NewAttributes(name, attributes...)
 	return &collectorSinkStage{
 		collector:  collector,
 		attributes: stageAttributes,

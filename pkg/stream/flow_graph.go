@@ -1,5 +1,7 @@
 package stream
 
+import "context"
+
 type FlowGraph struct {
 	stages []Stage
 	stage  FlowStage
@@ -25,6 +27,10 @@ func (receiver *FlowGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribute)
 	diversionStage := alsoTo(receiver.stage, that.stage, attributes)
 	combinedStages := combineStages(receiver.stages, that.stages)
 	return FlowFrom(diversionStage, combinedStages...)
+}
+
+func (receiver *FlowGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
+	return receiver.To(that).Run(ctx)
 }
 
 func FlowFrom(stage FlowStage, stages ...Stage) *FlowGraph {
