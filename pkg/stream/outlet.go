@@ -13,10 +13,6 @@ type Outlet struct {
 	sync.Mutex
 }
 
-func (receiver *Outlet) Out() chan Element {
-	return receiver.out
-}
-
 func (receiver *Outlet) Send(element Element) {
 	receiver.Lock()
 	defer receiver.Unlock()
