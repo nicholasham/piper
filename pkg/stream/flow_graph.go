@@ -8,7 +8,7 @@ type FlowGraph struct {
 
 func (receiver *FlowGraph) Via(that *FlowGraph) *FlowGraph {
 	that.stage.Wire(receiver.stage)
-	return FlowFrom(NewCompositeFlow(receiver.stage, that.stage))
+	return FlowFrom(NewFusedFlow(receiver.stage, that.stage))
 }
 
 func (receiver *FlowGraph) To(that *SinkGraph) *RunnableGraph {
@@ -17,12 +17,12 @@ func (receiver *FlowGraph) To(that *SinkGraph) *RunnableGraph {
 
 func (receiver *FlowGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageAttribute) *FlowGraph {
 	diversionStage := diversion(receiver.stage, that.stage, predicate, attributes)
-	return FlowFrom(NewCompositeFlow(receiver.stage, diversionStage))
+	return FlowFrom(NewFusedFlow(receiver.stage, diversionStage))
 }
 
 func (receiver *FlowGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribute) *FlowGraph {
 	diversionStage := alsoTo(receiver.stage, that.stage, attributes)
-	return FlowFrom(NewCompositeFlow(receiver.stage, diversionStage))
+	return FlowFrom(NewFusedFlow(receiver.stage, diversionStage))
 }
 
 func (receiver *FlowGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
