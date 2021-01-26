@@ -34,11 +34,13 @@ func (receiver *fanInFlowStage) Wire(stage SourceStage) {
 	receiver.inlets = append(receiver.inlets, inlet)
 }
 
-func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attributes []StageOption) *fanInFlowStage {
-	state := NewStageState(name, attributes...)
+func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, options ...StageOption) *fanInFlowStage {
+	stageOptions := DefaultStageOptions.
+		Apply(Name("AlsoToFlow")).
+		Apply(options...)
 	flow := fanInFlowStage{
-		name: state.Name,
-		outlet:     NewOutlet(state),
+		name: stageOptions.Name,
+		outlet:     NewOutlet(stageOptions),
 		fanIn:      strategy,
 	}
 
@@ -49,20 +51,20 @@ func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attrib
 	return &flow
 }
 
-func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageOption) *SourceGraph {
+func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, options ...StageOption) *SourceGraph {
 	var stages []SourceStage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
 	}
-	return SourceFrom(FanInFlow(name, stages, strategy, attributes))
+	return SourceFrom(FanInFlow(name, stages, strategy, options...))
 }
 
-func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageOption) *FlowGraph {
+func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, options ...StageOption) *FlowGraph {
 	var stages []SourceStage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
 	}
-	return FlowFrom(FanInFlow(name, stages, strategy, attributes))
+	return FlowFrom(FanInFlow(name, stages, strategy, options...))
 }
 
 func ConcatStrategy() FanInStrategy {

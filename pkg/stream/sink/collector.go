@@ -47,20 +47,21 @@ func (c *collectActions) CompleteStage(value interface{}) {
 var _ stream.SinkStage = (*collectorSinkStage)(nil)
 
 type collectorSinkStage struct {
+	name string
+	logger stream.Logger
 	collector  CollectorLogic
-	attributes *stream.StageState
 	inlet      *stream.Inlet
 	promise    *stream.Promise
 }
 
 func (c *collectorSinkStage) Name() string {
-	return c.attributes.Name
+	return c.name
 }
 
 func (c *collectorSinkStage) newActions() CollectActions {
 	return &collectActions{
 		failStage: func(cause error) {
-			c.attributes.Logger.Error(cause, "failed stage because")
+			c.logger.Error(cause, "failed stage because")
 			c.inlet.Complete()
 			c.promise.Reject(cause)
 		},
@@ -104,12 +105,15 @@ func (c *collectorSinkStage) Result() stream.Future {
 	return c.promise
 }
 
-func CollectorSink(name string, collector CollectorLogic, attributes []stream.StageOption) stream.SinkStage {
-	stageAttributes := stream.NewStageState(name, attributes...)
+func CollectorSink(name string, collector CollectorLogic, options []stream.StageOption) stream.SinkStage {
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name(name)).
+		Apply(options...)
 	return &collectorSinkStage{
+		name: stageOptions.Name,
+		logger: stageOptions.Logger,
 		collector:  collector,
-		attributes: stageAttributes,
-		inlet:      stream.NewInlet(stageAttributes),
+		inlet:      stream.NewInlet(stageOptions),
 		promise:    stream.NewPromise(),
 	}
 }

@@ -56,13 +56,15 @@ func (receiver *alsoToFlowStage) Wire(stage SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func alsoTo(source SourceStage, sink SinkStage, options []StageOption) FlowStage {
-	state := NewStageState("AlsoToFlow", options...)
+func alsoTo(source SourceStage, sink SinkStage, options ...StageOption) FlowStage {
+	stageOptions := DefaultStageOptions.
+		Apply(Name("AlsoToFlow")).
+		Apply(options...)
 	flow := &alsoToFlowStage{
-		name:      state.Name,
-		inlet:           NewInlet(state),
-		defaultOutlet:   NewOutlet(state),
-		diversionOutlet: NewOutlet(NewStageState(state.Name + "-Also")),
+		name:      stageOptions.Name,
+		inlet:           NewInlet(stageOptions),
+		defaultOutlet:   NewOutlet(stageOptions),
+		diversionOutlet: NewOutlet(stageOptions.Copy().Apply(Name(stageOptions.Name + "-Also"))),
 	}
 	flow.Wire(source)
 	sink.Inlet().WireTo(flow.diversionOutlet)

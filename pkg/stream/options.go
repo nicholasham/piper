@@ -1,15 +1,31 @@
 package stream
 
-type StageState struct {
+type StageOptions struct {
 	Name             string
 	OutputBufferSize int
 	Parallelism      int
 	Logger           Logger
 }
 
-type StageOption func(*StageState)
+func (s *StageOptions) Apply(options ...StageOption) *StageOptions {
+	for _, apply := range options {
+		apply(s)
+	}
+	return s
+}
 
-var DefaultOptions = &StageState{
+func (s *StageOptions) Copy() *StageOptions {
+	return & StageOptions{
+		Name:             s.Name,
+		OutputBufferSize: s.OutputBufferSize,
+		Parallelism:      s.Parallelism,
+		Logger:           s.Logger,
+	}
+}
+
+type StageOption func(*StageOptions)
+
+var DefaultStageOptions = &StageOptions{
 	Name:             "",
 	OutputBufferSize: 0,
 	Parallelism:      1,
@@ -17,27 +33,19 @@ var DefaultOptions = &StageState{
 }
 
 func Name(value string) StageOption {
-	return func(state *StageState) {
+	return func(state *StageOptions) {
 		state.Name = value
 	}
 }
 
 func OutputBuffer(value int) StageOption {
-	return func(state *StageState) {
+	return func(state *StageOptions) {
 		state.OutputBufferSize = value
 	}
 }
 
 func Parallelism(value int) StageOption {
-	return func(state *StageState) {
+	return func(state *StageOptions) {
 		state.Parallelism = value
 	}
-}
-
-func NewStageState(name string, options ...StageOption) *StageState {
-	state := DefaultOptions
-	for _, apply := range options {
-		apply(state)
-	}
-	return state
 }

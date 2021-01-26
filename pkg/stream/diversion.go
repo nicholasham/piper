@@ -61,13 +61,16 @@ func (receiver *diversionFlowStage) Wire(stage SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, attributes []StageOption) FlowStage {
-	state := NewStageState("DiversionFlow", attributes...)
+func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, options ...StageOption) FlowStage {
+	stageOptions := DefaultStageOptions.
+		Apply(Name("DiversionFlow")).
+		Apply(options...)
+
 	flow := &diversionFlowStage{
-		name:      state.Name,
-		inlet:           NewInlet(state),
-		defaultOutlet:   NewOutlet(state),
-		diversionOutlet: NewOutlet(NewStageState(state.Name + "-Diversion")),
+		name:      stageOptions.Name,
+		inlet:           NewInlet(stageOptions),
+		defaultOutlet:   NewOutlet(stageOptions),
+		diversionOutlet: NewOutlet(stageOptions.Copy().Apply(Name(stageOptions.Name + "-Diversion"))),
 		f:               predicate,
 	}
 	flow.Wire(source)

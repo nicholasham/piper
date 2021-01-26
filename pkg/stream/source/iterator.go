@@ -11,13 +11,13 @@ import (
 var _ stream.SourceStage = (*iteratorSourceStage)(nil)
 
 type iteratorSourceStage struct {
-	attributes *stream.StageState
-	outlet     *stream.Outlet
-	iterator   iterator.Iterator
+	outlet   *stream.Outlet
+	iterator iterator.Iterator
+	name     string
 }
 
 func (receiver *iteratorSourceStage) Name() string {
-	return receiver.attributes.Name
+	return receiver.name
 }
 
 func (receiver *iteratorSourceStage) Run(ctx context.Context) {
@@ -47,11 +47,14 @@ func (receiver *iteratorSourceStage) Outlet() *stream.Outlet {
 	return receiver.outlet
 }
 
-func iteratorSource(name string, iterator iterator.Iterator, attributes []stream.StageOption) stream.SourceStage {
-	stageAttributes := stream.NewStageState(name, attributes...)
+func iteratorSource(name string, iterator iterator.Iterator, options ...stream.StageOption) stream.SourceStage {
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name("IteratorSource")).
+		Apply(options...)
+
 	return &iteratorSourceStage{
-		attributes: stageAttributes,
-		outlet:     stream.NewOutlet(stageAttributes),
-		iterator:   iterator,
+		name:     stageOptions.Name,
+		outlet:   stream.NewOutlet(stageOptions),
+		iterator: iterator,
 	}
 }

@@ -10,7 +10,7 @@ import (
 var _ stream.SourceStage = (*failedSourceStage)(nil)
 
 type failedSourceStage struct {
-	attributes *stream.StageState
+	attributes *stream.StageOptions
 	cause      error
 	outlet     *stream.Outlet
 }
@@ -31,11 +31,13 @@ func (receiver *failedSourceStage) Outlet() *stream.Outlet {
 	return receiver.outlet
 }
 
-func failedSource(cause error, attributes []stream.StageOption) stream.SourceStage {
-	stageAttributes := stream.NewStageState("FailedSource", attributes...)
+func failedSource(cause error, options ...stream.StageOption) stream.SourceStage {
+	stageOptions := stream.DefaultStageOptions.
+						Apply(stream.Name("FailedSource")).
+						Apply(options...)
 	return &failedSourceStage{
-		attributes: stageAttributes,
+		attributes: stageOptions,
 		cause:      cause,
-		outlet:     stream.NewOutlet(stageAttributes),
+		outlet:     stream.NewOutlet(stageOptions),
 	}
 }

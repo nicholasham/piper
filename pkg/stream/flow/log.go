@@ -11,14 +11,15 @@ import (
 var _ stream.FlowStage = (*logFlowStage)(nil)
 
 type logFlowStage struct {
-	name       string
-	attributes *stream.StageState
+	name string
+	logger stream.Logger
+	parallelism int
 	inlet      *stream.Inlet
 	outlet     *stream.Outlet
 }
 
 func (l *logFlowStage) Name() string {
-	return l.attributes.Name
+	return l.name
 }
 
 func (l *logFlowStage) Run(ctx context.Context) {
@@ -45,12 +46,12 @@ func (l *logFlowStage) Run(ctx context.Context) {
 		}
 
 		wp.StopWait()
-	}(ctx, l.attributes.Parallelism, l.attributes.Logger, l.inlet, l.outlet)
+	}(ctx, l.parallelism, l.logger, l.inlet, l.outlet)
 }
 
 func (l *logFlowStage) logAndSend(element stream.Element) func() {
 	return func() {
-		logger := l.attributes.Logger
+		logger := l.logger
 		if !element.IsError() {
 			logger.Info("[%s] value: {%v}", l.name, element.Value())
 		} else {
@@ -68,12 +69,16 @@ func (l *logFlowStage) Wire(stage stream.SourceStage) {
 	l.inlet.WireTo(stage.Outlet())
 }
 
-func logFlow(name string, attributes ...stream.StageOption) stream.FlowStage {
-	stageAttributes := stream.NewStageState("HeadSink", attributes...)
+func logFlow(name string, options ...stream.StageOption) stream.FlowStage {
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name(name)).
+		Apply(options...)
+
 	return &logFlowStage{
-		name:       name,
-		attributes: stageAttributes,
-		inlet:      stream.NewInlet(stageAttributes),
-		outlet:     stream.NewOutlet(stageAttributes),
+		name: stageOptions.Name,
+		logger: stageOptions.Logger,
+		parallelism: stageOptions.Parallelism,
+		inlet:      stream.NewInlet(stageOptions),
+		outlet:     stream.NewOutlet(stageOptions),
 	}
 }

@@ -130,18 +130,21 @@ func (receiver *operatorFlowStage) Wire(stage stream.SourceStage) {
 }
 
 func OperatorFlow(name string, operator OperatorLogic, options ...stream.StageOption) stream.FlowStage {
+
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name(name)).
+		Apply(options...)
+
 	if !operator.SupportsParallelism() {
-		options = append(options, stream.Parallelism(1))
+		stageOptions.Apply(stream.Parallelism(1))
 	}
 
-	state := stream.NewStageState(name, options...)
-
 	return &operatorFlowStage{
-		name: state.Name,
-		logger: state.Logger,
-		parallelism: state.Parallelism,
+		name: stageOptions.Name,
+		logger: stageOptions.Logger,
+		parallelism: stageOptions.Parallelism,
 		operator:   operator,
-		inlet:      stream.NewInlet(state),
-		outlet:     stream.NewOutlet(state),
+		inlet:      stream.NewInlet(stageOptions),
+		outlet:     stream.NewOutlet(stageOptions),
 	}
 }

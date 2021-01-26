@@ -41,7 +41,7 @@ func NewInletOld(name string) *Inlet {
 	}
 }
 
-func NewInlet(stageAttributes *StageState) *Inlet {
+func NewInlet(stageAttributes *StageOptions) *Inlet {
 	return &Inlet{
 		name: stageAttributes.Name + ".inputStage",
 		in:   make(chan Element),
