@@ -11,7 +11,7 @@ import (
 var _ stream.SourceStage = (*iteratorSourceStage)(nil)
 
 type iteratorSourceStage struct {
-	attributes *stream.StageAttributes
+	attributes *stream.StageState
 	outlet     *stream.Outlet
 	iterator   iterator.Iterator
 }
@@ -47,8 +47,8 @@ func (receiver *iteratorSourceStage) Outlet() *stream.Outlet {
 	return receiver.outlet
 }
 
-func iteratorSource(name string, iterator iterator.Iterator, attributes []stream.StageAttribute) stream.SourceStage {
-	stageAttributes := stream.NewAttributes(name, attributes...)
+func iteratorSource(name string, iterator iterator.Iterator, attributes []stream.StageOption) stream.SourceStage {
+	stageAttributes := stream.NewStageState(name, attributes...)
 	return &iteratorSourceStage{
 		attributes: stageAttributes,
 		outlet:     stream.NewOutlet(stageAttributes),

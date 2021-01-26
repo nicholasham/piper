@@ -10,7 +10,7 @@ var _ FlowStage = (*diversionFlowStage)(nil)
 type PredicateFunc func(element Element) bool
 
 type diversionFlowStage struct {
-	attributes      *StageAttributes
+	name string
 	inlet           *Inlet
 	defaultOutlet   *Outlet
 	diversionOutlet *Outlet
@@ -18,7 +18,7 @@ type diversionFlowStage struct {
 }
 
 func (receiver *diversionFlowStage) Name() string {
-	return receiver.attributes.Name
+	return receiver.name
 }
 
 func (receiver *diversionFlowStage) Run(ctx context.Context) {
@@ -61,13 +61,13 @@ func (receiver *diversionFlowStage) Wire(stage SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, attributes []StageAttribute) FlowStage {
-	stageAttributes := NewAttributes("DiversionFlow", attributes...)
+func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, attributes []StageOption) FlowStage {
+	state := NewStageState("DiversionFlow", attributes...)
 	flow := &diversionFlowStage{
-		attributes:      stageAttributes,
-		inlet:           NewInlet(stageAttributes),
-		defaultOutlet:   NewOutlet(stageAttributes),
-		diversionOutlet: NewOutlet(NewAttributes(stageAttributes.Name + "-Diversion")),
+		name:      state.Name,
+		inlet:           NewInlet(state),
+		defaultOutlet:   NewOutlet(state),
+		diversionOutlet: NewOutlet(NewStageState(state.Name + "-Diversion")),
 		f:               predicate,
 	}
 	flow.Wire(source)

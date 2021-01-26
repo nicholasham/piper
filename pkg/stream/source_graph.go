@@ -12,12 +12,12 @@ func (receiver *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Futur
 	return receiver.To(that).Run(ctx)
 }
 
-func (receiver *SourceGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageAttribute) *SourceGraph {
+func (receiver *SourceGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageOption) *SourceGraph {
 	diversionStage := diversion(receiver.stage, that.stage, predicate, attributes)
 	return SourceFrom(NewFusedFlow(receiver.stage, diversionStage))
 }
 
-func (receiver *SourceGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribute) *SourceGraph {
+func (receiver *SourceGraph) AlsoTo(that *SinkGraph, attributes ...StageOption) *SourceGraph {
 	diversionStage := alsoTo(receiver.stage, that.stage, attributes)
 	return SourceFrom(NewFusedFlow(receiver.stage, diversionStage))
 }

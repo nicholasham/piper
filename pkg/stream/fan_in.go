@@ -11,14 +11,14 @@ var _ FlowStage = (*fanInFlowStage)(nil)
 type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
 
 type fanInFlowStage struct {
-	attributes *StageAttributes
+	name string
 	inlets     []*Inlet
 	outlet     *Outlet
 	fanIn      FanInStrategy
 }
 
 func (receiver *fanInFlowStage) Name() string {
-	return receiver.attributes.Name
+	return receiver.name
 }
 
 func (receiver *fanInFlowStage) Run(ctx context.Context) {
@@ -34,11 +34,11 @@ func (receiver *fanInFlowStage) Wire(stage SourceStage) {
 	receiver.inlets = append(receiver.inlets, inlet)
 }
 
-func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attributes []StageAttribute) *fanInFlowStage {
-	stageAttributes := NewAttributes(name, attributes...)
+func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attributes []StageOption) *fanInFlowStage {
+	state := NewStageState(name, attributes...)
 	flow := fanInFlowStage{
-		attributes: stageAttributes,
-		outlet:     NewOutlet(stageAttributes),
+		name: state.Name,
+		outlet:     NewOutlet(state),
 		fanIn:      strategy,
 	}
 
@@ -49,7 +49,7 @@ func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attrib
 	return &flow
 }
 
-func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
+func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageOption) *SourceGraph {
 	var stages []SourceStage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
@@ -57,7 +57,7 @@ func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, 
 	return SourceFrom(FanInFlow(name, stages, strategy, attributes))
 }
 
-func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
+func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageOption) *FlowGraph {
 	var stages []SourceStage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)

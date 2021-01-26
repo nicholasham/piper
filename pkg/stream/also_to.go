@@ -8,7 +8,7 @@ import (
 var _ FlowStage = (*alsoToFlowStage)(nil)
 
 type alsoToFlowStage struct {
-	attributes      *StageAttributes
+	name      string
 	inlet           *Inlet
 	defaultOutlet   *Outlet
 	diversionOutlet *Outlet
@@ -16,7 +16,7 @@ type alsoToFlowStage struct {
 }
 
 func (receiver *alsoToFlowStage) Name() string {
-	return receiver.attributes.Name
+	return receiver.name
 }
 
 func (receiver *alsoToFlowStage) Run(ctx context.Context) {
@@ -56,13 +56,13 @@ func (receiver *alsoToFlowStage) Wire(stage SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func alsoTo(source SourceStage, sink SinkStage, attributes []StageAttribute) FlowStage {
-	stageAttributes := NewAttributes("AlsoToFlow", attributes...)
+func alsoTo(source SourceStage, sink SinkStage, options []StageOption) FlowStage {
+	state := NewStageState("AlsoToFlow", options...)
 	flow := &alsoToFlowStage{
-		attributes:      stageAttributes,
-		inlet:           NewInlet(stageAttributes),
-		defaultOutlet:   NewOutlet(stageAttributes),
-		diversionOutlet: NewOutlet(NewAttributes(stageAttributes.Name + "-Also")),
+		name:      state.Name,
+		inlet:           NewInlet(state),
+		defaultOutlet:   NewOutlet(state),
+		diversionOutlet: NewOutlet(NewStageState(state.Name + "-Also")),
 	}
 	flow.Wire(source)
 	sink.Inlet().WireTo(flow.diversionOutlet)

@@ -12,7 +12,7 @@ var _ stream.FlowStage = (*logFlowStage)(nil)
 
 type logFlowStage struct {
 	name       string
-	attributes *stream.StageAttributes
+	attributes *stream.StageState
 	inlet      *stream.Inlet
 	outlet     *stream.Outlet
 }
@@ -68,8 +68,8 @@ func (l *logFlowStage) Wire(stage stream.SourceStage) {
 	l.inlet.WireTo(stage.Outlet())
 }
 
-func logFlow(name string, attributes ...stream.StageAttribute) stream.FlowStage {
-	stageAttributes := stream.NewAttributes("HeadSink", attributes...)
+func logFlow(name string, attributes ...stream.StageOption) stream.FlowStage {
+	stageAttributes := stream.NewStageState("HeadSink", attributes...)
 	return &logFlowStage{
 		name:       name,
 		attributes: stageAttributes,

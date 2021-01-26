@@ -48,7 +48,7 @@ var _ stream.SinkStage = (*collectorSinkStage)(nil)
 
 type collectorSinkStage struct {
 	collector  CollectorLogic
-	attributes *stream.StageAttributes
+	attributes *stream.StageState
 	inlet      *stream.Inlet
 	promise    *stream.Promise
 }
@@ -104,8 +104,8 @@ func (c *collectorSinkStage) Result() stream.Future {
 	return c.promise
 }
 
-func CollectorSink(name string, collector CollectorLogic, attributes []stream.StageAttribute) stream.SinkStage {
-	stageAttributes := stream.NewAttributes(name, attributes...)
+func CollectorSink(name string, collector CollectorLogic, attributes []stream.StageOption) stream.SinkStage {
+	stageAttributes := stream.NewStageState(name, attributes...)
 	return &collectorSinkStage{
 		collector:  collector,
 		attributes: stageAttributes,

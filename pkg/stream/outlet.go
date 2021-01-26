@@ -30,17 +30,17 @@ func (receiver *Outlet) Close() {
 	})
 }
 
-func NewOutlet(stageAttributes *StageAttributes) *Outlet {
+func NewOutlet(state *StageState) *Outlet {
 	return &Outlet{
-		name: stageAttributes.Name + ".outputStage",
-		out:  createChannel(stageAttributes),
+		name: state.Name + ".outputStage",
+		out:  createChannel(state),
 		done: make(chan struct{}),
 	}
 }
 
-func createChannel(stageAttributes *StageAttributes) chan Element {
-	if stageAttributes.OutputBufferSize > 0 {
-		return make(chan Element, stageAttributes.OutputBufferSize)
+func createChannel(options *StageState) chan Element {
+	if options.OutputBufferSize > 0 {
+		return make(chan Element, options.OutputBufferSize)
 	}
 	return make(chan Element)
 }

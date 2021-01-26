@@ -11,7 +11,8 @@ import (
 var _ stream.SourceStage = (*stanSourceStage)(nil)
 
 type stanSourceStage struct {
-	attributes          *stream.StageAttributes
+	name                string
+	logger              stream.Logger
 	outlet              *stream.Outlet
 	conn                stan.Conn
 	subject             string
@@ -20,7 +21,7 @@ type stanSourceStage struct {
 }
 
 func (s *stanSourceStage) Name() string {
-	return s.attributes.Name
+	return s.name
 }
 
 func (s *stanSourceStage) Run(ctx context.Context) {
@@ -39,7 +40,7 @@ func (s *stanSourceStage) Run(ctx context.Context) {
 		}, s.subscriptionOptions...)
 
 		if err != nil {
-			s.attributes.Logger.Error(err, "failed consuming from nats")
+			s.logger.Error(err, "failed consuming from nats")
 			return
 		}
 		sub.Close()
@@ -50,11 +51,12 @@ func (s *stanSourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
 
-func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, attributes []stream.StageAttribute) *stream.SourceGraph {
-	stageAttributes := stream.NewAttributes("StanSource", attributes...)
+func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ... stream.StageOption) *stream.SourceGraph {
+	state := stream.NewStageState("StanSource", options...)
 	return stream.SourceFrom(&stanSourceStage{
-		attributes:          stageAttributes,
-		outlet:              stream.NewOutlet(stageAttributes),
+		name:                state.Name,
+		logger:              state.Logger,
+		outlet:              stream.NewOutlet(state),
 		conn:                conn,
 		subject:             subject,
 		group:               group,

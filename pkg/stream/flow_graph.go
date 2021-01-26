@@ -15,12 +15,12 @@ func (receiver *FlowGraph) To(that *SinkGraph) *RunnableGraph {
 	return runnable(receiver.stage, that.stage)
 }
 
-func (receiver *FlowGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageAttribute) *FlowGraph {
+func (receiver *FlowGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageOption) *FlowGraph {
 	diversionStage := diversion(receiver.stage, that.stage, predicate, attributes)
 	return FlowFrom(NewFusedFlow(receiver.stage, diversionStage))
 }
 
-func (receiver *FlowGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribute) *FlowGraph {
+func (receiver *FlowGraph) AlsoTo(that *SinkGraph, attributes ...StageOption) *FlowGraph {
 	diversionStage := alsoTo(receiver.stage, that.stage, attributes)
 	return FlowFrom(NewFusedFlow(receiver.stage, diversionStage))
 }

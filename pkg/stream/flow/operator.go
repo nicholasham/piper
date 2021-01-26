@@ -18,7 +18,6 @@ type OperatorLogic interface {
 }
 
 type OperatorActions interface {
-	SendDownstream(element stream.Element)
 	PushError(cause error)
 	PushValue(value interface{})
 	FailStage(cause error)
@@ -33,12 +32,6 @@ type operatorActions struct {
 	pushValue     func(value interface{})
 	failStage     func(cause error)
 	completeStage func()
-}
-
-func (o *operatorActions) SendDownstream(element stream.Element) {
-	element.
-		WhenValue(o.pushValue).
-		WhenError(o.pushError)
 }
 
 func (o *operatorActions) PushError(cause error) {
@@ -63,14 +56,16 @@ type SendElement func(element stream.Element)
 type OnPush func(element stream.Element, actions OperatorActions)
 
 type operatorFlowStage struct {
-	attributes *stream.StageAttributes
+	name string
+	logger stream.Logger
+	parallelism int
 	inlet      *stream.Inlet
 	outlet     *stream.Outlet
 	operator   OperatorLogic
 }
 
 func (receiver *operatorFlowStage) Name() string {
-	return receiver.attributes.Name
+	return receiver.name
 }
 
 func (receiver *operatorFlowStage) Run(ctx context.Context) {
@@ -99,7 +94,7 @@ func (receiver *operatorFlowStage) Run(ctx context.Context) {
 		}
 		wp.StopWait()
 		operator.End(actions)
-	}(ctx, receiver.attributes.Parallelism, receiver.operator, receiver.inlet, receiver.outlet)
+	}(ctx, receiver.parallelism, receiver.operator, receiver.inlet, receiver.outlet)
 }
 
 func (receiver *operatorFlowStage) newOperatorActions() OperatorActions {
@@ -111,7 +106,7 @@ func (receiver *operatorFlowStage) newOperatorActions() OperatorActions {
 			receiver.outlet.Send(stream.Value(value))
 		},
 		failStage: func(cause error) {
-			receiver.attributes.Logger.Error(cause, "failed stage because")
+			receiver.logger.Error(cause, "failed stage because")
 			receiver.inlet.Complete()
 		},
 		completeStage: func() {
@@ -134,17 +129,19 @@ func (receiver *operatorFlowStage) Wire(stage stream.SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func OperatorFlow(name string, operator OperatorLogic, attributes ...stream.StageAttribute) stream.FlowStage {
+func OperatorFlow(name string, operator OperatorLogic, options ...stream.StageOption) stream.FlowStage {
 	if !operator.SupportsParallelism() {
-		attributes = append(attributes, stream.Parallelism(1))
+		options = append(options, stream.Parallelism(1))
 	}
 
-	stageAttributes := stream.NewAttributes(name, attributes...)
+	state := stream.NewStageState(name, options...)
 
 	return &operatorFlowStage{
-		attributes: stageAttributes,
+		name: state.Name,
+		logger: state.Logger,
+		parallelism: state.Parallelism,
 		operator:   operator,
-		inlet:      stream.NewInlet(stageAttributes),
-		outlet:     stream.NewOutlet(stageAttributes),
+		inlet:      stream.NewInlet(state),
+		outlet:     stream.NewOutlet(state),
 	}
 }
