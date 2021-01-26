@@ -56,12 +56,13 @@ type SendElement func(element stream.Element)
 type OnPush func(element stream.Element, actions OperatorActions)
 
 type operatorFlowStage struct {
-	name string
-	logger stream.Logger
+	name        string
+	logger      stream.Logger
 	parallelism int
-	inlet      *stream.Inlet
-	outlet     *stream.Outlet
-	operator   OperatorLogic
+	inlet       *stream.Inlet
+	outlet      *stream.Outlet
+	operator    OperatorLogic
+	decider     stream.Decider
 }
 
 func (receiver *operatorFlowStage) Name() string {
@@ -143,6 +144,7 @@ func OperatorFlow(name string, operator OperatorLogic, options ...stream.StageOp
 		name: stageOptions.Name,
 		logger: stageOptions.Logger,
 		parallelism: stageOptions.Parallelism,
+		decider: stageOptions.Decider,
 		operator:   operator,
 		inlet:      stream.NewInlet(stageOptions),
 		outlet:     stream.NewOutlet(stageOptions),

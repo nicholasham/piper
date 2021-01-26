@@ -5,6 +5,7 @@ type StageOptions struct {
 	OutputBufferSize int
 	Parallelism      int
 	Logger           Logger
+	Decider Decider
 }
 
 func (s *StageOptions) Apply(options ...StageOption) *StageOptions {
@@ -30,6 +31,7 @@ var DefaultStageOptions = &StageOptions{
 	OutputBufferSize: 0,
 	Parallelism:      1,
 	Logger:           &defaultLogger{},
+	Decider: StoppingDecider,
 }
 
 func Name(value string) StageOption {
@@ -47,5 +49,11 @@ func OutputBuffer(value int) StageOption {
 func Parallelism(value int) StageOption {
 	return func(state *StageOptions) {
 		state.Parallelism = value
+	}
+}
+
+func ErrorStrategy(strategy Decider) StageOption {
+	return func(state *StageOptions) {
+		state.Decider = strategy
 	}
 }
