@@ -10,6 +10,9 @@ import (
 // verify operatorFlowStage implements stream.FlowStage interface
 var _ stream.FlowStage = (*operatorFlowStage)(nil)
 
+
+type OperatorLogicFactory func(options stream.StageOption)  OperatorLogic
+
 type OperatorLogic interface {
 	SupportsParallelism() bool
 	Start(actions OperatorActions)
