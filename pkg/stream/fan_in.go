@@ -51,26 +51,18 @@ func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, attrib
 
 func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy, attributes ...StageAttribute) *SourceGraph {
 	var stages []SourceStage
-	var otherStages []Stage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
-		for _, stage := range graph.stages {
-			otherStages = append(otherStages, stage)
-		}
 	}
-	return SourceFrom(FanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
+	return SourceFrom(FanInFlow(name, stages, strategy, attributes))
 }
 
 func CombineFlows(name string, graphs []*FlowGraph, strategy FanInStrategy, attributes ...StageAttribute) *FlowGraph {
 	var stages []SourceStage
-	var otherStages []Stage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
-		for _, stage := range graph.stages {
-			otherStages = append(otherStages, stage)
-		}
 	}
-	return FlowFrom(FanInFlow(name, stages, strategy, attributes), removeDuplicates(otherStages)...)
+	return FlowFrom(FanInFlow(name, stages, strategy, attributes))
 }
 
 func ConcatStrategy() FanInStrategy {

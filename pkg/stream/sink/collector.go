@@ -92,7 +92,7 @@ func (c *collectorSinkStage) Run(ctx context.Context) {
 	}()
 }
 
-func (c *collectorSinkStage) WireTo(stage stream.SourceStage) {
+func (c *collectorSinkStage) Wire(stage stream.SourceStage) {
 	c.inlet.WireTo(stage.Outlet())
 }
 

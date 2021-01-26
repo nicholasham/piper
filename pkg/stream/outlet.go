@@ -32,7 +32,7 @@ func (receiver *Outlet) Close() {
 
 func NewOutlet(stageAttributes *StageAttributes) *Outlet {
 	return &Outlet{
-		name: stageAttributes.Name + ".out",
+		name: stageAttributes.Name + ".outputStage",
 		out:  createChannel(stageAttributes),
 		done: make(chan struct{}),
 	}

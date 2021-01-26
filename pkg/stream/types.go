@@ -7,9 +7,20 @@ type Stage interface {
 	Run(ctx context.Context)
 }
 
+type InputStage interface {
+	Inlet() *Inlet
+	Wire(stage SourceStage)
+	Stage
+}
+
+type OutputStage interface {
+	Outlet() *Outlet
+	Stage
+}
+
 type SinkStage interface {
 	Stage
-	WireTo(stage SourceStage)
+	Wire(stage SourceStage)
 	Inlet() *Inlet
 	Result() Future
 }

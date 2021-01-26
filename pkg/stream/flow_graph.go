@@ -3,39 +3,34 @@ package stream
 import "context"
 
 type FlowGraph struct {
-	stages []Stage
 	stage  FlowStage
 }
 
 func (receiver *FlowGraph) Via(that *FlowGraph) *FlowGraph {
 	that.stage.Wire(receiver.stage)
-	combinedStages := combineStages(receiver.stages, that.stages)
-	return FlowFrom(that.stage, combinedStages...)
+	return FlowFrom(NewCompositeFlow(receiver.stage, that.stage))
 }
 
 func (receiver *FlowGraph) To(that *SinkGraph) *RunnableGraph {
-	return flowRunnable(receiver, that)
+	return runnable(receiver.stage, that.stage)
 }
 
 func (receiver *FlowGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, attributes ...StageAttribute) *FlowGraph {
 	diversionStage := diversion(receiver.stage, that.stage, predicate, attributes)
-	combinedStages := combineStages(receiver.stages, that.stages)
-	return FlowFrom(diversionStage, combinedStages...)
+	return FlowFrom(NewCompositeFlow(receiver.stage, diversionStage))
 }
 
 func (receiver *FlowGraph) AlsoTo(that *SinkGraph, attributes ...StageAttribute) *FlowGraph {
 	diversionStage := alsoTo(receiver.stage, that.stage, attributes)
-	combinedStages := combineStages(receiver.stages, that.stages)
-	return FlowFrom(diversionStage, combinedStages...)
+	return FlowFrom(NewCompositeFlow(receiver.stage, diversionStage))
 }
 
 func (receiver *FlowGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
 	return receiver.To(that).Run(ctx)
 }
 
-func FlowFrom(stage FlowStage, stages ...Stage) *FlowGraph {
+func FlowFrom(stage FlowStage) *FlowGraph {
 	return &FlowGraph{
-		stages: append(stages, stage),
 		stage:  stage,
 	}
 }

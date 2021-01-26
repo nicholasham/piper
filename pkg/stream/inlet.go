@@ -35,7 +35,7 @@ func (receiver *Inlet) WireTo(outlet *Outlet) *Inlet {
 
 func NewInletOld(name string) *Inlet {
 	return &Inlet{
-		name: name + ".in",
+		name: name + ".inputStage",
 		in:   make(chan Element),
 		done: make(chan struct{}),
 	}
@@ -43,7 +43,7 @@ func NewInletOld(name string) *Inlet {
 
 func NewInlet(stageAttributes *StageAttributes) *Inlet {
 	return &Inlet{
-		name: stageAttributes.Name + ".in",
+		name: stageAttributes.Name + ".inputStage",
 		in:   make(chan Element),
 		done: make(chan struct{}),
 	}
