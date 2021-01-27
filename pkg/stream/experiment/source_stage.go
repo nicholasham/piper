@@ -21,6 +21,7 @@ func (s *sourceStage) CompleteStage() {
 
 func (s *sourceStage) Push(element stream.Element) {
 	s.outlet.Send(element)
+	s.outlet.Close()
 }
 
 func (s *sourceStage) FailStage(cause error) {
@@ -40,9 +41,5 @@ func (s *sourceStage) Run(ctx context.Context) {
 
 func (s *sourceStage) Outlet() *stream.Outlet {
 	return s.outlet
-}
-
-func Single(value interface{}) *stream.SourceGraph  {
-
 }
 

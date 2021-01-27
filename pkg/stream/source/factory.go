@@ -20,7 +20,7 @@ func List(values []interface{}, options ...stream.StageOption) *stream.SourceGra
 }
 
 func Single(value interface{}, options ...stream.StageOption) *stream.SourceGraph {
-	return FromIterator("SingleSource", iterator.Single(value), options...)
+	return stream.SourceFrom (singleStage(value, options...))
 }
 
 func Failed(cause error, options ...stream.StageOption) *stream.SourceGraph {

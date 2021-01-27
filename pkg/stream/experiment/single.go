@@ -10,6 +10,7 @@ type SingleSource struct {
 
 func (s SingleSource) OnPull(actions StageActions) {
 	actions.Push(stream.Value(s.value))
+	actions.CompleteStage()
 }
 
 func (s SingleSource) OnDownstreamFinish(actions StageActions) {

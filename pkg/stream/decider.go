@@ -17,4 +17,6 @@ const (
 	Stop Directive  = iota
 	// The element is dropped and the stream continues if application code for processing an element returns an error.
 	Resume
+
+	Reset
 )
