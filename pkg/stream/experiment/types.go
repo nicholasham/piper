@@ -11,14 +11,14 @@ type InOutLogic interface {
 
 
 type InHandler interface {
-	OnPush(element stream.Element)
+	OnPush(element stream.Element, actions StageActions)
 	OnUpstreamFinish(actions StageActions)
 	OnUpstreamFailure(cause error, actions StageActions)
 }
 
 
 type OutHandler interface {
-	OnPull(actions StageActions)
+	OnPull( actions StageActions)
 	OnDownstreamFinish(actions StageActions)
 }
 

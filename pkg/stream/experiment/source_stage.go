@@ -6,6 +6,7 @@ import (
 )
 
 var _ stream.SourceStage = (*sourceStage)(nil)
+var _ StageActions = (*sourceStage)(nil)
 
 type sourceStage struct {
 	name string
@@ -14,14 +15,26 @@ type sourceStage struct {
 	logic OutHandler
 }
 
+func (s *sourceStage) CompleteStage() {
+	s.outlet.Close()
+}
+
+func (s *sourceStage) Push(element stream.Element) {
+	s.outlet.Send(element)
+}
+
+func (s *sourceStage) FailStage(cause error) {
+
+}
+
 func (s *sourceStage) Name() string {
 	return s.name
 }
 
 func (s *sourceStage) Run(ctx context.Context) {
 	go func() {
-		s.logic.OnPull(s.newStageActions())
-		s.logic.OnDownstreamFinish(s.newStageActions())
+		s.logic.OnPull(s)
+		s.logic.OnDownstreamFinish(s)
 	}()
 }
 
@@ -29,18 +42,7 @@ func (s *sourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
 
-func (s *sourceStage) newStageActions() StageActions {
-	return & stageActions{
-		onCompleteStage: func() {
-			s.outlet.Close()
-		},
-		onPush: func(element stream.Element) {
-			s.Outlet().Send(element)
-		},
-		onFailStage: func(cause error) {
+func Single(value interface{}) *stream.SourceGraph  {
 
-		},
-	}
 }
-
 
