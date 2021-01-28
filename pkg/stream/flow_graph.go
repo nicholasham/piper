@@ -4,8 +4,8 @@ type FlowGraph struct {
 	stage FlowStageWithOptions
 }
 
-func (g *FlowGraph) WithOptions(options ...StageOption) *FlowGraph {
-	return FromFlow(g.stage.WithOptions(options...))
+func (g *FlowGraph) With(options ...StageOption) *FlowGraph {
+	return FromFlow(g.stage.With(options...))
 }
 
 func (g *FlowGraph) Via(that *FlowGraph) *FlowGraph {

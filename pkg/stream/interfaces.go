@@ -13,7 +13,7 @@ type SinkStage interface {
 }
 type SinkStageWithOptions interface {
 	SinkStage
-	WithOptions(options ...StageOption) SinkStageWithOptions
+	With(options ...StageOption) SinkStageWithOptions
 }
 
 type Future interface {
@@ -36,7 +36,7 @@ type SourceStage interface {
 
 type SourceStageWithOptions interface {
 	SourceStage
-	WithOptions(options ...StageOption) SourceStageWithOptions
+	With(options ...StageOption) SourceStageWithOptions
 }
 
 type FlowStage interface {
@@ -47,5 +47,5 @@ type FlowStage interface {
 type FlowStageWithOptions interface {
 	InputStage
 	SourceStage
-	WithOptions(options ...StageOption) FlowStageWithOptions
+	With(options ...StageOption) FlowStageWithOptions
 }

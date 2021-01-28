@@ -14,8 +14,8 @@ func (c *fusedStage) Inlet() *Inlet {
 	return c.toStage.Inlet()
 }
 
-func (c *fusedStage) WithOptions(options ...StageOption) FlowStageWithOptions {
-	return NewFusedFlow(c.fromStage, c.toStage.WithOptions(options...))
+func (c *fusedStage) With(options ...StageOption) FlowStageWithOptions {
+	return NewFusedFlow(c.fromStage, c.toStage.With(options...))
 }
 
 func (c *fusedStage) Name() string {

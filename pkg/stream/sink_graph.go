@@ -4,8 +4,8 @@ type SinkGraph struct {
 	stage SinkStageWithOptions
 }
 
-func (g *SinkGraph) WithOptions(options ...StageOption) *SinkGraph {
-	return FromSink(g.stage.WithOptions(options...))
+func (g *SinkGraph) With(options ...StageOption) *SinkGraph {
+	return FromSink(g.stage.With(options...))
 }
 
 func FromSink(stage SinkStageWithOptions) *SinkGraph {
