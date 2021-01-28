@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nicholasham/piper/pkg/stream"
-	"github.com/nicholasham/piper/pkg/stream/sink"
+	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/streamold/sink"
 )
 
 // verify fileCollector implements CollectorLogic interface
@@ -44,7 +44,7 @@ func (f *fileCollector) Start(ctx context.Context, actions sink.CollectActions) 
 	f.file = file
 }
 
-func (f *fileCollector) Collect(ctx context.Context, element stream.Element, actions sink.CollectActions) {
+func (f *fileCollector) Collect(ctx context.Context, element streamold.Element, actions sink.CollectActions) {
 	element.WhenValue(func(value interface{}) {
 		bytes, ok := value.([]byte)
 		if !ok {
@@ -62,7 +62,7 @@ func (f *fileCollector) End(ctx context.Context, actions sink.CollectActions) {
 	f.file.Close()
 }
 
-func ToPath(filePath string, factory FileFactory) *stream.SinkGraph {
+func ToPath(filePath string, factory FileFactory) *streamold.SinkGraph {
 	return sink.Collector("FileSink",
 		&fileCollector{
 			filePath: filePath,

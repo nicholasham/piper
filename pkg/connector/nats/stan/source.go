@@ -4,16 +4,16 @@ import (
 	"context"
 
 	"github.com/nats-io/stan.go"
-	"github.com/nicholasham/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/streamold"
 )
 
 // verify iteratorSource implements stream.SourceStage interface
-var _ stream.SourceStage = (*stanSourceStage)(nil)
+var _ streamold.SourceStage = (*stanSourceStage)(nil)
 
 type stanSourceStage struct {
 	name                string
-	logger              stream.Logger
-	outlet              *stream.Outlet
+	logger              streamold.Logger
+	outlet              *streamold.Outlet
 	conn                stan.Conn
 	subject             string
 	group               string
@@ -30,13 +30,13 @@ func (s *stanSourceStage) Run(ctx context.Context) {
 		sub, err := s.conn.QueueSubscribe(s.subject, s.group, func(msg *stan.Msg) {
 			select {
 			case <-ctx.Done():
-				s.outlet.Send(stream.Error(ctx.Err()))
+				s.outlet.Send(streamold.Error(ctx.Err()))
 				msg.Sub.Unsubscribe()
 			case <-s.outlet.Done():
 				msg.Sub.Unsubscribe()
 			default:
 			}
-			s.outlet.Send(stream.Value(msg))
+			s.outlet.Send(streamold.Value(msg))
 		}, s.subscriptionOptions...)
 
 		if err != nil {
@@ -47,16 +47,16 @@ func (s *stanSourceStage) Run(ctx context.Context) {
 	}()
 }
 
-func (s *stanSourceStage) Outlet() *stream.Outlet {
+func (s *stanSourceStage) Outlet() *streamold.Outlet {
 	return s.outlet
 }
 
-func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ... stream.StageOption) *stream.SourceGraph {
-	stageOptions := stream.DefaultStageOptions.Apply(stream.Name("StanSource")).Apply(options...)
-	return stream.SourceFrom(&stanSourceStage{
+func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ... streamold.StageOption) *streamold.SourceGraph {
+	stageOptions := streamold.DefaultStageOptions.Apply(streamold.Name("StanSource")).Apply(options...)
+	return streamold.SourceFrom(&stanSourceStage{
 		name:                stageOptions.Name,
 		logger:              stageOptions.Logger,
-		outlet:              stream.NewOutlet(stageOptions),
+		outlet:              streamold.NewOutlet(stageOptions),
 		conn:                conn,
 		subject:             subject,
 		group:               group,

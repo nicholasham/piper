@@ -33,9 +33,17 @@ func (receiver *Inlet) WireTo(outlet *Outlet) *Inlet {
 	return receiver
 }
 
-func NewInlet(options *StageOptions) *Inlet {
+func NewInletOld(name string) *Inlet {
 	return &Inlet{
-		name: options.Name + ".inputStage",
+		name: name + ".inputStage",
+		in:   make(chan Element),
+		done: make(chan struct{}),
+	}
+}
+
+func NewInlet(stageAttributes *StageOptions) *Inlet {
+	return &Inlet{
+		name: stageAttributes.Name + ".inputStage",
 		in:   make(chan Element),
 		done: make(chan struct{}),
 	}

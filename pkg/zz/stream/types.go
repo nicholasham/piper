@@ -7,13 +7,22 @@ type Stage interface {
 	Run(ctx context.Context)
 }
 
+type InputStage interface {
+	Inlet() *Inlet
+	Wire(stage SourceStage)
+	Stage
+}
+
+type OutputStage interface {
+	Outlet() *Outlet
+	Stage
+}
 
 type SinkStage interface {
 	Stage
 	Wire(stage SourceStage)
 	Inlet() *Inlet
 	Result() Future
-	WithOptions(options ...StageOption) SinkStage
 }
 
 type Future interface {
@@ -23,16 +32,14 @@ type Future interface {
 type SourceStage interface {
 	Stage
 	Outlet() *Outlet
-	WithOptions(options ...StageOption) SourceStage
 }
 
 type FlowStage interface {
+	SourceStage
 	Wire(stage SourceStage)
-	WithOptions(options ...StageOption) FlowStage
 }
 
 
 type CompletionStage interface {
 	Result() Future
 }
-

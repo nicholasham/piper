@@ -1,36 +1,15 @@
 package stream
 
-import "context"
-
 type FlowGraph struct {
-	stage  FlowStage
+	stage FlowStage
 }
 
-func (receiver *FlowGraph) Via(that *FlowGraph) *FlowGraph {
-	that.stage.Wire(receiver.stage)
-	return FlowFrom(NewFusedFlow(receiver.stage, that.stage))
+func (g *FlowGraph) WithOptions(options ...StageOption) *FlowGraph {
+	return FromFlow(g.stage.WithOptions(options...))
 }
 
-func (receiver *FlowGraph) To(that *SinkGraph) *RunnableGraph {
-	return runnable(receiver.stage, that.stage)
-}
-
-func (receiver *FlowGraph) DivertTo(that *SinkGraph, predicate PredicateFunc, options ...StageOption) *FlowGraph {
-	diversionStage := diversion(receiver.stage, that.stage, predicate, options...)
-	return FlowFrom(NewFusedFlow(receiver.stage, diversionStage))
-}
-
-func (receiver *FlowGraph) AlsoTo(that *SinkGraph, options ...StageOption) *FlowGraph {
-	diversionStage := alsoTo(receiver.stage, that.stage, options...)
-	return FlowFrom(NewFusedFlow(receiver.stage, diversionStage))
-}
-
-func (receiver *FlowGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
-	return receiver.To(that).Run(ctx)
-}
-
-func FlowFrom(stage FlowStage) *FlowGraph {
+func FromFlow(stage FlowStage) *FlowGraph {
 	return &FlowGraph{
-		stage:  stage,
+		stage: stage,
 	}
 }
