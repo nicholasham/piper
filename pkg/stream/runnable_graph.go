@@ -15,8 +15,8 @@ func (r *RunnableGraph) Run(ctx context.Context) Future {
 	return r.sinkStage.Result()
 }
 
-func runnable(sourceStage SourceStage,  sinkStage SinkStage ) *RunnableGraph {
-	sinkStage.Wire(sourceStage)
+func runnable(sourceStage SourceStage,  sinkStage SinkStage) *RunnableGraph {
+	sinkStage.Inlet().WireTo(sourceStage.Outlet())
 	return &RunnableGraph{
 		sourceStage: sourceStage,
 		sinkStage:   sinkStage,

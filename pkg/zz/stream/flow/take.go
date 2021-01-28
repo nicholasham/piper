@@ -3,7 +3,7 @@ package flow
 import (
 	"sync/atomic"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify takeOperator implements OperatorLogic interface
@@ -17,7 +17,7 @@ type takeOperator struct {
 func (receiver *takeOperator) Start(actions OperatorActions) {
 }
 
-func (receiver *takeOperator) Apply(element streamold.Element, actions OperatorActions) {
+func (receiver *takeOperator) Apply(element stream.Element, actions OperatorActions) {
 	current := int(atomic.AddUint64(&receiver.op, 1))
 	if current <= receiver.number {
 		element.

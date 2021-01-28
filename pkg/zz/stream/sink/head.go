@@ -3,7 +3,7 @@ package sink
 import (
 	"context"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify headCollector implements CollectorLogic interface
@@ -15,7 +15,7 @@ type headCollector struct {
 func (h *headCollector) Start(ctx context.Context, actions CollectActions) {
 }
 
-func (h *headCollector) Collect(ctx context.Context, element streamold.Element, actions CollectActions) {
+func (h *headCollector) Collect(ctx context.Context, element stream.Element, actions CollectActions) {
 	element.
 		WhenValue(actions.CompleteStage).
 		WhenError(actions.FailStage)

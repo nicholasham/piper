@@ -3,7 +3,7 @@ package flow
 import (
 	"sync"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify scanOperator implements OperatorLogic interface
@@ -23,7 +23,7 @@ func (receiver *scanOperator) Start(actions OperatorActions) {
 	actions.PushValue(receiver.current)
 }
 
-func (receiver *scanOperator) Apply(element streamold.Element, actions OperatorActions) {
+func (receiver *scanOperator) Apply(element stream.Element, actions OperatorActions) {
 	receiver.Lock()
 	defer receiver.Unlock()
 	out, err := receiver.f(receiver.current, element.Value())

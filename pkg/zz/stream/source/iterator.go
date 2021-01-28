@@ -3,15 +3,15 @@ package source
 import (
 	"context"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 	"github.com/nicholasham/piper/pkg/types/iterator"
 )
 
 // verify iteratorSource implements stream.SourceStage interface
-var _ streamold.SourceStage = (*iteratorSourceStage)(nil)
+var _ stream.SourceStage = (*iteratorSourceStage)(nil)
 
 type iteratorSourceStage struct {
-	outlet   *streamold.Outlet
+	outlet   *stream.Outlet
 	iterator iterator.Iterator
 	name     string
 }
@@ -21,12 +21,12 @@ func (receiver *iteratorSourceStage) Name() string {
 }
 
 func (receiver *iteratorSourceStage) Run(ctx context.Context) {
-	go func(outlet *streamold.Outlet, iterator iterator.Iterator) {
+	go func(outlet *stream.Outlet, iterator iterator.Iterator) {
 		defer outlet.Close()
 		for iterator.HasNext() {
 			select {
 			case <-ctx.Done():
-				outlet.Send(streamold.Error(ctx.Err()))
+				outlet.Send(stream.Error(ctx.Err()))
 				return
 			case <-outlet.Done():
 				return
@@ -34,27 +34,27 @@ func (receiver *iteratorSourceStage) Run(ctx context.Context) {
 			}
 			value, err := iterator.Next()
 			if err != nil {
-				outlet.Send(streamold.Error(err))
+				outlet.Send(stream.Error(err))
 			} else {
-				outlet.Send(streamold.Value(value))
+				outlet.Send(stream.Value(value))
 			}
 
 		}
 	}(receiver.outlet, receiver.iterator)
 }
 
-func (receiver *iteratorSourceStage) Outlet() *streamold.Outlet {
+func (receiver *iteratorSourceStage) Outlet() *stream.Outlet {
 	return receiver.outlet
 }
 
-func iteratorSource(name string, iterator iterator.Iterator, options ...streamold.StageOption) streamold.SourceStage {
-	stageOptions := streamold.DefaultStageOptions.
-		Apply(streamold.Name("IteratorSource")).
+func iteratorSource(name string, iterator iterator.Iterator, options ...stream.StageOption) stream.SourceStage {
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name("IteratorSource")).
 		Apply(options...)
 
 	return &iteratorSourceStage{
 		name:     stageOptions.Name,
-		outlet:   streamold.NewOutlet(stageOptions),
+		outlet:   stream.NewOutlet(stageOptions),
 		iterator: iterator,
 	}
 }

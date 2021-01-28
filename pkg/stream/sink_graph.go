@@ -1,14 +1,14 @@
 package stream
 
 type SinkGraph struct {
-	stage SinkStage
+	stage SinkStageWithOptions
 }
 
 func (g *SinkGraph) WithOptions(options ...StageOption) *SinkGraph {
 	return FromSink(g.stage.WithOptions(options...))
 }
 
-func FromSink(stage SinkStage) *SinkGraph {
+func FromSink(stage SinkStageWithOptions) *SinkGraph {
 	return &SinkGraph{
 		stage: stage,
 	}

@@ -6,36 +6,37 @@ import "context"
 var _ FlowStage = (*fusedStage)(nil)
 
 type fusedStage struct {
-	inputStage  SourceStage
-	outputStage FlowStage
+	fromStage SourceStage
+	toStage   FlowStageWithOptions
 }
 
-func (c *fusedStage) WithOptions(options ...StageOption) FlowStage {
-	return NewFusedFlow(c.inputStage, c.outputStage.WithOptions(options...))
+func (c *fusedStage) Inlet() *Inlet {
+	return c.toStage.Inlet()
+}
+
+func (c *fusedStage) WithOptions(options ...StageOption) FlowStageWithOptions {
+	return NewFusedFlow(c.fromStage, c.toStage.WithOptions(options...))
 }
 
 func (c *fusedStage) Name() string {
-	return c.outputStage.Name()
+	return c.toStage.Name()
 }
 
 func (c *fusedStage) Run(ctx context.Context) {
-	c.inputStage.Run(ctx)
-	c.outputStage.Run(ctx)
+	c.fromStage.Run(ctx)
+	c.toStage.Run(ctx)
 }
 
 func (c *fusedStage) Outlet() *Outlet {
-	return c.outputStage.Outlet()
+	return c.toStage.Outlet()
 }
 
-func (c *fusedStage) Wire(stage SourceStage) {
-	c.outputStage.Wire(stage)
-}
 
-func NewFusedFlow(inputStage SourceStage, outputStage FlowStage) FlowStage{
-	outputStage.Wire(inputStage)
+func NewFusedFlow(fromStage SourceStage, toStage FlowStageWithOptions) FlowStageWithOptions{
+	toStage.Inlet().WireTo(fromStage.Outlet())
 	return &fusedStage{
-		inputStage:  inputStage,
-		outputStage: outputStage,
+		fromStage: fromStage,
+		toStage:   toStage,
 	}
 }
 

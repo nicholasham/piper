@@ -2,16 +2,16 @@ package source
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify iteratorSource implements stream.SourceStage interface
-var _ streamold.SourceStage = (*singleSourceStage)(nil)
+var _ stream.SourceStage = (*singleSourceStage)(nil)
 
 type singleSourceStage struct {
 	name    string
-	element streamold.Element
-	outlet  *streamold.Outlet
+	element stream.Element
+	outlet  *stream.Outlet
 }
 
 func (s *singleSourceStage) Name() string {
@@ -25,21 +25,21 @@ func (s *singleSourceStage) Run(ctx context.Context) {
 	}()
 }
 
-func (s *singleSourceStage) Outlet() *streamold.Outlet {
+func (s *singleSourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
 
 
-func singleStage(value interface{}, options ...streamold.StageOption) streamold.SourceStage {
+func singleStage(value interface{}, options ...stream.StageOption) stream.SourceStage {
 
-	stageOptions := streamold.DefaultStageOptions.
-		Apply(streamold.Name("SingleSource")).
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name("SingleSource")).
 		Apply(options...)
 
 	return &singleSourceStage{
 		name:    stageOptions.Name,
-		element: streamold.Value(value),
-		outlet:  streamold.NewOutlet(stageOptions),
+		element: stream.Value(value),
+		outlet:  stream.NewOutlet(stageOptions),
 	}
 }
 

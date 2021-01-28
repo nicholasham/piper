@@ -3,16 +3,16 @@ package source
 import (
 	"context"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify failedSourceStage implements SourceStage interface
-var _ streamold.SourceStage = (*failedSourceStage)(nil)
+var _ stream.SourceStage = (*failedSourceStage)(nil)
 
 type failedSourceStage struct {
-	attributes *streamold.StageOptions
+	attributes *stream.StageOptions
 	cause      error
-	outlet     *streamold.Outlet
+	outlet     *stream.Outlet
 }
 
 func (receiver *failedSourceStage) Name() string {
@@ -20,24 +20,24 @@ func (receiver *failedSourceStage) Name() string {
 }
 
 func (receiver *failedSourceStage) Run(ctx context.Context) {
-	go func(outlet *streamold.Outlet, cause error) {
-		outlet.Send(streamold.Error(cause))
+	go func(outlet *stream.Outlet, cause error) {
+		outlet.Send(stream.Error(cause))
 		outlet.Close()
 		return
 	}(receiver.outlet, receiver.cause)
 }
 
-func (receiver *failedSourceStage) Outlet() *streamold.Outlet {
+func (receiver *failedSourceStage) Outlet() *stream.Outlet {
 	return receiver.outlet
 }
 
-func failedSource(cause error, options ...streamold.StageOption) streamold.SourceStage {
-	stageOptions := streamold.DefaultStageOptions.
-						Apply(streamold.Name("FailedSource")).
+func failedSource(cause error, options ...stream.StageOption) stream.SourceStage {
+	stageOptions := stream.DefaultStageOptions.
+						Apply(stream.Name("FailedSource")).
 						Apply(options...)
 	return &failedSourceStage{
 		attributes: stageOptions,
 		cause:      cause,
-		outlet:     streamold.NewOutlet(stageOptions),
+		outlet:     stream.NewOutlet(stageOptions),
 	}
 }

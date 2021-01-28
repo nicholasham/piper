@@ -92,7 +92,7 @@ func TestOptional(t *testing.T) {
 
 	t.Run("FlatMap returns mapped something", func(t *testing.T) {
 		expected := Some(2)
-		actual := Some(1).FlatMap(func(value T) Option {
+		actual := Some(1).FlatMap(func(value T) Optional {
 			return Some(2)
 		})
 		assert.Equal(t, expected, actual)
@@ -100,7 +100,7 @@ func TestOptional(t *testing.T) {
 
 	t.Run("FlatMap returns none when none", func(t *testing.T) {
 		expected := None()
-		actual := expected.FlatMap(func(value T) Option {
+		actual := expected.FlatMap(func(value T) Optional {
 			return Some(1)
 		})
 		assert.Equal(t, expected, actual)

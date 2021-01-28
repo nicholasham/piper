@@ -36,7 +36,7 @@ func Unfold(state interface{}, f iterator.UnfoldFunc, options ...stream.StageOpt
 }
 
 func Repeat(value interface{}, options ...stream.StageOption) *stream.SourceGraph {
-	f := func(state interface{}) types.Option {
+	f := func(state interface{}) types.Optional {
 		return types.Some(value)
 	}
 	return FromIterator("RepeatSource", iterator.Unfold(value, f), options...)

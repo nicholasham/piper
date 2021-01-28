@@ -3,7 +3,7 @@ package flow
 import (
 	"sync"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify foldOperator implements OperatorLogic interface
@@ -20,7 +20,7 @@ type foldOperator struct {
 func (receiver *foldOperator) Start(actions OperatorActions) {
 }
 
-func (receiver *foldOperator) Apply(element streamold.Element, actions OperatorActions) {
+func (receiver *foldOperator) Apply(element stream.Element, actions OperatorActions) {
 	receiver.Lock()
 	defer receiver.Unlock()
 	out, err := receiver.f(receiver.current, element.Value())

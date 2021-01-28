@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/nicholasham/piper/pkg/streamold/source"
+	"github.com/nicholasham/piper/pkg/zz/stream/source"
 
 	"go.uber.org/goleak"
 

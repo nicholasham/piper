@@ -1,7 +1,7 @@
 package stream
 
 type FlowGraph struct {
-	stage FlowStage
+	stage FlowStageWithOptions
 }
 
 func (g *FlowGraph) WithOptions(options ...StageOption) *FlowGraph {
@@ -12,7 +12,7 @@ func (g *FlowGraph) Via(that *FlowGraph) *FlowGraph {
 	return FromFlow(NewFusedFlow(g.stage, that.stage))
 }
 
-func FromFlow(stage FlowStage) *FlowGraph {
+func FromFlow(stage FlowStageWithOptions) *FlowGraph {
 	return &FlowGraph{
 		stage: stage,
 	}

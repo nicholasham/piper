@@ -4,18 +4,18 @@ import (
 	"context"
 
 	"github.com/gammazero/workerpool"
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify logFlowStage implements stream.FlowStage interface
-var _ streamold.FlowStage = (*logFlowStage)(nil)
+var _ stream.FlowStage = (*logFlowStage)(nil)
 
 type logFlowStage struct {
 	name        string
-	logger      streamold.Logger
+	logger      stream.Logger
 	parallelism int
-	inlet       *streamold.Inlet
-	outlet      *streamold.Outlet
+	inlet       *stream.Inlet
+	outlet      *stream.Outlet
 }
 
 func (l *logFlowStage) Name() string {
@@ -23,7 +23,7 @@ func (l *logFlowStage) Name() string {
 }
 
 func (l *logFlowStage) Run(ctx context.Context) {
-	go func(ctx context.Context, parallelism int, logger streamold.Logger, inlet *streamold.Inlet, outlet *streamold.Outlet) {
+	go func(ctx context.Context, parallelism int, logger stream.Logger, inlet *stream.Inlet, outlet *stream.Outlet) {
 		wp := workerpool.New(parallelism)
 		defer func() {
 			outlet.Close()
@@ -33,7 +33,7 @@ func (l *logFlowStage) Run(ctx context.Context) {
 
 			select {
 			case <-ctx.Done():
-				outlet.Send(streamold.Error(ctx.Err()))
+				outlet.Send(stream.Error(ctx.Err()))
 				inlet.Complete()
 			case <-outlet.Done():
 				inlet.Complete()
@@ -49,7 +49,7 @@ func (l *logFlowStage) Run(ctx context.Context) {
 	}(ctx, l.parallelism, l.logger, l.inlet, l.outlet)
 }
 
-func (l *logFlowStage) logAndSend(element streamold.Element) func() {
+func (l *logFlowStage) logAndSend(element stream.Element) func() {
 	return func() {
 		logger := l.logger
 		if !element.IsError() {
@@ -61,24 +61,24 @@ func (l *logFlowStage) logAndSend(element streamold.Element) func() {
 	}
 }
 
-func (l *logFlowStage) Outlet() *streamold.Outlet {
+func (l *logFlowStage) Outlet() *stream.Outlet {
 	return l.outlet
 }
 
-func (l *logFlowStage) Wire(stage streamold.SourceStage) {
+func (l *logFlowStage) Wire(stage stream.SourceStage) {
 	l.inlet.WireTo(stage.Outlet())
 }
 
-func logFlow(name string, options ...streamold.StageOption) streamold.FlowStage {
-	stageOptions := streamold.DefaultStageOptions.
-		Apply(streamold.Name(name)).
+func logFlow(name string, options ...stream.StageOption) stream.FlowStage {
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name(name)).
 		Apply(options...)
 
 	return &logFlowStage{
 		name:        stageOptions.Name,
 		logger:      stageOptions.Logger,
 		parallelism: stageOptions.Parallelism,
-		inlet:       streamold.NewInlet(stageOptions),
-		outlet:      streamold.NewOutlet(stageOptions),
+		inlet:       stream.NewInlet(stageOptions),
+		outlet:      stream.NewOutlet(stageOptions),
 	}
 }

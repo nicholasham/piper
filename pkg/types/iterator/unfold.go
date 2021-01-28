@@ -4,13 +4,13 @@ import (
 	"github.com/nicholasham/piper/pkg/types"
 )
 
-type UnfoldFunc func(state interface{}) types.Option
+type UnfoldFunc func(state interface{}) types.Optional
 
 // verify unfoldIterator implements Iterator interface
 var _ Iterator = (*unfoldIterator)(nil)
 
 type unfoldIterator struct {
-	result types.Option
+	result types.Optional
 	f      UnfoldFunc
 }
 

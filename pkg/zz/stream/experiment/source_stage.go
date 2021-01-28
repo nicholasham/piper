@@ -2,16 +2,16 @@ package experiment
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
-var _ streamold.SourceStage = (*sourceStage)(nil)
+var _ stream.SourceStage = (*sourceStage)(nil)
 var _ StageActions = (*sourceStage)(nil)
 
 type sourceStage struct {
 	name   string
-	outlet *streamold.Outlet
-	logger streamold.Logger
+	outlet *stream.Outlet
+	logger stream.Logger
 	logic  OutHandler
 }
 
@@ -19,7 +19,7 @@ func (s *sourceStage) CompleteStage() {
 	s.outlet.Close()
 }
 
-func (s *sourceStage) Push(element streamold.Element) {
+func (s *sourceStage) Push(element stream.Element) {
 	s.outlet.Send(element)
 	s.outlet.Close()
 }
@@ -39,7 +39,7 @@ func (s *sourceStage) Run(ctx context.Context) {
 	}()
 }
 
-func (s *sourceStage) Outlet() *streamold.Outlet {
+func (s *sourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
 

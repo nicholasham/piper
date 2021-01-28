@@ -68,7 +68,7 @@ func Values(values ...interface{}) []Element {
 	return elements
 }
 
-// Maps the result inputStage the element if it has a result
+// Maps the result fromStage the element if it has a result
 func (e Element) MapValue(f MapValue) Element {
 	if e.IsError() {
 		return e
@@ -80,7 +80,7 @@ func (e Element) MapValue(f MapValue) Element {
 	return Value(value)
 }
 
-// Maps the err inputStage the element if has error
+// Maps the err fromStage the element if has error
 func (e Element) MapError(f MapError) Element {
 	if e.IsError() {
 		return Error(f(e.error))

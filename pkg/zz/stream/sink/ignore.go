@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 var Ignored error = fmt.Errorf("output ignored")
@@ -18,7 +18,7 @@ type ignoredCollector struct {
 func (h *ignoredCollector) Start(ctx context.Context, actions CollectActions) {
 }
 
-func (h *ignoredCollector) Collect(ctx context.Context, element streamold.Element, actions CollectActions) {
+func (h *ignoredCollector) Collect(ctx context.Context, element stream.Element, actions CollectActions) {
 	actions.FailStage(Ignored)
 }
 

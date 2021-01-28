@@ -5,21 +5,24 @@ import (
 )
 
 // Is a container for zero or one element of a given type
-type Option struct {
+type Optional struct {
 	value    T
 	hasValue bool
 }
 
-type FlatMapFunc func(value T) Option
+type FlatMapFunc func(value T) Optional
 type MapFunc func(value T) T
 type PredicateFunc func(value T) bool
+
+type MapSome func(value T) R
+type MapNone func() R
 
 type T interface{}
 
 var EmptyError = fmt.Errorf("is empty")
 
 // Returns the option's value.
-func (o Option) Get() (T, error) {
+func (o Optional) Get() (T, error) {
 	if o.IsNone() {
 		return nil, EmptyError
 	}
@@ -27,12 +30,12 @@ func (o Option) Get() (T, error) {
 }
 
 // Returns true if the option is in a None state, false otherwise.
-func (o Option) IsNone() bool {
+func (o Optional) IsNone() bool {
 	return !o.hasValue
 }
 
-// Returns true if this option is nonempty and the predicate p returns true when applied to this Option's value. Otherwise, returns false.
-func (o Option) Exists(f PredicateFunc) bool {
+// Returns true if this option is nonempty and the predicate p returns true when applied to this Optional's value. Otherwise, returns false.
+func (o Optional) Exists(f PredicateFunc) bool {
 	if !o.IsSome() {
 		return false
 	}
@@ -40,51 +43,58 @@ func (o Option) Exists(f PredicateFunc) bool {
 }
 
 // Returns true if the option is a Some state, false otherwise.
-func (o Option) IsSome() bool {
+func (o Optional) IsSome() bool {
 	return o.hasValue
 }
 
 // Returns the option's value if the option is nonempty, otherwise return the result of evaluating default.
-func (o Option) GetOrElse(defaultValue interface{}) interface{} {
+func (o Optional) GetOrElse(defaultValue interface{}) interface{} {
 	if o.IsNone() {
 		return defaultValue
 	}
 	return o.value
 }
 
-// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns true. Otherwise, return None.
-func (o Option) Filter(f PredicateFunc) Option {
+// Returns this Optional if it is nonempty and applying the predicate p to this Optional's value returns true. Otherwise, return None.
+func (o Optional) Filter(f PredicateFunc) Optional {
 	if o.IsSome() && o.Exists(f) {
 		return o
 	}
 	return None()
 }
 
-// Returns the result of applying f to this Option's value if this Option is nonempty. Returns None if this Option is empty.
-func (o Option) FlatMap(f FlatMapFunc) Option {
+// Returns the result of applying f to this Optional's value if this Optional is nonempty. Returns None if this Optional is empty.
+func (o Optional) FlatMap(f FlatMapFunc) Optional {
 	if o.IsNone() {
 		return o
 	}
 	return f(o.value)
 }
 
-// Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
-func (o Option) Map(f MapFunc) Option {
+// Returns a Some containing the result of applying f to this Optional's value if this Optional is nonempty. Otherwise return None.
+func (o Optional) Map(f MapFunc) Optional {
 	if o.IsNone() {
 		return o
 	}
 	return Some(f(o.value))
 }
 
-func None() Option {
-	return Option{
+func (o Optional) Match(some MapSome, none MapNone) R {
+	if o.IsNone() {
+		return none()
+	}
+	return some(o.value)
+}
+
+func None() Optional {
+	return Optional{
 		value:    nil,
 		hasValue: false,
 	}
 }
 
-func Some(value interface{}) Option {
-	return Option{
+func Some(value interface{}) Optional {
+	return Optional{
 		value:    value,
 		hasValue: true,
 	}

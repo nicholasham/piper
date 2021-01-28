@@ -2,13 +2,12 @@ package sink
 
 import (
 	"context"
-
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 type CollectorLogic interface {
 	Start(ctx context.Context, actions CollectActions)
-	Collect(ctx context.Context, element streamold.Element, actions CollectActions)
+	Collect(ctx context.Context, element stream.Element, actions CollectActions)
 	End(ctx context.Context, actions CollectActions)
 }
 
@@ -43,15 +42,15 @@ func (c *collectActions) CompleteStage(value interface{}) {
 	c.completeStage(value)
 }
 
-// verify collectorSinkStage implements stream.SinkStage interface
-var _ streamold.SinkStage = (*collectorSinkStage)(nil)
+// verify collectorSinkStage implements stream.SinkStageWithOptions interface
+var _ stream.SinkStage = (*collectorSinkStage)(nil)
 
 type collectorSinkStage struct {
 	name      string
-	logger    streamold.Logger
+	logger    stream.Logger
 	collector CollectorLogic
-	inlet     *streamold.Inlet
-	promise   *streamold.Promise
+	inlet     *stream.Inlet
+	promise   *stream.Promise
 }
 
 func (c *collectorSinkStage) Name() string {
@@ -89,31 +88,31 @@ func (c *collectorSinkStage) Run(ctx context.Context) {
 			}
 		}
 		c.collector.End(ctx, c.newActions())
-		c.promise.Resolve(streamold.NotUsed)
+		c.promise.Resolve(stream.NotUsed)
 	}()
 }
 
-func (c *collectorSinkStage) Wire(stage streamold.SourceStage) {
+func (c *collectorSinkStage) Wire(stage stream.SourceStage) {
 	c.inlet.WireTo(stage.Outlet())
 }
 
-func (c *collectorSinkStage) Inlet() *streamold.Inlet {
+func (c *collectorSinkStage) Inlet() *stream.Inlet {
 	return c.inlet
 }
 
-func (c *collectorSinkStage) Result() streamold.Future {
+func (c *collectorSinkStage) Result() stream.Future {
 	return c.promise
 }
 
-func CollectorSink(name string, collector CollectorLogic, options []streamold.StageOption) streamold.SinkStage {
-	stageOptions := streamold.DefaultStageOptions.
-		Apply(streamold.Name(name)).
+func CollectorSink(name string, collector CollectorLogic, options []stream.StageOption) stream.SinkStage {
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name(name)).
 		Apply(options...)
 	return &collectorSinkStage{
 		name:      stageOptions.Name,
 		logger:    stageOptions.Logger,
 		collector: collector,
-		inlet:     streamold.NewInlet(stageOptions),
-		promise:   streamold.NewPromise(),
+		inlet:     stream.NewInlet(stageOptions),
+		promise:   stream.NewPromise(),
 	}
 }

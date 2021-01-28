@@ -2,15 +2,15 @@ package experiment
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
-var _ streamold.SinkStage = (*sinkStage)(nil)
+var _ stream.SinkStage = (*sinkStage)(nil)
 
 type sinkStage struct {
 	name string
-	inlet *streamold.Inlet
-	promise *streamold.Promise
+	inlet *stream.Inlet
+	promise *stream.Promise
 	logic InHandler
 }
 
@@ -39,15 +39,15 @@ func (s *sinkStage) Run(ctx context.Context) {
 	}()
 }
 
-func (s *sinkStage) Wire(stage streamold.SourceStage) {
+func (s *sinkStage) Wire(stage stream.SourceStage) {
 	s.Wire(stage)
 }
 
-func (s *sinkStage) Inlet() *streamold.Inlet {
+func (s *sinkStage) Inlet() *stream.Inlet {
 	return s.inlet
 }
 
-func (s *sinkStage) Result() streamold.Future {
+func (s *sinkStage) Result() stream.Future {
 	return s.promise
 }
 
@@ -56,7 +56,7 @@ func (s *sinkStage) newStageActions() StageActions {
 		onCompleteStage: func() {
 			s.inlet.Complete()
 		},
-		onPush: func(element streamold.Element) {
+		onPush: func(element stream.Element) {
 		},
 		onFailStage: func(cause error) {
 

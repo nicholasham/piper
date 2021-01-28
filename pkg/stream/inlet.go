@@ -12,30 +12,30 @@ type Inlet struct {
 	completionSignaled bool
 }
 
-func (receiver *Inlet) In() <-chan Element {
-	return receiver.in
+func (i *Inlet) In() <-chan Element {
+	return i.in
 }
 
-func (receiver *Inlet) Complete() {
-	receiver.once.Do(func() {
-		close(receiver.done)
-		receiver.completionSignaled = true
+func (i *Inlet) Complete() {
+	i.once.Do(func() {
+		close(i.done)
+		i.completionSignaled = true
 	})
 }
 
-func (receiver *Inlet) CompletionSignaled() bool {
-	return receiver.completionSignaled
+func (i *Inlet) CompletionSignaled() bool {
+	return i.completionSignaled
 }
 
-func (receiver *Inlet) WireTo(outlet *Outlet) *Inlet {
-	receiver.in = outlet.out
-	receiver.done = outlet.done
-	return receiver
+func (i *Inlet) WireTo(outlet *Outlet) *Inlet {
+	i.in = outlet.out
+	i.done = outlet.done
+	return i
 }
 
 func NewInlet(options *StageOptions) *Inlet {
 	return &Inlet{
-		name: options.Name + ".inputStage",
+		name: options.Name + ".in",
 		in:   make(chan Element),
 		done: make(chan struct{}),
 	}

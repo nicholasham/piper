@@ -3,7 +3,7 @@ package experiment
 import (
 	"context"
 	. "github.com/ahmetb/go-linq/v3"
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 	"github.com/nicholasham/piper/pkg/types"
 )
 
@@ -11,14 +11,14 @@ type MapConcat func(interface{}) Query
 
 type MapConcatFactory func() MapConcat
 
-var _ streamold.SourceStage = (*selectManyStage)(nil)
+var _ stream.SourceStage = (*selectManyStage)(nil)
 
 type selectManyStage struct {
 	name    string
-	inlet   *streamold.Inlet
-	outlet  *streamold.Outlet
+	inlet   *stream.Inlet
+	outlet  *stream.Outlet
 	factory MapConcatFactory
-	decider streamold.Decider
+	decider stream.Decider
 }
 
 func (s *selectManyStage) Name() string {
@@ -33,7 +33,7 @@ func (s *selectManyStage) Run(ctx context.Context) {
 
 			select {
 			case <-ctx.Done():
-				s.outlet.Send(streamold.Error(ctx.Err()))
+				s.outlet.Send(stream.Error(ctx.Err()))
 				return
 			case <-s.outlet.Done():
 				return
@@ -50,14 +50,14 @@ func (s *selectManyStage) Run(ctx context.Context) {
 				}
 
 				result.IfSuccess(func(value interface{}) {
-					s.outlet.Send(streamold.Value(value))
+					s.outlet.Send(stream.Value(value))
 				})
 				result.IfFailure(func(err error) {
 					switch s.decider(err) {
-					case streamold.Stop:
+					case stream.Stop:
 						s.inlet.Complete()
-					case streamold.Resume:
-					case streamold.Reset:
+					case stream.Resume:
+					case stream.Reset:
 					}
 				})
 			}
@@ -65,6 +65,6 @@ func (s *selectManyStage) Run(ctx context.Context) {
 	}()
 }
 
-func (s *selectManyStage) Outlet() *streamold.Outlet {
+func (s *selectManyStage) Outlet() *stream.Outlet {
 	return s.outlet
 }

@@ -13,26 +13,26 @@ type Outlet struct {
 	sync.Mutex
 }
 
-func (receiver *Outlet) Send(element Element) {
-	receiver.Lock()
-	defer receiver.Unlock()
-	receiver.out <- element
+func (o *Outlet) Send(element Element) {
+	o.Lock()
+	defer o.Unlock()
+	o.out <- element
 }
 
-func (receiver *Outlet) Done() chan struct{} {
-	return receiver.done
+func (o *Outlet) Done() chan struct{} {
+	return o.done
 }
 
-func (receiver *Outlet) Close() {
-	receiver.once.Do(func() {
-		receiver.closed = true
-		close(receiver.out)
+func (o *Outlet) Close() {
+	o.once.Do(func() {
+		o.closed = true
+		close(o.out)
 	})
 }
 
 func NewOutlet(options *StageOptions) *Outlet {
 	return &Outlet{
-		name: options.Name + ".outputStage",
+		name: options.Name + ".out",
 		out:  createChannel(options),
 		done: make(chan struct{}),
 	}

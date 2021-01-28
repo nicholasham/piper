@@ -4,19 +4,19 @@ import (
 	"context"
 
 	"github.com/gammazero/workerpool"
-	"github.com/nicholasham/piper/pkg/streamold"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify operatorFlowStage implements stream.FlowStage interface
-var _ streamold.FlowStage = (*operatorFlowStage)(nil)
+var _ stream.FlowStage = (*operatorFlowStage)(nil)
 
 
-type OperatorLogicFactory func(options streamold.StageOption)  OperatorLogic
+type OperatorLogicFactory func(options stream.StageOption)  OperatorLogic
 
 type OperatorLogic interface {
 	SupportsParallelism() bool
 	Start(actions OperatorActions)
-	Apply(element streamold.Element, actions OperatorActions)
+	Apply(element stream.Element, actions OperatorActions)
 	End(actions OperatorActions)
 }
 
@@ -55,17 +55,17 @@ func (o *operatorActions) CompleteStage() {
 
 type CompleteStage func()
 type FailStage func(cause error)
-type SendElement func(element streamold.Element)
-type OnPush func(element streamold.Element, actions OperatorActions)
+type SendElement func(element stream.Element)
+type OnPush func(element stream.Element, actions OperatorActions)
 
 type operatorFlowStage struct {
 	name        string
-	logger      streamold.Logger
+	logger      stream.Logger
 	parallelism int
-	inlet       *streamold.Inlet
-	outlet      *streamold.Outlet
+	inlet       *stream.Inlet
+	outlet      *stream.Outlet
 	operator    OperatorLogic
-	decider     streamold.Decider
+	decider     stream.Decider
 }
 
 func (receiver *operatorFlowStage) Name() string {
@@ -73,7 +73,7 @@ func (receiver *operatorFlowStage) Name() string {
 }
 
 func (receiver *operatorFlowStage) Run(ctx context.Context) {
-	go func(ctx context.Context, parallelism int, operator OperatorLogic, inlet *streamold.Inlet, outlet *streamold.Outlet) {
+	go func(ctx context.Context, parallelism int, operator OperatorLogic, inlet *stream.Inlet, outlet *stream.Outlet) {
 		wp := workerpool.New(parallelism)
 		defer func() {
 			outlet.Close()
@@ -88,7 +88,7 @@ func (receiver *operatorFlowStage) Run(ctx context.Context) {
 
 			select {
 			case <-ctx.Done():
-				outlet.Send(streamold.Error(ctx.Err()))
+				outlet.Send(stream.Error(ctx.Err()))
 				inlet.Complete()
 			case <-outlet.Done():
 				inlet.Complete()
@@ -104,10 +104,10 @@ func (receiver *operatorFlowStage) Run(ctx context.Context) {
 func (receiver *operatorFlowStage) newOperatorActions() OperatorActions {
 	return &operatorActions{
 		pushError: func(cause error) {
-			receiver.outlet.Send(streamold.Error(cause))
+			receiver.outlet.Send(stream.Error(cause))
 		},
 		pushValue: func(value interface{}) {
-			receiver.outlet.Send(streamold.Value(value))
+			receiver.outlet.Send(stream.Value(value))
 		},
 		failStage: func(cause error) {
 			receiver.logger.Error(cause, "failed stage because")
@@ -119,28 +119,28 @@ func (receiver *operatorFlowStage) newOperatorActions() OperatorActions {
 	}
 }
 
-func (receiver *operatorFlowStage) Push(element streamold.Element, actions OperatorActions) func() {
+func (receiver *operatorFlowStage) Push(element stream.Element, actions OperatorActions) func() {
 	return func() {
 		receiver.operator.Apply(element, actions)
 	}
 }
 
-func (receiver *operatorFlowStage) Outlet() *streamold.Outlet {
+func (receiver *operatorFlowStage) Outlet() *stream.Outlet {
 	return receiver.outlet
 }
 
-func (receiver *operatorFlowStage) Wire(stage streamold.SourceStage) {
+func (receiver *operatorFlowStage) Wire(stage stream.SourceStage) {
 	receiver.inlet.WireTo(stage.Outlet())
 }
 
-func OperatorFlow(name string, operator OperatorLogic, options ...streamold.StageOption) streamold.FlowStage {
+func OperatorFlow(name string, operator OperatorLogic, options ...stream.StageOption) stream.FlowStage {
 
-	stageOptions := streamold.DefaultStageOptions.
-		Apply(streamold.Name(name)).
+	stageOptions := stream.DefaultStageOptions.
+		Apply(stream.Name(name)).
 		Apply(options...)
 
 	if !operator.SupportsParallelism() {
-		stageOptions.Apply(streamold.Parallelism(1))
+		stageOptions.Apply(stream.Parallelism(1))
 	}
 
 	return &operatorFlowStage{
@@ -149,7 +149,7 @@ func OperatorFlow(name string, operator OperatorLogic, options ...streamold.Stag
 		parallelism: stageOptions.Parallelism,
 		decider:     stageOptions.Decider,
 		operator:    operator,
-		inlet:       streamold.NewInlet(stageOptions),
-		outlet:      streamold.NewOutlet(stageOptions),
+		inlet:       stream.NewInlet(stageOptions),
+		outlet:      stream.NewOutlet(stageOptions),
 	}
 }

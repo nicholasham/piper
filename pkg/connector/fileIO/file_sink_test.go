@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/nicholasham/piper/pkg/connector/fileIO/testfs"
-	"github.com/nicholasham/piper/pkg/streamold"
-	"github.com/nicholasham/piper/pkg/streamold/flow"
-	"github.com/nicholasham/piper/pkg/streamold/source"
+	"github.com/nicholasham/piper/pkg/zz/stream"
+	"github.com/nicholasham/piper/pkg/zz/stream/flow"
+	"github.com/nicholasham/piper/pkg/zz/stream/source"
 	"github.com/nicholasham/piper/pkg/types/list"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ func TestFileSink(t *testing.T) {
 		value, err := result.Await()
 
 		assert.NoError(t, err)
-		assert.Equal(t, streamold.NotUsed, value)
+		assert.Equal(t, stream.NotUsed, value)
 		assert.Equal(t, list.ToString(expectedLines, ""), fs.ReadFileContents(targetFile))
 	})
 
