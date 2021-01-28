@@ -10,9 +10,10 @@ type fusedStage struct {
 	toStage   FlowStageWithOptions
 }
 
-func (c *fusedStage) Inlet() *Inlet {
-	return c.toStage.Inlet()
+func (c *fusedStage) WireTo(stage OutputStage) {
+	 c.WireTo(stage)
 }
+
 
 func (c *fusedStage) With(options ...StageOption) FlowStageWithOptions {
 	return NewFusedFlow(c.fromStage, c.toStage.With(options...))
@@ -33,7 +34,7 @@ func (c *fusedStage) Outlet() *Outlet {
 
 
 func NewFusedFlow(fromStage SourceStage, toStage FlowStageWithOptions) FlowStageWithOptions{
-	toStage.Inlet().WireTo(fromStage.Outlet())
+	toStage.WireTo(fromStage)
 	return &fusedStage{
 		fromStage: fromStage,
 		toStage:   toStage,

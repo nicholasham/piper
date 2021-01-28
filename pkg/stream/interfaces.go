@@ -27,7 +27,7 @@ type OutputStage interface {
 
 type InputStage interface {
 	Stage
-	Inlet() * Inlet
+	WireTo(stage OutputStage)
 }
 
 type SourceStage interface {
