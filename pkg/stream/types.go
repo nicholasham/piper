@@ -20,17 +20,21 @@ type Future interface {
 	Await() (interface{}, error)
 }
 
-type SourceStage interface {
+type OutStage interface {
 	Stage
+	Wire(stage SourceStage)
 	Outlet() *Outlet
+}
+
+type SourceStage interface {
+	OutStage
 	WithOptions(options ...StageOption) SourceStage
 }
 
 type FlowStage interface {
-	Wire(stage SourceStage)
+	OutStage
 	WithOptions(options ...StageOption) FlowStage
 }
-
 
 type CompletionStage interface {
 	Result() Future
