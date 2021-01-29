@@ -10,6 +10,7 @@ type Stage interface {
 
 type SinkStage interface {
 	InputStage
+	WireTo(stage OutputStage) SinkStage
 	Result() Future
 }
 
@@ -24,7 +25,7 @@ type OutputStage interface {
 
 type InputStage interface {
 	Stage
-	WireTo(stage OutputStage)
+
 }
 
 type SourceStage interface {
@@ -34,4 +35,5 @@ type SourceStage interface {
 type FlowStage interface {
 	InputStage
 	OutputStage
+	WireTo(stage OutputStage) FlowStage
 }

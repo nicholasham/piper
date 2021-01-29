@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// verify fanInFlowStage implements FlowStageWithOptions interface
+// verify fanInFlowStage implements FlowStage interface
 var _ FlowStage = (*fanInFlowStage)(nil)
 
 type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
