@@ -79,3 +79,11 @@ func (r Result) Unwrap() (A, error){
 	return r.value, nil
 }
 
+func WrapInResult(f func() (A, error)) Result {
+	value, err := f()
+	if err != nil {
+		return Failure(err)
+	}
+	return Success(value)
+}
+

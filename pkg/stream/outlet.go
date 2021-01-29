@@ -19,6 +19,14 @@ func (o *Outlet) Send(element Element) {
 	o.out <- element
 }
 
+func (o *Outlet) SendValue(value interface{}) {
+	o.Send(Value(value))
+}
+
+func (o *Outlet) SendError(err error) {
+	o.Send(Error(err))
+}
+
 func (o *Outlet) Done() chan struct{} {
 	return o.done
 }

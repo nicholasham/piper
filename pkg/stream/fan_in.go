@@ -54,13 +54,13 @@ func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStageWithOption
 	return &flow
 }
 
-func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy) *SourceGraph {
+/*func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy) *SourceGraph {
 	var stages []SourceStage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
 	}
 	return FromSource(FanInFlow(stages, strategy))
-}
+}*/
 
 func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy) *FlowGraph {
 	var stages []SourceStage
