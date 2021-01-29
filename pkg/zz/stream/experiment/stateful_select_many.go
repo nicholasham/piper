@@ -2,9 +2,10 @@ package experiment
 
 import (
 	"context"
+
 	. "github.com/ahmetb/go-linq/v3"
-	"github.com/nicholasham/piper/pkg/zz/stream"
 	"github.com/nicholasham/piper/pkg/types"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 type MapConcat func(interface{}) Query

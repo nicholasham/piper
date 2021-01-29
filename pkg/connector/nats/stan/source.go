@@ -51,7 +51,7 @@ func (s *stanSourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
 
-func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ... stream.StageOption) *stream.SourceGraph {
+func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ...stream.StageOption) *stream.SourceGraph {
 	stageOptions := stream.DefaultStageOptions.Apply(stream.Name("StanSource")).Apply(options...)
 	return stream.SourceFrom(&stanSourceStage{
 		name:                stageOptions.Name,

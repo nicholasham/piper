@@ -1,9 +1,9 @@
 package source
 
 import (
-	"github.com/nicholasham/piper/pkg/zz/stream"
 	"github.com/nicholasham/piper/pkg/types"
 	"github.com/nicholasham/piper/pkg/types/iterator"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // Range Emit each integer in a stepped range.
@@ -20,7 +20,7 @@ func List(values []interface{}, options ...stream.StageOption) *stream.SourceGra
 }
 
 func Single(value interface{}, options ...stream.StageOption) *stream.SourceGraph {
-	return stream.SourceFrom (singleStage(value, options...))
+	return stream.SourceFrom(singleStage(value, options...))
 }
 
 func Failed(cause error, options ...stream.StageOption) *stream.SourceGraph {

@@ -14,7 +14,7 @@ func ResumingDecider(cause error) Directive {
 
 const (
 	// The stream will be completed with failure if application code for processing an element returns an error.
-	Stop Directive  = iota
+	Stop Directive = iota
 	// The element is dropped and the stream continues if application code for processing an element returns an error.
 	Resume
 

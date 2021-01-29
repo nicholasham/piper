@@ -5,7 +5,7 @@ type StageOptions struct {
 	OutputBufferSize int
 	Parallelism      int
 	Logger           Logger
-	Decider Decider
+	Decider          Decider
 }
 
 func (s *StageOptions) Apply(options ...StageOption) *StageOptions {
@@ -16,7 +16,7 @@ func (s *StageOptions) Apply(options ...StageOption) *StageOptions {
 }
 
 func (s *StageOptions) Copy() *StageOptions {
-	return & StageOptions{
+	return &StageOptions{
 		Name:             s.Name,
 		OutputBufferSize: s.OutputBufferSize,
 		Parallelism:      s.Parallelism,
@@ -31,7 +31,7 @@ var DefaultStageOptions = &StageOptions{
 	OutputBufferSize: 0,
 	Parallelism:      1,
 	Logger:           &defaultLogger{},
-	Decider: StoppingDecider,
+	Decider:          StoppingDecider,
 }
 
 func Name(value string) StageOption {

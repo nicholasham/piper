@@ -2,6 +2,7 @@ package source
 
 import (
 	"context"
+
 	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
@@ -29,7 +30,6 @@ func (s *singleSourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
 
-
 func singleStage(value interface{}, options ...stream.StageOption) stream.SourceStage {
 
 	stageOptions := stream.DefaultStageOptions.
@@ -42,4 +42,3 @@ func singleStage(value interface{}, options ...stream.StageOption) stream.Source
 		outlet:  stream.NewOutlet(stageOptions),
 	}
 }
-

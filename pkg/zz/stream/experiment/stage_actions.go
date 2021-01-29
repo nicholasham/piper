@@ -8,14 +8,12 @@ type StageActions interface {
 	FailStage(cause error)
 }
 
-
 var _ StageActions = (*stageActions)(nil)
-
 
 type stageActions struct {
 	onCompleteStage func()
-	onPush func(element stream.Element)
-	onFailStage func(cause error)
+	onPush          func(element stream.Element)
+	onFailStage     func(cause error)
 }
 
 func (s *stageActions) CompleteStage() {
@@ -29,4 +27,3 @@ func (s *stageActions) Push(element stream.Element) {
 func (s *stageActions) FailStage(cause error) {
 	s.onFailStage(cause)
 }
-

@@ -12,19 +12,19 @@ type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
 
 type fanInFlowStage struct {
 	options *StageOptions
-	inlets     []*Inlet
-	outlet     *Outlet
-	fanIn      FanInStrategy
+	inlets  []*Inlet
+	outlet  *Outlet
+	fanIn   FanInStrategy
 }
 
 func (receiver *fanInFlowStage) WireTo(stage OutputStage) {
 	inlet := NewInlet(receiver.options)
 	inlet.WireTo(stage.Outlet())
-	receiver.inlets = append(receiver.inlets,inlet)
+	receiver.inlets = append(receiver.inlets, inlet)
 }
 
 func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {
-	options:= receiver.options.Apply(opts...)
+	options := receiver.options.Apply(opts...)
 	return &fanInFlowStage{
 		options: options,
 		inlets:  receiver.inlets,
@@ -49,8 +49,8 @@ func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStage {
 	stageOptions := DefaultStageOptions.Apply(Name("FanIn"))
 	flow := fanInFlowStage{
 		options: stageOptions,
-		outlet:     NewOutlet(stageOptions),
-		fanIn:      strategy,
+		outlet:  NewOutlet(stageOptions),
+		fanIn:   strategy,
 	}
 
 	for _, stage := range stages {
@@ -191,4 +191,28 @@ func sendOutSegment(ctx context.Context, segmentSize int, inlet *Inlet, outlet *
 		default:
 		}
 	}
+}
+
+func ConcatSources(graphs ...*SourceGraph) *SourceGraph {
+	return CombineSources(graphs, ConcatStrategy()).Named("ConcatSource")
+}
+
+func InterleaveSources(segmentSize int, graphs ...*SourceGraph) *SourceGraph {
+	return CombineSources(graphs, InterleaveStrategy(segmentSize)).Named("InterleaveSource")
+}
+
+func MergeSources(graphs ...*SourceGraph) *SourceGraph {
+	return CombineSources(graphs, MergeStrategy()).Named("MergeSource")
+}
+
+func ConcatFlows(graphs ...*FlowGraph) *FlowGraph {
+	return CombineFlows(graphs, ConcatStrategy()).Named("ConcatFlows")
+}
+
+func InterleaveFlows(segmentSize int, graphs ...*FlowGraph) *FlowGraph {
+	return CombineFlows(graphs, InterleaveStrategy(segmentSize)).Named("InterleaveSource")
+}
+
+func MergeFlows(graphs ...*FlowGraph) *FlowGraph {
+	return CombineFlows(graphs, MergeStrategy()).Named("MergeSource")
 }

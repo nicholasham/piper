@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/nicholasham/piper/pkg/connector/fileIO/testfs"
+	"github.com/nicholasham/piper/pkg/types/list"
 	"github.com/nicholasham/piper/pkg/zz/stream"
 	"github.com/nicholasham/piper/pkg/zz/stream/flow"
 	"github.com/nicholasham/piper/pkg/zz/stream/source"
-	"github.com/nicholasham/piper/pkg/types/list"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -27,11 +27,10 @@ func (c *fusedStage) Wire(stage SourceStage) {
 	c.outputStage.Wire(stage)
 }
 
-func NewFusedFlow(inputStage SourceStage, outputStage FlowStage) FlowStage{
+func NewFusedFlow(inputStage SourceStage, outputStage FlowStage) FlowStage {
 	outputStage.Wire(inputStage)
 	return &fusedStage{
 		inputStage:  inputStage,
 		outputStage: outputStage,
 	}
 }
-

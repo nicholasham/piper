@@ -8,7 +8,7 @@ import (
 var _ FlowStage = (*alsoToFlowStage)(nil)
 
 type alsoToFlowStage struct {
-	name      string
+	name            string
 	inlet           *Inlet
 	defaultOutlet   *Outlet
 	diversionOutlet *Outlet
@@ -61,7 +61,7 @@ func alsoTo(source SourceStage, sink SinkStage, options ...StageOption) FlowStag
 		Apply(Name("AlsoToFlow")).
 		Apply(options...)
 	flow := &alsoToFlowStage{
-		name:      stageOptions.Name,
+		name:            stageOptions.Name,
 		inlet:           NewInlet(stageOptions),
 		defaultOutlet:   NewOutlet(stageOptions),
 		diversionOutlet: NewOutlet(stageOptions.Copy().Apply(Name(stageOptions.Name + "-Also"))),

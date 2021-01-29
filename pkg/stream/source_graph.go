@@ -9,7 +9,7 @@ func (g *SourceGraph) With(options ...StageOption) *SourceGraph {
 }
 
 func (g *SourceGraph) Named(name string) *SourceGraph {
-	return FromSource(g.stage.With(Name(name)).(SourceStage))
+	return g.With(Name(name))
 }
 
 func (g *SourceGraph) Via(that *FlowGraph) *FlowGraph {
@@ -22,3 +22,14 @@ func FromSource(stage SourceStage) *SourceGraph {
 	}
 }
 
+func (g *SourceGraph) Concat(that *SourceGraph) *SourceGraph {
+	return ConcatSources(g, that)
+}
+
+func (g *SourceGraph) Interleave(segmentSize int, that *SourceGraph) *SourceGraph {
+	return InterleaveSources(segmentSize, g, that)
+}
+
+func (g *SourceGraph) Merge(that *SourceGraph) *SourceGraph {
+	return MergeSources(g, that)
+}

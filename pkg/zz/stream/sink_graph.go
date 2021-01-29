@@ -1,7 +1,7 @@
 package stream
 
 type SinkGraph struct {
-	stage  SinkStage
+	stage SinkStage
 }
 
 func (g *SinkGraph) Stage() SinkStage {
@@ -10,6 +10,6 @@ func (g *SinkGraph) Stage() SinkStage {
 
 func SinkFrom(sinkStage SinkStage) *SinkGraph {
 	return &SinkGraph{
-		stage:  sinkStage,
+		stage: sinkStage,
 	}
 }

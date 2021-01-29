@@ -39,7 +39,6 @@ type FlowStage interface {
 	Wire(stage SourceStage)
 }
 
-
 type CompletionStage interface {
 	Result() Future
 }

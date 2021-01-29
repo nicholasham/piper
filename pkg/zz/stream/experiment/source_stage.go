@@ -2,6 +2,7 @@ package experiment
 
 import (
 	"context"
+
 	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
@@ -42,4 +43,3 @@ func (s *sourceStage) Run(ctx context.Context) {
 func (s *sourceStage) Outlet() *stream.Outlet {
 	return s.outlet
 }
-

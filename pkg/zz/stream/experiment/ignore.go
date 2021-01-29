@@ -4,9 +4,7 @@ import "github.com/nicholasham/piper/pkg/zz/stream"
 
 var _ InHandler = (*IgnoreSinkLogic)(nil)
 
-
 type IgnoreSinkLogic struct {
-
 }
 
 func (i *IgnoreSinkLogic) OnPush(element stream.Element) {

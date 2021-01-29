@@ -5,7 +5,7 @@ import (
 )
 
 type SourceGraph struct {
-	stage  SourceStage
+	stage SourceStage
 }
 
 func (receiver *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
@@ -33,6 +33,6 @@ func (receiver *SourceGraph) To(that *SinkGraph) *RunnableGraph {
 
 func SourceFrom(sourceStage SourceStage) *SourceGraph {
 	return &SourceGraph{
-		stage:  sourceStage,
+		stage: sourceStage,
 	}
 }

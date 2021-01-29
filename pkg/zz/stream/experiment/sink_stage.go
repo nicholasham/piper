@@ -2,16 +2,17 @@ package experiment
 
 import (
 	"context"
+
 	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 var _ stream.SinkStage = (*sinkStage)(nil)
 
 type sinkStage struct {
-	name string
-	inlet *stream.Inlet
+	name    string
+	inlet   *stream.Inlet
 	promise *stream.Promise
-	logic InHandler
+	logic   InHandler
 }
 
 func (s *sinkStage) Name() string {
@@ -52,7 +53,7 @@ func (s *sinkStage) Result() stream.Future {
 }
 
 func (s *sinkStage) newStageActions() StageActions {
-	return & stageActions{
+	return &stageActions{
 		onCompleteStage: func() {
 			s.inlet.Complete()
 		},
@@ -63,4 +64,3 @@ func (s *sinkStage) newStageActions() StageActions {
 		},
 	}
 }
-

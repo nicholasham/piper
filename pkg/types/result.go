@@ -10,14 +10,13 @@ const (
 // Type that represents two states. Value or Error
 type Result struct {
 	state ResultState
-	err error
+	err   error
 	value A
 }
 
 // Represents the value type
 type A interface {
 }
-
 
 // Represents result type
 type R interface {
@@ -50,7 +49,6 @@ func (r Result) IsFailure() bool {
 	return r.state == IsFailure
 }
 
-
 func (r Result) IfSuccess(f func(value A)) Result {
 	if r.IsSuccess() {
 		f(r.value)
@@ -72,7 +70,7 @@ func (r Result) IfFailure(f func(err error)) Result {
 	return r
 }
 
-func (r Result) Unwrap() (A, error){
+func (r Result) Unwrap() (A, error) {
 	if r.IsFailure() {
 		return nil, r.err
 	}
@@ -86,4 +84,3 @@ func WrapInResult(f func() (A, error)) Result {
 	}
 	return Success(value)
 }
-

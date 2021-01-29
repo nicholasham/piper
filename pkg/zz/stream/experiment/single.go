@@ -15,5 +15,3 @@ func (s SingleSource) OnPull(actions StageActions) {
 
 func (s SingleSource) OnDownstreamFinish(actions StageActions) {
 }
-
-

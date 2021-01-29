@@ -7,7 +7,7 @@ type promiseDelivery chan Result
 type Promise struct {
 	sync.RWMutex
 	optionalResult Optional
-	waiters   []promiseDelivery
+	waiters        []promiseDelivery
 	sync.Once
 }
 
@@ -35,15 +35,14 @@ func (p *Promise) deliver(result Result) {
 
 func (p *Promise) Await() Result {
 	return p.optionalResult.
-		Match(p.onAlreadyReceived, p.onStillWaiting).
-		(Result)
+		Match(p.onAlreadyReceived, p.onStillWaiting).(Result)
 }
 
-func (p *Promise) onAlreadyReceived(value T)  R {
+func (p *Promise) onAlreadyReceived(value T) R {
 	return value.(Result)
 }
 
-func (p *Promise) onStillWaiting()  R {
+func (p *Promise) onStillWaiting() R {
 	delivery := make(promiseDelivery)
 	p.waiters = append(p.waiters, delivery)
 	return <-delivery
@@ -52,7 +51,6 @@ func (p *Promise) onStillWaiting()  R {
 func NewPromise() *Promise {
 	return &Promise{
 		optionalResult: None(),
-		waiters: []promiseDelivery{},
+		waiters:        []promiseDelivery{},
 	}
 }
-

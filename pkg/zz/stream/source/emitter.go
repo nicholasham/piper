@@ -9,7 +9,4 @@ type Emitter interface {
 }
 
 type EmitterActions interface {
-
 }
-
-

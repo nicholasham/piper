@@ -6,14 +6,12 @@ type Stage interface {
 	Name() string
 	Run(ctx context.Context)
 	With(options ...StageOption) Stage
-
 }
 
 type SinkStage interface {
 	InputStage
 	Result() Future
 }
-
 
 type Future interface {
 	Await() (interface{}, error)
@@ -37,4 +35,3 @@ type FlowStage interface {
 	InputStage
 	OutputStage
 }
-

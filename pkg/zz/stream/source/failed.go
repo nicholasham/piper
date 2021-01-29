@@ -33,8 +33,8 @@ func (receiver *failedSourceStage) Outlet() *stream.Outlet {
 
 func failedSource(cause error, options ...stream.StageOption) stream.SourceStage {
 	stageOptions := stream.DefaultStageOptions.
-						Apply(stream.Name("FailedSource")).
-						Apply(options...)
+		Apply(stream.Name("FailedSource")).
+		Apply(options...)
 	return &failedSourceStage{
 		attributes: stageOptions,
 		cause:      cause,

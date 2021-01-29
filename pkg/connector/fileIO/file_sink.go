@@ -3,10 +3,10 @@ package fileIO
 import (
 	"context"
 	"fmt"
-	"github.com/nicholasham/piper/pkg/zz/stream"
-	"github.com/nicholasham/piper/pkg/zz/stream/sink"
 	"os"
 
+	"github.com/nicholasham/piper/pkg/zz/stream"
+	"github.com/nicholasham/piper/pkg/zz/stream/sink"
 )
 
 // verify fileCollector implements CollectorLogic interface

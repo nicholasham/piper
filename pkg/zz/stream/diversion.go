@@ -10,7 +10,7 @@ var _ FlowStage = (*diversionFlowStage)(nil)
 type PredicateFunc func(element Element) bool
 
 type diversionFlowStage struct {
-	name string
+	name            string
 	inlet           *Inlet
 	defaultOutlet   *Outlet
 	diversionOutlet *Outlet
@@ -67,7 +67,7 @@ func diversion(source SourceStage, sink SinkStage, predicate PredicateFunc, opti
 		Apply(options...)
 
 	flow := &diversionFlowStage{
-		name:      stageOptions.Name,
+		name:            stageOptions.Name,
 		inlet:           NewInlet(stageOptions),
 		defaultOutlet:   NewOutlet(stageOptions),
 		diversionOutlet: NewOutlet(stageOptions.Copy().Apply(Name(stageOptions.Name + "-Diversion"))),

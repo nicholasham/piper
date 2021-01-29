@@ -11,10 +11,10 @@ var _ FlowStage = (*fanInFlowStage)(nil)
 type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
 
 type fanInFlowStage struct {
-	name string
-	inlets     []*Inlet
-	outlet     *Outlet
-	fanIn      FanInStrategy
+	name   string
+	inlets []*Inlet
+	outlet *Outlet
+	fanIn  FanInStrategy
 }
 
 func (receiver *fanInFlowStage) Name() string {
@@ -39,9 +39,9 @@ func FanInFlow(name string, stages []SourceStage, strategy FanInStrategy, option
 		Apply(Name("AlsoToFlow")).
 		Apply(options...)
 	flow := fanInFlowStage{
-		name: stageOptions.Name,
-		outlet:     NewOutlet(stageOptions),
-		fanIn:      strategy,
+		name:   stageOptions.Name,
+		outlet: NewOutlet(stageOptions),
+		fanIn:  strategy,
 	}
 
 	for _, stage := range stages {

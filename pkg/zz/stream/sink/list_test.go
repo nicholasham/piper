@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/nicholasham/piper/pkg/zz/stream/source"
 	"github.com/nicholasham/piper/pkg/types/iterator"
+	"github.com/nicholasham/piper/pkg/zz/stream/source"
 
 	"go.uber.org/goleak"
 

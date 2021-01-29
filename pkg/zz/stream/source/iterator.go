@@ -3,8 +3,8 @@ package source
 import (
 	"context"
 
-	"github.com/nicholasham/piper/pkg/zz/stream"
 	"github.com/nicholasham/piper/pkg/types/iterator"
+	"github.com/nicholasham/piper/pkg/zz/stream"
 )
 
 // verify iteratorSource implements stream.SourceStage interface

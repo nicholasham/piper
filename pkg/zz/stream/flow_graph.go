@@ -3,7 +3,7 @@ package stream
 import "context"
 
 type FlowGraph struct {
-	stage  FlowStage
+	stage FlowStage
 }
 
 func (receiver *FlowGraph) Via(that *FlowGraph) *FlowGraph {
@@ -31,6 +31,6 @@ func (receiver *FlowGraph) RunWith(ctx context.Context, that *SinkGraph) Future 
 
 func FlowFrom(stage FlowStage) *FlowGraph {
 	return &FlowGraph{
-		stage:  stage,
+		stage: stage,
 	}
 }
