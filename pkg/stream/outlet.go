@@ -38,17 +38,17 @@ func (o *Outlet) Close() {
 	})
 }
 
-func NewOutlet(options *StageOptions) *Outlet {
+func NewOutlet(attributes *StageAttributes) *Outlet {
 	return &Outlet{
-		name: options.Name + ".out",
-		out:  createChannel(options),
+		name: attributes.Name + ".out",
+		out:  createChannel(attributes),
 		done: make(chan struct{}),
 	}
 }
 
-func createChannel(options *StageOptions) chan Element {
-	if options.OutputBufferSize > 0 {
-		return make(chan Element, options.OutputBufferSize)
+func createChannel(attributes *StageAttributes) chan Element {
+	if attributes.OutputBufferSize > 0 {
+		return make(chan Element, attributes.OutputBufferSize)
 	}
 	return make(chan Element)
 }

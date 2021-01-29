@@ -11,30 +11,30 @@ var _ FlowStage = (*fanInFlowStage)(nil)
 type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
 
 type fanInFlowStage struct {
-	options *StageOptions
-	inlets  []*Inlet
-	outlet  *Outlet
-	fanIn   FanInStrategy
+	attributes *StageAttributes
+	inlets     []*Inlet
+	outlet     *Outlet
+	fanIn      FanInStrategy
 }
 
 func (receiver *fanInFlowStage) WireTo(stage OutputStage) {
-	inlet := NewInlet(receiver.options)
+	inlet := NewInlet(receiver.attributes)
 	inlet.WireTo(stage.Outlet())
 	receiver.inlets = append(receiver.inlets, inlet)
 }
 
 func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {
-	options := receiver.options.Apply(opts...)
+	options := receiver.attributes.Apply(opts...)
 	return &fanInFlowStage{
-		options: options,
-		inlets:  receiver.inlets,
-		outlet:  NewOutlet(options),
-		fanIn:   receiver.fanIn,
+		attributes: options,
+		inlets:     receiver.inlets,
+		outlet:     NewOutlet(options),
+		fanIn:      receiver.fanIn,
 	}
 }
 
 func (receiver *fanInFlowStage) Name() string {
-	return receiver.options.Name
+	return receiver.attributes.Name
 }
 
 func (receiver *fanInFlowStage) Run(ctx context.Context) {
@@ -46,11 +46,11 @@ func (receiver *fanInFlowStage) Outlet() *Outlet {
 }
 
 func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStage {
-	stageOptions := DefaultStageOptions.Apply(Name("FanIn"))
+	attributes := DefaultStageAttributes.Apply(Name("FanIn"))
 	flow := fanInFlowStage{
-		options: stageOptions,
-		outlet:  NewOutlet(stageOptions),
-		fanIn:   strategy,
+		attributes: attributes,
+		outlet:     NewOutlet(attributes),
+		fanIn:      strategy,
 	}
 
 	for _, stage := range stages {

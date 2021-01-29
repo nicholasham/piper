@@ -1,6 +1,6 @@
 package stream
 
-type StageOptions struct {
+type StageAttributes struct {
 	Name             string
 	OutputBufferSize int
 	Parallelism      int
@@ -8,15 +8,15 @@ type StageOptions struct {
 	Decider          Decider
 }
 
-func (s *StageOptions) Apply(options ...StageOption) *StageOptions {
+func (s *StageAttributes) Apply(options ...StageOption) *StageAttributes {
 	for _, apply := range options {
 		apply(s)
 	}
 	return s
 }
 
-func (s *StageOptions) Copy() *StageOptions {
-	return &StageOptions{
+func (s *StageAttributes) Copy() *StageAttributes {
+	return &StageAttributes{
 		Name:             s.Name,
 		OutputBufferSize: s.OutputBufferSize,
 		Parallelism:      s.Parallelism,
@@ -24,9 +24,9 @@ func (s *StageOptions) Copy() *StageOptions {
 	}
 }
 
-type StageOption func(*StageOptions)
+type StageOption func(*StageAttributes)
 
-var DefaultStageOptions = &StageOptions{
+var DefaultStageAttributes = &StageAttributes{
 	Name:             "",
 	OutputBufferSize: 0,
 	Parallelism:      1,
@@ -35,25 +35,25 @@ var DefaultStageOptions = &StageOptions{
 }
 
 func Name(value string) StageOption {
-	return func(state *StageOptions) {
+	return func(state *StageAttributes) {
 		state.Name = value
 	}
 }
 
 func OutputBuffer(value int) StageOption {
-	return func(state *StageOptions) {
+	return func(state *StageAttributes) {
 		state.OutputBufferSize = value
 	}
 }
 
 func Parallelism(value int) StageOption {
-	return func(state *StageOptions) {
+	return func(state *StageAttributes) {
 		state.Parallelism = value
 	}
 }
 
 func ErrorStrategy(strategy Decider) StageOption {
-	return func(state *StageOptions) {
+	return func(state *StageAttributes) {
 		state.Decider = strategy
 	}
 }

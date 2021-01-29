@@ -33,9 +33,9 @@ func (i *Inlet) WireTo(outlet *Outlet) *Inlet {
 	return i
 }
 
-func NewInlet(options *StageOptions) *Inlet {
+func NewInlet(attributes *StageAttributes) *Inlet {
 	return &Inlet{
-		name: options.Name + ".in",
+		name: attributes.Name + ".in",
 		in:   make(chan Element),
 		done: make(chan struct{}),
 	}
