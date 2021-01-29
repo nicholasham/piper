@@ -6,7 +6,7 @@ import (
 )
 
 // verify fanInFlowStage implements FlowStageWithOptions interface
-var _ FlowStageWithOptions = (*fanInFlowStage)(nil)
+var _ FlowStage = (*fanInFlowStage)(nil)
 
 type FanInStrategy func(ctx context.Context, inlets []*Inlet, outlet *Outlet)
 
@@ -23,8 +23,14 @@ func (receiver *fanInFlowStage) WireTo(stage OutputStage) {
 	receiver.inlets = append(receiver.inlets,inlet)
 }
 
-func (receiver *fanInFlowStage) With(options ...StageOption) FlowStageWithOptions {
-	panic("implement me")
+func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {
+	options:= receiver.options.Apply(opts...)
+	return &fanInFlowStage{
+		options: options,
+		inlets:  receiver.inlets,
+		outlet:  NewOutlet(options),
+		fanIn:   receiver.fanIn,
+	}
 }
 
 func (receiver *fanInFlowStage) Name() string {
@@ -39,8 +45,8 @@ func (receiver *fanInFlowStage) Outlet() *Outlet {
 	return receiver.outlet
 }
 
-func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStageWithOptions {
-	stageOptions := DefaultStageOptions.Apply(Name("AlsoToFlow"))
+func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStage {
+	stageOptions := DefaultStageOptions.Apply(Name("FanIn"))
 	flow := fanInFlowStage{
 		options: stageOptions,
 		outlet:     NewOutlet(stageOptions),
@@ -54,13 +60,13 @@ func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStageWithOption
 	return &flow
 }
 
-/*func CombineSources(name string, graphs []*SourceGraph, strategy FanInStrategy) *SourceGraph {
+func CombineSources(graphs []*SourceGraph, strategy FanInStrategy) *SourceGraph {
 	var stages []SourceStage
 	for _, graph := range graphs {
 		stages = append(stages, graph.stage)
 	}
 	return FromSource(FanInFlow(stages, strategy))
-}*/
+}
 
 func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy) *FlowGraph {
 	var stages []SourceStage

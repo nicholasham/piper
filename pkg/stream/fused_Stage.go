@@ -7,7 +7,7 @@ var _ FlowStage = (*fusedStage)(nil)
 
 type fusedStage struct {
 	fromStage SourceStage
-	toStage   FlowStageWithOptions
+	toStage   FlowStage
 }
 
 func (c *fusedStage) WireTo(stage OutputStage) {
@@ -15,8 +15,8 @@ func (c *fusedStage) WireTo(stage OutputStage) {
 }
 
 
-func (c *fusedStage) With(options ...StageOption) FlowStageWithOptions {
-	return NewFusedFlow(c.fromStage, c.toStage.With(options...))
+func (c *fusedStage) With(options ...StageOption) Stage {
+	return NewFusedFlow(c.fromStage, c.toStage.With(options...).(FlowStage))
 }
 
 func (c *fusedStage) Name() string {
@@ -33,7 +33,7 @@ func (c *fusedStage) Outlet() *Outlet {
 }
 
 
-func NewFusedFlow(fromStage SourceStage, toStage FlowStageWithOptions) FlowStageWithOptions{
+func NewFusedFlow(fromStage SourceStage, toStage FlowStage) FlowStage{
 	toStage.WireTo(fromStage)
 	return &fusedStage{
 		fromStage: fromStage,

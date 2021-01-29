@@ -1,18 +1,18 @@
 package stream
 
 type SourceGraph struct {
-	stage SourceStageWithOptions
+	stage SourceStage
 }
 
 func (g *SourceGraph) With(options ...StageOption) *SourceGraph {
-	return FromSource(g.stage.With(options...))
+	return FromSource(g.stage.With(options...).(SourceStage))
 }
 
 func (g *SourceGraph) Via(that *FlowGraph) *FlowGraph {
 	return FromFlow(NewFusedFlow(g.stage, that.stage))
 }
 
-func FromSource(stage SourceStageWithOptions) *SourceGraph {
+func FromSource(stage SourceStage) *SourceGraph {
 	return &SourceGraph{
 		stage: stage,
 	}
