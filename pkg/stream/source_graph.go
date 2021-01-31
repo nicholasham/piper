@@ -34,6 +34,14 @@ func (g *SourceGraph) Merge(that *SourceGraph) *SourceGraph {
 	return MergeSources(g, that)
 }
 
+func (g *SourceGraph) Map(f MapFunc) *SourceGraph {
+	return FromSource(Map(f).WireTo(g.stage))
+}
+
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
 	return FromSource(MapConcat(f).WireTo(g.stage))
+}
+
+func (g *SourceGraph) Filter(f FilterFunc) *SourceGraph {
+	return FromSource(Filter(f).WireTo(g.stage))
 }
