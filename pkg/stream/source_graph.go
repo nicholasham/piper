@@ -45,3 +45,12 @@ func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
 func (g *SourceGraph) Filter(f FilterFunc) *SourceGraph {
 	return FromSource(Filter(f).WireTo(g.stage))
 }
+
+func (g *SourceGraph) Drop(number int) *SourceGraph {
+	return FromSource(Drop(number).WireTo(g.stage))
+}
+
+func (g *SourceGraph) Take(number int) *SourceGraph {
+	return FromSource(Take(number).WireTo(g.stage))
+}
+
