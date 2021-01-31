@@ -16,12 +16,12 @@ func (receiver *takeWhileOperator) Start(actions OperatorActions) {
 
 func (receiver *takeWhileOperator) Apply(element stream.Element, actions OperatorActions) {
 
-	element.WhenError(actions.PushError)
+	element.WhenError(actions.SendError)
 	element.WhenValue(func(value interface{}) {
 		if !receiver.f(value) {
 			actions.CompleteStage()
 		}
-		actions.PushValue(value)
+		actions.SendValue(value)
 	})
 }
 

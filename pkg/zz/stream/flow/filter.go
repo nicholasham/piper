@@ -23,9 +23,9 @@ func (m *filterOperator) Start(actions OperatorActions) {
 func (m *filterOperator) Apply(element stream.Element, actions OperatorActions) {
 	element.WhenValue(func(value interface{}) {
 		if m.f(value) {
-			actions.PushValue(value)
+			actions.SendValue(value)
 		}
-	}).WhenError(actions.PushError)
+	}).WhenError(actions.SendError)
 }
 
 func (m *filterOperator) End(actions OperatorActions) {

@@ -21,8 +21,8 @@ func (receiver *dropOperator) Apply(element stream.Element, actions OperatorActi
 	current := int(atomic.AddUint64(&receiver.op, 1))
 	if current > receiver.number {
 		element.
-			WhenValue(actions.PushValue).
-			WhenError(actions.PushError)
+			WhenValue(actions.SendValue).
+			WhenError(actions.SendError)
 	}
 	return
 }

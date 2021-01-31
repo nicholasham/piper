@@ -20,8 +20,8 @@ type OperatorLogic interface {
 }
 
 type OperatorActions interface {
-	PushError(cause error)
-	PushValue(value interface{})
+	SendError(cause error)
+	SendValue(value interface{})
 	FailStage(cause error)
 	CompleteStage()
 }
@@ -36,11 +36,11 @@ type operatorActions struct {
 	completeStage func()
 }
 
-func (o *operatorActions) PushError(cause error) {
+func (o *operatorActions) SendError(cause error) {
 	o.pushError(cause)
 }
 
-func (o *operatorActions) PushValue(value interface{}) {
+func (o *operatorActions) SendValue(value interface{}) {
 	o.pushValue(value)
 }
 

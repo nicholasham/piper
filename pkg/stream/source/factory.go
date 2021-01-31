@@ -21,6 +21,10 @@ func Single(value interface{}) *stream.SourceGraph {
 	return stream.FromSource(stream.SingleSource(value))
 }
 
+func Range(start int, end int)  *stream.SourceGraph{
+	return FromIterable(core.Range(start, end))
+}
+
 func FromIterable(iterable core.Iterable) *stream.SourceGraph {
 	return Single(iterable).
 		MapConcat(toIterable).

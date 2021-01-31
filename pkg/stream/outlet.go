@@ -13,18 +13,18 @@ type Outlet struct {
 	sync.Mutex
 }
 
-func (o *Outlet) Send(element Element) {
+func (o *Outlet) send(element Element) {
 	o.Lock()
 	defer o.Unlock()
 	o.out <- element
 }
 
 func (o *Outlet) SendValue(value interface{}) {
-	o.Send(Value(value))
+	o.send(Value(value))
 }
 
 func (o *Outlet) SendError(err error) {
-	o.Send(Error(err))
+	o.send(Error(err))
 }
 
 func (o *Outlet) Done() chan struct{} {

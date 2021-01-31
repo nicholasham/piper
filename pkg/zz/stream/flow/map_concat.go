@@ -24,12 +24,12 @@ func (m *mapConcatOperator) Apply(element stream.Element, actions OperatorAction
 	element.WhenValue(func(value interface{}) {
 		values, err := m.f(value)
 		if err != nil {
-			actions.PushError(err)
+			actions.SendError(err)
 			return
 		}
 
 		for _, value := range values {
-			actions.PushValue(value)
+			actions.SendValue(value)
 		}
 
 	})

@@ -21,8 +21,8 @@ func (receiver *takeOperator) Apply(element stream.Element, actions OperatorActi
 	current := int(atomic.AddUint64(&receiver.op, 1))
 	if current <= receiver.number {
 		element.
-			WhenError(actions.PushError).
-			WhenValue(actions.PushValue)
+			WhenError(actions.SendError).
+			WhenValue(actions.SendValue)
 		if current == receiver.number {
 			actions.CompleteStage()
 		}

@@ -91,15 +91,13 @@ func ConcatStrategy() FanInStrategy {
 						inlet.Complete()
 					default:
 
-					}
 
-					if element.IsError() {
-						outlet.Send(element)
-						inlet.Complete()
+
 					}
 
 					if !inlet.CompletionSignaled() {
-						outlet.Send(element)
+						element.WhenError(outlet.SendError)
+						element.WhenValue(outlet.SendValue)
 					}
 				}
 			}
@@ -124,13 +122,9 @@ func MergeStrategy() FanInStrategy {
 				default:
 				}
 
-				if element.IsError() {
-					outlet.Send(element)
-					inlet.Complete()
-				}
-
 				if !inlet.CompletionSignaled() {
-					outlet.Send(element)
+					element.WhenError(outlet.SendError)
+					element.WhenValue(outlet.SendValue)
 				}
 			}
 		}
@@ -183,7 +177,11 @@ func sendOutSegment(ctx context.Context, segmentSize int, inlet *Inlet, outlet *
 				return false
 			}
 
-			outlet.Send(element)
+			if !inlet.CompletionSignaled() {
+				element.WhenError(outlet.SendError)
+				element.WhenValue(outlet.SendValue)
+			}
+
 			segmentCount++
 
 			if segmentCount == segmentSize {

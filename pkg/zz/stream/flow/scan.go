@@ -20,7 +20,7 @@ func (receiver *scanOperator) SupportsParallelism() bool {
 }
 
 func (receiver *scanOperator) Start(actions OperatorActions) {
-	actions.PushValue(receiver.current)
+	actions.SendValueDownstream(receiver.current)
 }
 
 func (receiver *scanOperator) Apply(element stream.Element, actions OperatorActions) {
@@ -31,7 +31,7 @@ func (receiver *scanOperator) Apply(element stream.Element, actions OperatorActi
 		actions.FailStage(err)
 	}
 	receiver.current = out
-	actions.PushValue(out)
+	actions.SendValue(out)
 }
 
 func (receiver *scanOperator) End(actions OperatorActions) {

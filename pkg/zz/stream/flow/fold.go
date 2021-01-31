@@ -31,7 +31,7 @@ func (receiver *foldOperator) Apply(element stream.Element, actions OperatorActi
 }
 
 func (receiver *foldOperator) End(actions OperatorActions) {
-	actions.PushValue(receiver.current)
+	actions.SendValue(receiver.current)
 }
 
 func (receiver *foldOperator) SupportsParallelism() bool {
