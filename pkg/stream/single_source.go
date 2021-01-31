@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// verify selectMany implements SourceStage interface
+// verify mapConcat implements SourceStage interface
 var _ SourceStage = (*singleStage)(nil)
 
 type singleStage struct {

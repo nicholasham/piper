@@ -17,10 +17,11 @@ type fanInFlowStage struct {
 	fanIn      FanInStrategy
 }
 
-func (receiver *fanInFlowStage) WireTo(stage OutputStage) {
+func (receiver *fanInFlowStage) WireTo(stage OutputStage) FlowStage {
 	inlet := NewInlet(receiver.attributes)
 	inlet.WireTo(stage.Outlet())
 	receiver.inlets = append(receiver.inlets, inlet)
+	return receiver
 }
 
 func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {

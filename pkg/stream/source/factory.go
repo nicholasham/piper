@@ -1,7 +1,7 @@
 package source
 
 import (
-	"github.com/ahmetb/go-linq/v3"
+	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/stream"
 )
 
@@ -21,10 +21,15 @@ func Single(value interface{}) *stream.SourceGraph {
 	return stream.FromSource(stream.SingleSource(value))
 }
 
-func FromQuery(query linq.Query) *stream.SourceGraph {
-	return stream.FromSource(stream.SingleSource(query)).
-		SelectMany(func(value interface{}) linq.Query {
-		return value.(linq.Query)
-	}).Named("QuerySource")
+func FromIterable(iterable core.Iterable) *stream.SourceGraph {
+	return Single(iterable).
+		MapConcat(toIterable).
+		Named("IterableSource")
 }
+
+func toIterable(value interface{}) (core.Iterable, error) {
+	return value.(core.Iterable), nil
+}
+
+
 
