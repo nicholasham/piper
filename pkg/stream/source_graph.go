@@ -54,3 +54,7 @@ func (g *SourceGraph) Take(number int) *SourceGraph {
 	return FromSource(Take(number).WireTo(g.stage))
 }
 
+func (g *SourceGraph) TakeWhile(f FilterFunc) *SourceGraph {
+	return FromSource(TakeWhile(f).WireTo(g.stage))
+}
+
