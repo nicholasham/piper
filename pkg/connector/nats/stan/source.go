@@ -4,15 +4,14 @@ import (
 	"context"
 
 	"github.com/nats-io/stan.go"
-	"github.com/nicholasham/piper/pkg/zz/stream"
+	"github.com/nicholasham/piper/pkg/stream"
 )
 
 // verify iteratorSource implements stream.SourceStage interface
 var _ stream.SourceStage = (*stanSourceStage)(nil)
 
 type stanSourceStage struct {
-	name                string
-	logger              stream.Logger
+	attributes * stream.StageAttributes
 	outlet              *stream.Outlet
 	conn                stan.Conn
 	subject             string
@@ -20,8 +19,19 @@ type stanSourceStage struct {
 	subscriptionOptions []stan.SubscriptionOption
 }
 
+func (s *stanSourceStage) With(options ...stream.StageOption) stream.Stage {
+	attributes := s.attributes.Apply(options...)
+	return &stanSourceStage{
+		outlet:              stream.NewOutlet(attributes),
+		conn:                s.conn,
+		subject:             s.subject,
+		group:               s.group,
+		subscriptionOptions: s.subscriptionOptions,
+	}
+}
+
 func (s *stanSourceStage) Name() string {
-	return s.name
+	return s.attributes.Name
 }
 
 func (s *stanSourceStage) Run(ctx context.Context) {
@@ -30,17 +40,17 @@ func (s *stanSourceStage) Run(ctx context.Context) {
 		sub, err := s.conn.QueueSubscribe(s.subject, s.group, func(msg *stan.Msg) {
 			select {
 			case <-ctx.Done():
-				s.outlet.Send(stream.Error(ctx.Err()))
+				s.outlet.SendError(ctx.Err())
 				msg.Sub.Unsubscribe()
 			case <-s.outlet.Done():
 				msg.Sub.Unsubscribe()
 			default:
 			}
-			s.outlet.Send(stream.Value(msg))
+			s.outlet.SendValue(msg)
 		}, s.subscriptionOptions...)
 
 		if err != nil {
-			s.logger.Error(err, "failed consuming from nats")
+			s.attributes.Logger.Error(err, "failed consuming from nats")
 			return
 		}
 		sub.Close()
@@ -52,11 +62,9 @@ func (s *stanSourceStage) Outlet() *stream.Outlet {
 }
 
 func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ...stream.StageOption) *stream.SourceGraph {
-	stageOptions := stream.DefaultStageOptions.Apply(stream.Name("StanSource")).Apply(options...)
-	return stream.SourceFrom(&stanSourceStage{
-		name:                stageOptions.Name,
-		logger:              stageOptions.Logger,
-		outlet:              stream.NewOutlet(stageOptions),
+	attributes := stream.DefaultStageAttributes.Apply(stream.Name("LinearFlowStage"))
+	return stream.FromSource(&stanSourceStage{
+		outlet:              stream.NewOutlet(attributes),
 		conn:                conn,
 		subject:             subject,
 		group:               group,

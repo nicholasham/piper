@@ -35,5 +35,5 @@ func (g *SourceGraph) Merge(that *SourceGraph) *SourceGraph {
 }
 
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
-	return FromSource(MapConcatStage(f).WireTo(g.stage))
+	return FromSource(MapConcat(f).WireTo(g.stage))
 }
