@@ -61,3 +61,9 @@ func (g *SourceGraph) TakeWhile(f FilterFunc) *SourceGraph {
 func (g *SourceGraph) Fold(zero interface{}, f AggregateFunc) *SourceGraph {
 	return FromSource(Fold(zero, f).WireTo(g.stage))
 }
+
+func (g *SourceGraph) Unfold(state interface{}, f UnfoldFunc) *SourceGraph {
+	return FromSource(Unfold(state, f).WireTo(g.stage))
+}
+
+

@@ -47,6 +47,20 @@ func (o Optional) IsSome() bool {
 	return o.hasValue
 }
 
+func (o Optional) IfSome(f func(value interface{})) Optional {
+	if o.IsSome() {
+		f(o.value)
+	}
+	return o
+}
+
+func (o Optional) IfNone(f func()) Optional {
+	if o.IsNone() {
+		f()
+	}
+	return o
+}
+
 // Returns the option's value if the option is nonempty, otherwise return the result of evaluating default.
 func (o Optional) GetOrElse(defaultValue interface{}) interface{} {
 	if o.IsNone() {
