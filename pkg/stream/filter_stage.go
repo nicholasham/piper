@@ -2,12 +2,11 @@ package stream
 
 type FilterFunc func(value interface{}) bool
 
-
 // verify filterFlowLogic implements FlowStageLogic interface
 var _ FlowStageLogic = (*filterFlowLogic)(nil)
 
 type filterFlowLogic struct {
-	f       FilterFunc
+	f FilterFunc
 }
 
 func (f *filterFlowLogic) SupportsParallelism() bool {
@@ -41,7 +40,7 @@ func Filter(f FilterFunc) FlowStage {
 func filterFactory(f FilterFunc) FlowStageLogicFactory {
 	return func(attributes *StageAttributes) FlowStageLogic {
 		return &filterFlowLogic{
-			f:       f,
+			f: f,
 		}
 	}
 }

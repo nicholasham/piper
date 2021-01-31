@@ -11,7 +11,7 @@ import (
 var _ stream.SourceStage = (*stanSourceStage)(nil)
 
 type stanSourceStage struct {
-	attributes * stream.StageAttributes
+	attributes          *stream.StageAttributes
 	outlet              *stream.Outlet
 	conn                stan.Conn
 	subject             string

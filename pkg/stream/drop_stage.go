@@ -23,7 +23,7 @@ func (d *dropFlowLogic) OnUpstreamReceive(element Element, actions FlowStageActi
 		WhenValue(d.handleValue(actions))
 }
 
-func (d *dropFlowLogic) handleValue(actions FlowStageActions) ValueAction { 
+func (d *dropFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	return func(value interface{}) {
 		current := int(atomic.AddUint64(&d.op, 1))
 		if current > d.number {

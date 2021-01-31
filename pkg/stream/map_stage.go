@@ -2,7 +2,6 @@ package stream
 
 type MapFunc func(value interface{}) (interface{}, error)
 
-
 // verify mapFlowLogic implements FlowStageLogic interface
 var _ FlowStageLogic = (*mapFlowLogic)(nil)
 
@@ -51,7 +50,7 @@ func Map(f MapFunc) FlowStage {
 func mapFactory(f MapFunc) FlowStageLogicFactory {
 	return func(attributes *StageAttributes) FlowStageLogic {
 		return &mapFlowLogic{
-			f:       f,
+			f: f,
 		}
 	}
 }
