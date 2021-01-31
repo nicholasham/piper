@@ -22,6 +22,9 @@ func (f *foldFlowStage) OnUpstreamStart(actions FlowStageActions) {
 }
 
 func (f *foldFlowStage) OnUpstreamReceive(element Element, actions FlowStageActions) {
+	element.
+		WhenError(actions.SendError).
+		WhenValue(f.handleValue(actions))
 }
 
 func (f *foldFlowStage) OnUpstreamFinish(actions FlowStageActions) {
