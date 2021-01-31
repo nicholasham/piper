@@ -2,12 +2,13 @@ package stream
 
 import (
 	"context"
+
 	"github.com/gammazero/workerpool"
 )
 
-// verify flowStage implements stream.FlowStage interface
-var _ FlowStage = (*flowStage)(nil)
-var _ FlowStageActions = (*flowStage)(nil)
+// verify linearFlowStage implements stream.FlowStage interface
+var _ FlowStage = (*linearFlowStage)(nil)
+var _ FlowStageActions = (*linearFlowStage)(nil)
 
 type FlowStageLogicFactory func(attributes *StageAttributes) FlowStageLogic
 
@@ -22,39 +23,43 @@ type FlowStageLogic interface {
 }
 
 type FlowStageActions interface {
+	// Sends an error downstream
 	SendError(cause error)
+	// Sends a value downstream
 	SendValue(value interface{})
+	// Fails a stage on logs the cause of failure.
 	FailStage(cause error)
+	// Completes the stage
 	CompleteStage()
 }
 
-type flowStage struct {
+type linearFlowStage struct {
 	attributes *StageAttributes
 	inlet      *Inlet
 	outlet     *Outlet
 	factory    FlowStageLogicFactory
 }
 
-func (o *flowStage) SendError(cause error) {
+func (o *linearFlowStage) SendError(cause error) {
 	o.outlet.SendError(cause)
 }
 
-func (o *flowStage) SendValue(value interface{}) {
+func (o *linearFlowStage) SendValue(value interface{}) {
 	o.outlet.SendValue(value)
 }
 
-func (o *flowStage) FailStage(cause error) {
+func (o *linearFlowStage) FailStage(cause error) {
 	o.attributes.Logger.Error(cause, "failed stage because")
 	o.inlet.Complete()
 }
 
-func (o *flowStage) CompleteStage() {
+func (o *linearFlowStage) CompleteStage() {
 	o.inlet.Complete()
 }
 
-func (o *flowStage) With(options ...StageOption) Stage {
+func (o *linearFlowStage) With(options ...StageOption) Stage {
 	attributes := o.attributes.Apply(options...)
-	return &flowStage{
+	return &linearFlowStage{
 		attributes: attributes,
 		inlet:      NewInlet(attributes),
 		outlet:     NewOutlet(attributes),
@@ -62,16 +67,16 @@ func (o *flowStage) With(options ...StageOption) Stage {
 	}
 }
 
-func (o *flowStage) WireTo(stage OutputStage) FlowStage {
+func (o *linearFlowStage) WireTo(stage OutputStage) FlowStage {
 	o.inlet.WireTo(stage.Outlet())
 	return o
 }
 
-func (o *flowStage) Name() string {
+func (o *linearFlowStage) Name() string {
 	return o.attributes.Name
 }
 
-func (o *flowStage) Run(ctx context.Context) {
+func (o *linearFlowStage) Run(ctx context.Context) {
 	go func() {
 		logic := o.factory(o.attributes)
 		wp := o.createWorkerPool(logic)
@@ -100,39 +105,34 @@ func (o *flowStage) Run(ctx context.Context) {
 	}()
 }
 
-func (o *flowStage) createWorkerPool(logic FlowStageLogic) * workerpool.WorkerPool {
+func (o *linearFlowStage) createWorkerPool(logic FlowStageLogic) *workerpool.WorkerPool {
 	maxWorkers := 1
-	if logic.SupportsParallelism(){
+	if logic.SupportsParallelism() {
 		maxWorkers = o.attributes.Parallelism
 	}
 	return workerpool.New(maxWorkers)
 }
 
-func (o *flowStage) Push(logic FlowStageLogic, element Element) func() {
+func (o *linearFlowStage) Push(logic FlowStageLogic, element Element) func() {
 	return func() {
 		logic.OnUpstreamReceive(element, o)
 	}
 }
 
-func (o *flowStage) Outlet() *Outlet {
+func (o *linearFlowStage) Outlet() *Outlet {
 	return o.outlet
 }
 
-func (o *flowStage) Wire(stage SourceStage) {
+func (o *linearFlowStage) Wire(stage SourceStage) {
 	o.inlet.WireTo(stage.Outlet())
 }
 
 func LinearFlow(factory FlowStageLogicFactory) FlowStage {
 	attributes := DefaultStageAttributes.Apply(Name("LinearFlowStage"))
-	return &flowStage{
+	return &linearFlowStage{
 		attributes: attributes,
 		factory:    factory,
 		inlet:      NewInlet(attributes),
 		outlet:     NewOutlet(attributes),
 	}
 }
-
-
-
-
-

@@ -21,7 +21,7 @@ func Single(value interface{}) *stream.SourceGraph {
 	return stream.FromSource(stream.SingleSource(value))
 }
 
-func Range(start int, end int)  *stream.SourceGraph{
+func Range(start int, end int) *stream.SourceGraph {
 	return FromIterable(core.Range(start, end))
 }
 
@@ -34,6 +34,3 @@ func FromIterable(iterable core.Iterable) *stream.SourceGraph {
 func toIterable(value interface{}) (core.Iterable, error) {
 	return value.(core.Iterable), nil
 }
-
-
-

@@ -11,7 +11,7 @@ var _ FlowStageLogic = (*mapConcatFlowLogic)(nil)
 
 type mapConcatFlowLogic struct {
 	decider Decider
-	f MapConcatFunc
+	f       MapConcatFunc
 }
 
 func (m *mapConcatFlowLogic) SupportsParallelism() bool {
@@ -30,7 +30,7 @@ func (m *mapConcatFlowLogic) OnUpstreamReceive(element Element, actions FlowStag
 func (m *mapConcatFlowLogic) OnUpstreamFinish(actions FlowStageActions) {
 }
 
-func (m *mapConcatFlowLogic) handleValue (actions FlowStageActions) ValueAction {
+func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	return func(value interface{}) {
 		iterable, err := m.f(value)
 		if err != nil {
@@ -53,7 +53,7 @@ func MapConcatStage(f MapConcatFunc) FlowStage {
 	return LinearFlow(mapConcatFactory(f))
 }
 
-func mapConcatFactory(f MapConcatFunc) FlowStageLogicFactory  {
+func mapConcatFactory(f MapConcatFunc) FlowStageLogicFactory {
 	return func(attributes *StageAttributes) FlowStageLogic {
 		return &mapConcatFlowLogic{
 			decider: attributes.Decider,
@@ -61,4 +61,3 @@ func mapConcatFactory(f MapConcatFunc) FlowStageLogicFactory  {
 		}
 	}
 }
-

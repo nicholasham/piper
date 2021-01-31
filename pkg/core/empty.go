@@ -10,7 +10,7 @@ func (e *emptyIterator) HasNext() bool {
 	return false
 }
 
-func (e *emptyIterator) Next() (interface{}) {
+func (e *emptyIterator) Next() interface{} {
 	return nil
 }
 

@@ -91,8 +91,6 @@ func ConcatStrategy() FanInStrategy {
 						inlet.Complete()
 					default:
 
-
-
 					}
 
 					if !inlet.CompletionSignaled() {

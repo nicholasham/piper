@@ -25,7 +25,6 @@ type OutputStage interface {
 
 type InputStage interface {
 	Stage
-
 }
 
 type SourceStage interface {

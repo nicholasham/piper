@@ -29,5 +29,3 @@ func (i *iterable) ForEach(f func(item interface{})) {
 		f(iterator.Next())
 	}
 }
-
-

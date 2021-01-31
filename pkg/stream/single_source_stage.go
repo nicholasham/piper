@@ -9,8 +9,8 @@ var _ SourceStage = (*singleStage)(nil)
 
 type singleStage struct {
 	attributes *StageAttributes
-	outlet *Outlet
-	value interface{}
+	outlet     *Outlet
+	value      interface{}
 }
 
 func (s *singleStage) Name() string {
@@ -29,7 +29,7 @@ func (s *singleStage) With(options ...StageOption) Stage {
 	return &singleStage{
 		attributes: attributes,
 		outlet:     NewOutlet(attributes),
-		value: s.value,
+		value:      s.value,
 	}
 }
 
@@ -42,6 +42,6 @@ func SingleSource(value interface{}) SourceStage {
 	return &singleStage{
 		attributes: attributes,
 		outlet:     NewOutlet(attributes),
-		value: value,
+		value:      value,
 	}
 }
