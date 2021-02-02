@@ -1,6 +1,9 @@
 package stream
 
-import "context"
+import (
+	"context"
+	"github.com/nicholasham/piper/pkg/types"
+)
 
 type Stage interface {
 	Name() string
@@ -15,7 +18,7 @@ type SinkStage interface {
 }
 
 type Future interface {
-	Await() (interface{}, error)
+	Await() types.Result
 }
 
 type OutputStage interface {
