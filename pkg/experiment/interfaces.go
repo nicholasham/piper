@@ -13,6 +13,27 @@ type OutPort interface {
 
 }
 
+type InPorts [] InPort
+type OutPorts [] OutPort
+
+func (i InPorts) contains(inPort InPort) bool {
+	for _, p := range i {
+		if p== inPort {
+			return true
+		}
+	}
+	return false
+}
+
+func (o OutPorts) contains(outPort InPort) bool {
+	for _, p := range o {
+		if p == outPort {
+			return true
+		}
+	}
+	return false
+}
+
 type MatFunc  func(a interface{}, b interface{}) interface{}
 
 
@@ -30,9 +51,9 @@ type Module interface {
 	IsCopied() bool
 	IsFused() bool
 	Fuse(that Module, from OutPort, to InPort, f MatFunc) Module
-	Wire(from OutPort, to InPort)
+	Wire(from OutPort, to InPort) Module
 	TransformMaterializedValue(f func(value interface{}) interface{}) Module
-	Compose(that Module) Module
+	Compose(that Module, f MatFunc) Module
 	ComposeNoMaterialized(that Module) Module
 	Nest() Module
 	SubModules()[]Module

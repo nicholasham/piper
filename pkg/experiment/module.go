@@ -6,8 +6,8 @@ var _ Module = (*module)(nil)
 
 type module struct {
 	shape Shape
-	inPorts []InPort
-	outPorts []OutPort
+	inPorts InPorts
+	outPorts OutPorts
 	subModules [] Module
 	isCopied bool
 	isFused bool
@@ -62,18 +62,26 @@ func (m *module) IsCopied() bool {
 }
 
 func (m *module) Fuse(that Module, from OutPort, to InPort, f MatFunc) Module {
-	panic("implement me")
+	return m.Compose(that, f).Wire(from, to)
 }
 
-func (m *module) Wire(from OutPort, to InPort) {
-	panic("implement me")
+func (m *module) Wire(from OutPort, to InPort) Module {
+	if !m.outPorts.contains(from) {
+
+	}
+
+	if !m.inPorts.contains(to) {
+
+	}
+
+	return m
 }
 
 func (m *module) TransformMaterializedValue(f func(value interface{}) interface{}) Module {
 	panic("implement me")
 }
 
-func (m *module) Compose(that Module) Module {
+func (m *module) Compose(other Module, f MatFunc) Module {
 	panic("implement me")
 }
 
@@ -90,7 +98,7 @@ func (m *module) SubModules() []Module {
 }
 
 func (m *module) IsSealed() bool {
-	return m.IsAtomic() || m.IsCopied() || m.IsFused() ||
+	return m.IsAtomic() || m.IsCopied() || m.IsFused()
 }
 
 func (m *module) Downstreams() map[OutPort]InPort {
