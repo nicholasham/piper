@@ -32,6 +32,10 @@ func (d *dropFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	}
 }
 
+func (d *dropFlowLogic) OnUpstreamFinish(actions FlowStageActions) {
+}
+
+
 func Drop(number int) FlowStage {
 	return LinearFlow(dropFactory(number))
 }
@@ -44,5 +48,3 @@ func dropFactory(number int) FlowStageLogicFactory {
 	}
 }
 
-func (d *dropFlowLogic) OnUpstreamFinish(actions FlowStageActions) {
-}

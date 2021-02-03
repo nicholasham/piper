@@ -15,11 +15,11 @@ func (g *SourceGraph) Named(name string) *SourceGraph {
 }
 
 func (g *SourceGraph) Via(that *FlowGraph) *FlowGraph {
-	return FromFlow(NewFusedFlow(g.stage, that.stage))
+	return FromFlow(CompositeFlow(g.stage, that.stage))
 }
 
-func (g *SourceGraph) via(that *FlowGraph) *SourceGraph  {
-	return FromSource(NewFusedFlow(g.stage, that.stage))
+func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph  {
+	return FromSource(CompositeFlow(g.stage, that))
 }
 
 func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
@@ -50,35 +50,35 @@ func (g *SourceGraph) Merge(that *SourceGraph) *SourceGraph {
 }
 
 func (g *SourceGraph) Map(f MapFunc) *SourceGraph {
-	return FromSource(Map(f).WireTo(g.stage))
+	return g.viaFlow(Map(f))
 }
 
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
-	return FromSource(NewFusedFlow(g.stage, MapConcat(f).WireTo(g.stage)))
+	return g.viaFlow(MapConcat(f))
 }
 
 func (g *SourceGraph) Filter(f FilterFunc) *SourceGraph {
-	return FromSource(Filter(f).WireTo(g.stage))
+	return g.viaFlow(Filter(f))
 }
 
 func (g *SourceGraph) Drop(number int) *SourceGraph {
-	return FromSource(Drop(number).WireTo(g.stage))
+	return g.viaFlow(Drop(number))
 }
 
 func (g *SourceGraph) Take(number int) *SourceGraph {
-	return FromSource(Take(number).WireTo(g.stage))
+	return g.viaFlow(Take(number))
 }
 
 func (g *SourceGraph) TakeWhile(f FilterFunc) *SourceGraph {
-	return FromSource(TakeWhile(f).WireTo(g.stage))
+	return g.viaFlow(TakeWhile(f))
 }
 
 func (g *SourceGraph) Fold(zero interface{}, f AggregateFunc) *SourceGraph {
-	return FromSource(Fold(zero, f).WireTo(g.stage))
+	return g.viaFlow(Fold(zero, f))
 }
 
 func (g *SourceGraph) Unfold(state interface{}, f UnfoldFunc) *SourceGraph {
-	return FromSource(Unfold(state, f).WireTo(g.stage))
+	return g.viaFlow(Unfold(state, f))
 }
 
 

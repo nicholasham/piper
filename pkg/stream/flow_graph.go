@@ -13,7 +13,7 @@ func (g *FlowGraph) Named(name string) *FlowGraph {
 }
 
 func (g *FlowGraph) Via(that *FlowGraph) *FlowGraph {
-	return FromFlow(NewFusedFlow(g.stage, that.stage))
+	return FromFlow(CompositeFlow(g.stage, that.stage))
 }
 
 func FromFlow(stage FlowStage) *FlowGraph {
