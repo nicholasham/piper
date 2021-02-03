@@ -1,4 +1,4 @@
-package core
+package iterable
 
 // verify emptyIterator implements Iterator interface
 var _ Iterator = (*emptyIterator)(nil)

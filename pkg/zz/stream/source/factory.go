@@ -1,7 +1,7 @@
 package source
 
 import (
-	"github.com/nicholasham/piper/pkg/types"
+	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/types/iterator"
 	"github.com/nicholasham/piper/pkg/zz/stream"
 )
@@ -36,8 +36,8 @@ func Unfold(state interface{}, f iterator.UnfoldFunc, options ...stream.StageOpt
 }
 
 func Repeat(value interface{}, options ...stream.StageOption) *stream.SourceGraph {
-	f := func(state interface{}) types.Optional {
-		return types.Some(value)
+	f := func(state interface{}) core.Optional {
+		return core.Some(value)
 	}
 	return FromIterator("RepeatSource", iterator.Unfold(value, f), options...)
 }

@@ -1,16 +1,16 @@
 package iterator
 
 import (
-	"github.com/nicholasham/piper/pkg/types"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
-type UnfoldFunc func(state interface{}) types.Optional
+type UnfoldFunc func(state interface{}) core.Optional
 
 // verify unfoldIterator implements Iterator interface
 var _ Iterator = (*unfoldIterator)(nil)
 
 type unfoldIterator struct {
-	result types.Optional
+	result core.Optional
 	f      UnfoldFunc
 }
 
@@ -38,7 +38,7 @@ func (u *unfoldIterator) ToList() []interface{} {
 
 func Unfold(state interface{}, f UnfoldFunc) Iterator {
 	return &unfoldIterator{
-		result: types.Some(state),
+		result: core.Some(state),
 		f:      f,
 	}
 }

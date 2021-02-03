@@ -1,4 +1,4 @@
-package core
+package iterable
 
 // verify sliceIterator implements Iterator interface
 var _ Iterator = (*sliceIterator)(nil)

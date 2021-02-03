@@ -1,10 +1,10 @@
 package stream
 
 import (
-	"github.com/nicholasham/piper/pkg/core"
+	"github.com/nicholasham/piper/pkg/core/iterable"
 )
 
-type MapConcatFunc func(value interface{}) (core.Iterable, error)
+type MapConcatFunc func(value interface{}) (iterable.Iterable, error)
 
 // verify mapConcatFlowLogic implements FlowStageLogic interface
 var _ FlowStageLogic = (*mapConcatFlowLogic)(nil)

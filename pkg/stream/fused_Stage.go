@@ -10,8 +10,9 @@ type fusedStage struct {
 	toStage   FlowStage
 }
 
-func (c *fusedStage) WireTo(stage OutputStage) {
+func (c *fusedStage) WireTo(stage OutputStage) FlowStage {
 	c.WireTo(stage)
+	return c
 }
 
 func (c *fusedStage) With(options ...StageOption) Stage {

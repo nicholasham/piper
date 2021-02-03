@@ -1,4 +1,4 @@
-package core
+package iterable
 
 // verify headSinkStageLogic implements SinkStageLogic interface
 var _ Iterator = (*rangeIterator)(nil)

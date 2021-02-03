@@ -2,7 +2,7 @@ package stream
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/types"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
 type Stage interface {
@@ -18,7 +18,7 @@ type SinkStage interface {
 }
 
 type Future interface {
-	Await() types.Result
+	Await() core.Result
 }
 
 type OutputStage interface {

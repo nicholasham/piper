@@ -1,17 +1,17 @@
 package stream
 
 import (
-	"github.com/nicholasham/piper/pkg/types"
+	"github.com/nicholasham/piper/pkg/core"
 	"sync"
 )
 
-type UnfoldFunc func(state interface{}) types.Optional
+type UnfoldFunc func(state interface{}) core.Optional
 
 // verify unfoldFlowStage implements FlowStageLogic interface
 var _ FlowStageLogic = (*unfoldFlowStage)(nil)
 
 type unfoldFlowStage struct {
-	result types.Optional
+	result core.Optional
 	f      UnfoldFunc
 	sync.RWMutex
 }
@@ -53,7 +53,7 @@ func Unfold(state interface{}, f UnfoldFunc) FlowStage {
 func unfoldFactory(state interface{}, f UnfoldFunc) FlowStageLogicFactory {
 	return func(attributes *StageAttributes) FlowStageLogic {
 		return & unfoldFlowStage{
-			result: types.Some(state),
+			result: core.Some(state),
 			f:      f,
 		}
 	}

@@ -2,7 +2,7 @@ package stream
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/types"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
 type SinkStageLogic interface {
@@ -31,7 +31,7 @@ var _ SinkStageActions = (*sinkStage)(nil)
 type sinkStage struct {
 	attributes *StageAttributes
 	inlet      *Inlet
-	promise *types.Promise
+	promise *core.Promise
 	factory SinkStageLogicFactory
 }
 

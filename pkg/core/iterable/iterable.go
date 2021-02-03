@@ -1,4 +1,4 @@
-package core
+package iterable
 
 // Provides a set of options to create iterable values
 type Iterable interface {
