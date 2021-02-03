@@ -1,6 +1,6 @@
 package stream
 
-import "golang.org/x/net/context"
+import "context"
 
 type SourceGraph struct {
 	stage SourceStage
@@ -18,6 +18,10 @@ func (g *SourceGraph) Via(that *FlowGraph) *FlowGraph {
 	return FromFlow(NewFusedFlow(g.stage, that.stage))
 }
 
+func (g *SourceGraph) via(that *FlowGraph) *SourceGraph  {
+	return FromSource(NewFusedFlow(g.stage, that.stage))
+}
+
 func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
 	return runnable(g.stage, that.stage)
 }
@@ -26,7 +30,6 @@ func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
 func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
 	return g.To(that).Run(ctx)
 }
-
 
 func FromSource(stage SourceStage) *SourceGraph {
 	return &SourceGraph{
@@ -51,7 +54,7 @@ func (g *SourceGraph) Map(f MapFunc) *SourceGraph {
 }
 
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
-	return FromSource(MapConcat(f).WireTo(g.stage))
+	return FromSource(NewFusedFlow(g.stage, MapConcat(f).WireTo(g.stage)))
 }
 
 func (g *SourceGraph) Filter(f FilterFunc) *SourceGraph {
