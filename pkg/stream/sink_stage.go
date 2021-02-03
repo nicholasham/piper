@@ -23,7 +23,7 @@ type SinkStageActions interface {
 
 type SinkStageLogicFactory func(attributes *StageAttributes) SinkStageLogic
 
-// verify linearFlowStage implements stream.FlowStage interface
+// verify SinkStage implements stream.SinkStage interface
 var _ SinkStage = (*sinkStage)(nil)
 var _ SinkStageActions = (*sinkStage)(nil)
 
@@ -90,12 +90,13 @@ func (s *sinkStage) Result() Future {
 	return s.promise
 }
 
-func StandardSink(factory SinkStageLogicFactory) SinkStage {
+func Sink(factory SinkStageLogicFactory) SinkStage {
 	attributes := DefaultStageAttributes.Apply(Name("SinkStage"))
 	return &sinkStage{
 		attributes: attributes,
 		factory:    factory,
 		inlet:      NewInlet(attributes),
+		promise: core.NewPromise(),
 	}
 }
 
