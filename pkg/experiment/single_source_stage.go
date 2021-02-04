@@ -1,0 +1,45 @@
+package experiment
+
+import (
+	"context"
+	"github.com/nicholasham/piper/pkg/core"
+)
+
+// verify mapConcat implements SourceStage interface
+var _ SourceStage = (*singleStage)(nil)
+
+type singleStage struct {
+	attributes *StageAttributes
+	value      interface{}
+}
+
+func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Promise) {
+	outputPromise := core.NewPromise()
+	outputStream := NewStream()
+	go func(){
+		writer := outputStream.Writer()
+		writer.SendValue(s.value)
+		writer.Close()
+	}()
+	return outputStream.Reader(), outputPromise
+
+}
+
+func (s *singleStage) Name() string {
+	return s.attributes.Name
+}
+
+func (s *singleStage) With(options ...StageOption) Stage {
+	attributes := s.attributes.Apply(options...)
+	return &singleStage{
+		attributes: attributes,
+		value:      s.value,
+	}
+}
+
+func SingleSource(value interface{}) SourceStage {
+	return &singleStage{
+		attributes: DefaultStageAttributes,
+		value:      value,
+	}
+}

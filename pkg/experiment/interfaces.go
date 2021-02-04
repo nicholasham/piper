@@ -1,39 +1,50 @@
 package experiment
 
 import (
-	"github.com/nicholasham/piper/pkg/core"
-	"golang.org/x/net/context"
+	"context"
+	. "github.com/nicholasham/piper/pkg/core"
 )
 
+
+type Stage interface {
+	With(options ...StageOption) Stage
+}
+
+type SourceStage interface {
+	Stage
+	UpstreamStage
+}
+
+type FlowStage interface {
+	Stage
+	UpstreamStage
+	WireTo(stage UpstreamStage) FlowStage
+}
+
+type SinkStage interface {
+	Stage
+	WireTo(stage UpstreamStage) SinkStage
+	Run(ctx context.Context, mat MaterializeFunc) *Promise
+}
+
 type UpstreamStage interface {
-	Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Promise)
+	Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *Promise)
 }
 
+type MaterializeFunc func (left *Promise, right *Promise) *Promise
 
-type Inlet interface {
-	Complete()
-}
-
-type Outlet interface {
-	Close()
-	SendError(value interface{})
-	SendValue(value interface{})
-}
-
-type Element struct {
-
-}
-
-type MaterializeFunc func (left *core.Promise, right *core.Promise) *core.Promise
-
-func KeepLeft(left *core.Promise, right *core.Promise) *core.Promise {
+func KeepLeft(left *Promise, right *Promise) *Promise {
 	return left
 }
 
-func KeepRight(left *core.Promise, right *core.Promise) *core.Promise {
+func KeepRight(left *Promise, right *Promise) *Promise {
 	return left
 }
 
-func KeepBoth(left *core.Promise, right *core.Promise) *core.Promise {
+func KeepBoth(left *Promise, right *Promise) *Promise {
 	return left
+}
+
+type Future interface {
+	Await() Result
 }

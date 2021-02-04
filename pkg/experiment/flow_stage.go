@@ -1,8 +1,8 @@
 package experiment
 
 import (
+	"context"
 	"github.com/nicholasham/piper/pkg/core"
-	"golang.org/x/net/context"
 )
 
 
@@ -39,6 +39,15 @@ type flowStage struct {
 	factory       FlowStageLogicFactory
 }
 
+func (s *flowStage) With(options ...StageOption) Stage {
+	panic("implement me")
+}
+
+func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
+	s.upstreamStage = stage
+	return s
+}
+
 func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Promise) {
 	outputStream := NewStream()
 	outputPromise := core.NewPromise()
@@ -50,7 +59,19 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader
 		actions := s.newActions(reader, writer)
 		logic.OnUpstreamStart(actions)
 		for element := range reader.Elements(){
-			logic.OnUpstreamReceive(element, actions)
+			select {
+			case <-ctx.Done():
+				outputPromise.Reject(ctx.Err())
+				reader.Complete()
+			case <-writer.Done():
+				reader.Complete()
+			default:
+			}
+
+			if !reader.Completing() {
+				logic.OnUpstreamReceive(element, actions)
+			}
+
 		}
 		logic.OnUpstreamFinish(actions)
 	}()
@@ -87,7 +108,7 @@ func (f *flowStageActions) CompleteStage(value interface{}) {
 	f.inputStream.Complete()
 }
 
-func Flow(factory FlowStageLogicFactory) UpstreamStage {
+func Flow(factory FlowStageLogicFactory) FlowStage {
 	return &flowStage{
 		attributes:    DefaultStageAttributes,
 		upstreamStage: nil,
