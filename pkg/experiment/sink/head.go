@@ -1,6 +1,7 @@
 package sink
 
 import (
+	"fmt"
 	. "github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/experiment"
 )
@@ -29,9 +30,11 @@ func (h *headOptionStageLogic) OnUpstreamReceive(element experiment.Element, act
 func (h *headOptionStageLogic) OnUpstreamFinish(actions experiment.SinkStageActions) {
 	h.head.
 		IfSome(h.promise.TrySuccess).
-		IfNone(func() {
-			h.promise.TryFailure()
-		})
+		IfNone(h.failEmptyStream)
+}
+
+func (h *headOptionStageLogic) failEmptyStream(){
+	h.promise.TryFailure(fmt.Errorf("head of empty stream"))
 }
 
 func HeadSink() experiment.SinkStage {
