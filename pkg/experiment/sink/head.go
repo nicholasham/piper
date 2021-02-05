@@ -36,6 +36,7 @@ func HeadSink() experiment.SinkStage {
 }
 
 func headLogic(attributes *experiment.StageAttributes) (experiment.SinkStageLogic, *core.Promise) {
+	promise := core.NewPromise()
 	return &headOptionStageLogic{
 		head: core.None(),
 	}
