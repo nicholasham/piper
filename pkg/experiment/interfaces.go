@@ -5,7 +5,6 @@ import (
 	. "github.com/nicholasham/piper/pkg/core"
 )
 
-
 type Stage interface {
 	With(options ...StageOption) Stage
 }
@@ -38,7 +37,7 @@ func KeepLeft(left *Promise, right *Promise) *Promise {
 }
 
 func KeepRight(left *Promise, right *Promise) *Promise {
-	return left
+	return right
 }
 
 func KeepBoth(left *Promise, right *Promise) *Promise {

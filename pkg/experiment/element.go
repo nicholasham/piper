@@ -22,7 +22,9 @@ func ToElement(f func() (interface{}, error)) Element {
 	}
 }
 
-var NotUsed Element = Element{}
+type notUsed struct {
+}
+var NotUsed interface{} = notUsed{}
 
 func Value(value interface{}) Element {
 	return Element{value: value}

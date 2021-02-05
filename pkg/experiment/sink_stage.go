@@ -43,11 +43,11 @@ func (s *sinkStage) WireTo(stage UpstreamStage) SinkStage {
 }
 
 func (s *sinkStage) Run(ctx context.Context, mat MaterializeFunc) *core.Promise {
-	outputPromise := core.NewPromise()
-	logic := s.factory(s.attributes)
 	inputReader, inputPromise := s.upstreamStage.Open(ctx, mat)
-	actions  := s.newActions(inputReader, outputPromise)
+	outputPromise := core.NewPromise()
 	go func() {
+		logic := s.factory(s.attributes)
+		actions  := s.newActions(inputReader, outputPromise)
 		logic.OnUpstreamStart(actions)
 		for element := range inputReader.Elements() {
 

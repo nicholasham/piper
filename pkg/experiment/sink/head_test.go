@@ -15,7 +15,7 @@ func TestHead(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
 	t.Run("Must yield first value", func(t *testing.T) {
-		future := source.Single(1).RunWith(context.Background(), Head())
+		future := source.Range(1, 100).RunWith(context.Background(), Head())
 		value, error := future.Await().Unwrap()
 		assert.NoError(t, error)
 		assert.Equal(t, 1, value)

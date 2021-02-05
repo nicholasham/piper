@@ -24,12 +24,18 @@ func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph  {
 }
 
 func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
-	return runnable(g.stage, that.stage)
+	return g.ToMaterialized(that)(KeepLeft)
 }
 
+func (g *SourceGraph) ToMaterialized(that *SinkGraph) func(combine MaterializeFunc) *RunnableGraph {
+	return func(combine MaterializeFunc) *RunnableGraph {
+		that.stage.WireTo(g.stage)
+		return runnable(that.stage, combine)
+	}
+}
 
 func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
-	return g.To(that).Run(ctx, KeepRight)
+	return g.ToMaterialized(that)(KeepRight).Run(ctx)
 }
 
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
