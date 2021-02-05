@@ -5,14 +5,19 @@ import "sync"
 type promiseDelivery chan Result
 
 type Promise struct {
-	sync.RWMutex
+	mutex sync.RWMutex
 	optionalResult Optional
 	waiters        []promiseDelivery
-	sync.Once
+	once sync.Once
+	f func(value interface{}) interface{}
 }
 
 func (p *Promise) TrySuccess(value interface{}) {
-	p.deliver(Success(value))
+	if p.f != nil {
+		p.deliver(Success(value))
+	}else{
+		p.deliver(Success(value))
+	}
 }
 
 func (p *Promise) TryFailure(err error) {
@@ -20,9 +25,9 @@ func (p *Promise) TryFailure(err error) {
 }
 
 func (p *Promise) deliver(result Result) {
-	p.Lock()
-	defer p.Unlock()
-	p.Once.Do(func() {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	p.once.Do(func() {
 		p.optionalResult = Some(result)
 		for _, w := range p.waiters {
 			locW := w
@@ -31,6 +36,10 @@ func (p *Promise) deliver(result Result) {
 			}()
 		}
 	})
+}
+
+func (p *Promise) FlatMap(f func(value interface{}) interface{}) *Promise  {
+	return p
 }
 
 func (p *Promise) Await() Result {

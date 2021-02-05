@@ -31,6 +31,7 @@ type UpstreamStage interface {
 }
 
 type MaterializeFunc func (left *Promise, right *Promise) *Promise
+type MapMaterializedValueFunc func(value interface{}) interface{}
 
 func KeepLeft(left *Promise, right *Promise) *Promise {
 	return left

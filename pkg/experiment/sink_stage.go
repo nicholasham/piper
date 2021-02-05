@@ -17,8 +17,8 @@ type SinkStageLogic interface {
 type SinkStageActions interface {
 	// Fails a stage and logs the cause of failure.
 	FailStage(cause error)
-	// Completes the stage with a final value
-	CompleteStage(value interface{})
+	// Completes the stage
+	CompleteStage()
 }
 
 type SinkStageLogicFactory func(attributes *StageAttributes) (SinkStageLogic, *core.Promise)
@@ -31,10 +31,16 @@ type sinkStage struct {
 	attributes    *StageAttributes
 	upstreamStage UpstreamStage
 	factory SinkStageLogicFactory
+	mapMaterializedValue MapMaterializedValueFunc
 }
 
 func (s *sinkStage) With(options ...StageOption) Stage {
-	panic("implement me")
+	return &sinkStage{
+		attributes:    s.attributes.Apply(options...),
+		upstreamStage: s.upstreamStage,
+		factory:       s.factory,
+		mapMaterializedValue: s.mapMaterializedValue,
+	}
 }
 
 func (s *sinkStage) WireTo(stage UpstreamStage) SinkStage {
@@ -78,6 +84,7 @@ func (s *sinkStage) newActions(reader StreamReader) SinkStageActions {
 var _ SinkStageActions = (*sinkStageActions)(nil)
 
 type sinkStageActions struct {
+	mapMaterialisedValue MapMaterializedValueFunc
 	logger Logger
 	inputStream StreamReader
 }
@@ -87,7 +94,7 @@ func (s *sinkStageActions) FailStage(cause error) {
 	s.inputStream.Complete()
 }
 
-func (s *sinkStageActions) CompleteStage(value interface{}) {
+func (s *sinkStageActions) CompleteStage() {
 	s.inputStream.Complete()
 }
 

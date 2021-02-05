@@ -2,51 +2,41 @@ package sink
 
 import (
 	"fmt"
-	. "github.com/nicholasham/piper/pkg/core"
+	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/experiment"
 )
 
 // verify headOptionStageLogic implements experiment.SinkStageLogic interface
 var _ experiment.SinkStageLogic = (*headOptionStageLogic)(nil)
 
+var HeadOfEmptyStream = fmt.Errorf("head of empty stream")
+
 type headOptionStageLogic struct {
-	head    Optional
-	promise *Promise
+	head core.Optional
 }
 
-func (h *headOptionStageLogic) OnUpstreamStart(actions experiment.SinkStageActions) {
+func (h *headOptionStageLogic) OnUpstreamStart(_ experiment.SinkStageActions) {
 
 }
 
 func (h *headOptionStageLogic) OnUpstreamReceive(element experiment.Element, actions experiment.SinkStageActions) {
 	element.
 		WhenValue(func(value interface{}) {
-			h.head = Some(value)
-			actions.CompleteStage(value)
+			actions.CompleteStage()
 		}).
 		WhenError(actions.FailStage)
 }
 
-func (h *headOptionStageLogic) OnUpstreamFinish(actions experiment.SinkStageActions) {
-	h.head.
-		IfSome(h.promise.TrySuccess).
-		IfNone(h.failEmptyStream)
-}
+func (h *headOptionStageLogic) OnUpstreamFinish(_ experiment.SinkStageActions) {
 
-func (h *headOptionStageLogic) failEmptyStream(){
-	h.promise.TryFailure(fmt.Errorf("head of empty stream"))
 }
 
 func HeadSink() experiment.SinkStage {
-	return experiment.Sink(headFactory())
+	return experiment.Sink(headLogic)
 }
 
-func headFactory() experiment.SinkStageLogicFactory {
-	return func(attributes *experiment.StageAttributes) (experiment.SinkStageLogic, *Promise) {
-		promise := NewPromise()
-		return &headOptionStageLogic{
-			promise: promise,
-			head:    None(),
-		}, promise
+func headLogic(attributes *experiment.StageAttributes) (experiment.SinkStageLogic, *core.Promise) {
+	return &headOptionStageLogic{
+		head: core.None(),
 	}
 }
