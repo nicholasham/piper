@@ -20,7 +20,7 @@ func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamRead
 		writer := outputStream.Writer()
 		writer.SendValue(s.value)
 		writer.Close()
-		outputPromise.Resolve(NotUsed)
+		outputPromise.TrySuccess(NotUsed)
 	}()
 	return outputStream.Reader(), outputPromise
 

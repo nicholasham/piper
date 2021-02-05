@@ -37,13 +37,13 @@ type sinkStage struct {
 
 func (s *sinkStage) FailStage(cause error) {
 	s.attributes.Logger.Error(cause, "failed stage because")
-	s.promise.Reject(cause)
+	s.promise.TryFailure(cause)
 	s.inlet.Complete()
 }
 
 func (s *sinkStage) CompleteStage(value interface{}) {
 	s.inlet.Complete()
-	s.promise.Resolve(value)
+	s.promise.TrySuccess(value)
 }
 
 func (s *sinkStage) Name() string {
@@ -58,7 +58,7 @@ func (s *sinkStage) Run(ctx context.Context) {
 
 			select {
 			case <-ctx.Done():
-				s.promise.Reject(ctx.Err())
+				s.promise.TryFailure(ctx.Err())
 				s.inlet.Complete()
 			default:
 			}

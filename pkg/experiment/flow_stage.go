@@ -61,7 +61,7 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader
 		for element := range reader.Elements(){
 			select {
 			case <-ctx.Done():
-				outputPromise.Reject(ctx.Err())
+				outputPromise.TryFailure(ctx.Err())
 				reader.Complete()
 			case <-writer.Done():
 				reader.Complete()

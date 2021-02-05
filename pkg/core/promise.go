@@ -11,11 +11,11 @@ type Promise struct {
 	sync.Once
 }
 
-func (p *Promise) Resolve(value interface{}) {
+func (p *Promise) TrySuccess(value interface{}) {
 	p.deliver(Success(value))
 }
 
-func (p *Promise) Reject(err error) {
+func (p *Promise) TryFailure(err error) {
 	p.deliver(Failure(err))
 }
 

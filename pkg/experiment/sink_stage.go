@@ -21,7 +21,7 @@ type SinkStageActions interface {
 	CompleteStage(value interface{})
 }
 
-type SinkStageLogicFactory func(attributes *StageAttributes) SinkStageLogic
+type SinkStageLogicFactory func(attributes *StageAttributes) (SinkStageLogic, *core.Promise)
 
 
 // verify sinkStage implements SinkStage interface
@@ -44,16 +44,15 @@ func (s *sinkStage) WireTo(stage UpstreamStage) SinkStage {
 
 func (s *sinkStage) Run(ctx context.Context, mat MaterializeFunc) *core.Promise {
 	inputReader, inputPromise := s.upstreamStage.Open(ctx, mat)
-	outputPromise := core.NewPromise()
+	logic, outputPromise := s.factory(s.attributes)
 	go func() {
-		logic := s.factory(s.attributes)
-		actions  := s.newActions(inputReader, outputPromise)
+		actions  := s.newActions(inputReader)
 		logic.OnUpstreamStart(actions)
 		for element := range inputReader.Elements() {
 
 			select {
 			case <-ctx.Done():
-				outputPromise.Reject(ctx.Err())
+				outputPromise.TryFailure(ctx.Err())
 				inputReader.Complete()
 			default:
 			}
@@ -67,11 +66,10 @@ func (s *sinkStage) Run(ctx context.Context, mat MaterializeFunc) *core.Promise 
 	return mat(inputPromise, outputPromise)
 }
 
-func (s *sinkStage) newActions(reader StreamReader, promise * core.Promise) SinkStageActions {
+func (s *sinkStage) newActions(reader StreamReader) SinkStageActions {
 	return & sinkStageActions{
 		logger:       s.attributes.Logger,
 		inputStream:  reader,
-		promise: promise,
 	}
 }
 
@@ -82,18 +80,15 @@ var _ SinkStageActions = (*sinkStageActions)(nil)
 type sinkStageActions struct {
 	logger Logger
 	inputStream StreamReader
-	promise *core.Promise
 }
 
 func (s *sinkStageActions) FailStage(cause error) {
 	s.logger.Error(cause, "failed stage because")
 	s.inputStream.Complete()
-	s.promise.Reject(cause)
 }
 
 func (s *sinkStageActions) CompleteStage(value interface{}) {
 	s.inputStream.Complete()
-	s.promise.Resolve(value)
 }
 
 func Sink(factory SinkStageLogicFactory) SinkStage {
