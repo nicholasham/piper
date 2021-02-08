@@ -1,31 +1,22 @@
 package core2
 
-import "sync"
-
 // Until we get generics
 type Any interface {
 }
 
-type Result interface {
-
-}
 
 type Future interface {
-	Await()
+	Get() Result
+	OnSuccess(func(value Any) Result)
+	OnFailure(func(err error) Result)
+	Then(func(value Any) Result) Future
+	Alt(that Future) Future
 }
 
-type Promise struct {
-	wg  sync.WaitGroup
-}
-
-func NewPromise(resolve func(value Any), reject func(err error)) * Promise {
-	return &Promise{}
-}
-
-func (p *Promise) Map(func(value Any) Any)  *Promise {
-	return &Promise{
-
-	}
+type Promise interface {
+	Future() Future
+	TrySuccess(value Any) bool
+	TryFailure(err error) bool
 }
 
 
