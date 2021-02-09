@@ -1,18 +1,32 @@
 package core
 
 import (
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
 	"testing"
 )
 
-func TestName(t *testing.T) {
+func TestPromise(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
-	promise := NewPromise()
+	t.Run("can only write success once ", func(t *testing.T) {
+		promise := NewPromise()
+		assert.True(t, promise.TrySuccess(10))
+		assert.False(t, promise.TrySuccess(20))
+		assert.False(t, promise.TryFailure(fmt.Errorf("some error")))
+		assert.Equal(t, Success(10), <-promise.resultChan)
+	})
 
-	go func(p *Promise) {
-		p.TrySuccess(10)
-	}(promise)
+	t.Run("can only write failure once ", func(t *testing.T) {
+		promise := NewPromise()
+		expectedError := fmt.Errorf("some error")
+		ignoredError := fmt.Errorf("some error")
 
-	promise.Future().Await()
+		assert.True(t, promise.TryFailure(expectedError))
+		assert.False(t, promise.TryFailure(ignoredError))
+		assert.False(t, promise.TrySuccess(20))
+		assert.Equal(t, Failure(expectedError), <-promise.resultChan)
+	})
+
 }
