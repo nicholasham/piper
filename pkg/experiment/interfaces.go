@@ -31,7 +31,7 @@ type UpstreamStage interface {
 }
 
 type MaterializeFunc func (left *Future, right *Future) *Future
-type MapMaterializedValueFunc func(value Any) Any
+type MapMaterializedValueFunc func(value Any) Result
 
 func KeepLeft(left *Future, right *Future) *Future {
 	return left

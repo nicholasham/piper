@@ -59,6 +59,14 @@ func (o Optional) IfNone(f func()) Optional {
 	return o
 }
 
+func (o Optional) ToResult(f func() error) Result {
+	return o.Match(func(value Any) Any {
+		return Success(value)
+	}, func() Any {
+		return Failure(f())
+	}).(Result)
+}
+
 // Returns the option's value if the option is nonempty, otherwise return the result of evaluating default.
 func (o Optional) GetOrElse(defaultValue interface{}) interface{} {
 	if o.IsNone() {

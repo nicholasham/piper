@@ -26,11 +26,11 @@ func (receiver *Future) OnFailure(f func(err error)) {
 	}()
 }
 
-func (receiver *Future) Then(f func(value Any) Any) *Future {
+func (receiver *Future) Then(f func(value Any) Result) *Future {
 	return NewFuture(func() Result {
 		result := receiver.Await()
 		if result.IsSuccess() {
-			return Success(f(result.value))
+			return f(result.value)
 		}
 		return result
 	})
@@ -54,10 +54,9 @@ func (receiver *Future) Alt(that *Future) *Future {
 }
 
 func NewFuture(f func() Result) *Future {
-	resultChan := make(chan Result)
+	resultChan := make(chan Result, 1)
 	go func() {
-		result := f()
-		resultChan <- result
+		resultChan <-  f()
 	}()
 	return &Future{
 		resultChan: resultChan,
