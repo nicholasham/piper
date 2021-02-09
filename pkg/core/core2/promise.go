@@ -4,23 +4,11 @@ package core2
 type Any interface {
 }
 
-
-type Future interface {
-	Get() Result
-	OnSuccess(func(value Any))
-	OnFailure(func(err error))
-	Then(func(value Any) Result) Future
-	Alt(that Future) Future
-}
-
-// verify future implements Future interface
-var _ Future = (*future)(nil)
-
-type future struct {
+type Future struct {
 	resultChan chan Result
 }
 
-func (receiver *future) Get() Result {
+func (receiver *Future) Get() Result {
 	result := <- receiver.resultChan
 	go func() {
 		receiver.resultChan <- result
@@ -28,21 +16,21 @@ func (receiver *future) Get() Result {
 	return result
 }
 
-func (receiver *future) OnSuccess(f func(value Any)) {
+func (receiver *Future) OnSuccess(f func(value Any)) {
 	go func() {
 		result := receiver.Get()
 		result.IfSuccess(f)
 	}()
 }
 
-func (receiver *future) OnFailure(f func(err error)) {
+func (receiver *Future) OnFailure(f func(err error)) {
 	go func() {
 		result := receiver.Get()
 		result.IfFailure(f)
 	}()
 }
 
-func (receiver *future) Then(f func(value Any) Result) Future {
+func (receiver *Future) Then(f func(value Any) Result) *Future {
 	return NewFuture(func() Result {
 		result := receiver.Get()
 		if result.IsSuccess() {
@@ -52,7 +40,7 @@ func (receiver *future) Then(f func(value Any) Result) Future {
 	})
 }
 
-func tryCompleteWith(p Promise, f Future) {
+func tryCompleteWith(p *Promise, f *Future) {
 	go func() {
 		f.Get().IfSuccess(func(value Any) {
 			p.TrySuccess(value)
@@ -62,47 +50,37 @@ func tryCompleteWith(p Promise, f Future) {
 	}()
 }
 
-func (receiver *future) Alt(that Future) Future {
+func (receiver *Future) Alt(that *Future) *Future {
 	p := NewPromise()
 	tryCompleteWith(p, receiver)
 	tryCompleteWith(p, that)
 	return p.Future()
 }
 
-func NewFuture(f func() Result) Future  {
+func NewFuture(f func() Result) *Future  {
 	resultChan := make(chan Result)
 	go func() {
 		result := f()
 		resultChan <- result
 	}()
-	return & future{
+	return &Future{
 		resultChan: resultChan,
 	}
 }
 
-type Promise interface {
-	Future() Future
-	TrySuccess(value Any) bool
-	TryFailure(err error) bool
-}
-
-// verify promise implements Promise interface
-var _ Promise = (*promise)(nil)
-
-
-type promise struct {
+type Promise struct {
 	completed bool
 	resultChan chan Result
 }
 
-func (p *promise) Future() Future {
+func (p *Promise) Future() *Future {
 	return NewFuture(func() Result {
 		result := <- p.resultChan
 		return result
 	})
 }
 
-func (p *promise) TrySuccess(value Any) bool {
+func (p *Promise) TrySuccess(value Any) bool {
 	if !p.completed {
 		go func() {
 			p.resultChan <- Success(value)
@@ -112,7 +90,7 @@ func (p *promise) TrySuccess(value Any) bool {
 	return false
 }
 
-func (p *promise) TryFailure(err error) bool {
+func (p *Promise) TryFailure(err error) bool {
 	if !p.completed {
 		go func() {
 			p.resultChan <- Failure(err)
@@ -122,8 +100,8 @@ func (p *promise) TryFailure(err error) bool {
 	return false
 }
 
-func NewPromise() Promise {
-	return &promise {
+func NewPromise() *Promise {
+	return &Promise{
 		completed: false,
 		resultChan: make(chan Result),
 	}
