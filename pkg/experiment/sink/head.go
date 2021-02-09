@@ -39,5 +39,5 @@ func headLogic(attributes *experiment.StageAttributes) (experiment.SinkStageLogi
 	promise := core.NewPromise()
 	return &headOptionStageLogic{
 		head: core.None(),
-	}
+	}, promise
 }

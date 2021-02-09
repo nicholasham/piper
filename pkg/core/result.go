@@ -11,21 +11,13 @@ const (
 type Result struct {
 	state ResultState
 	err   error
-	value A
+	value Any
 }
 
-// Represents the value type
-type A interface {
-}
+type MapSuccess func(value Any) Any
+type MapFailure func(err error) Any
 
-// Represents result type
-type R interface {
-}
-
-type MapSuccess func(value A) R
-type MapFailure func(err error) R
-
-func Success(value A) Result {
+func Success(value Any) Result {
 	return Result{
 		state: IsSuccess,
 		err:   nil,
@@ -49,14 +41,14 @@ func (r Result) IsFailure() bool {
 	return r.state == IsFailure
 }
 
-func (r Result) IfSuccess(f func(value A)) Result {
+func (r Result) IfSuccess(f func(value Any)) Result {
 	if r.IsSuccess() {
 		f(r.value)
 	}
 	return r
 }
 
-func (r Result) Match(success MapSuccess, failure MapFailure) R {
+func (r Result) Match(success MapSuccess, failure MapFailure) Any {
 	if r.IsFailure() {
 		return failure(r.err)
 	}
@@ -70,14 +62,14 @@ func (r Result) IfFailure(f func(err error)) Result {
 	return r
 }
 
-func (r Result) Unwrap() (A, error) {
+func (r Result) Unwrap() (Any, error) {
 	if r.IsFailure() {
 		return nil, r.err
 	}
 	return r.value, nil
 }
 
-func WrapInResult(f func() (A, error)) Result {
+func WrapInResult(f func() (Any, error)) Result {
 	value, err := f()
 	if err != nil {
 		return Failure(err)

@@ -23,28 +23,24 @@ type FlowStage interface {
 type SinkStage interface {
 	Stage
 	WireTo(stage UpstreamStage) SinkStage
-	Run(ctx context.Context, mat MaterializeFunc) *Promise
+	Run(ctx context.Context, mat MaterializeFunc) *Future
 }
 
 type UpstreamStage interface {
-	Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *Promise)
+	Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *Future)
 }
 
-type MaterializeFunc func (left *Promise, right *Promise) *Promise
-type MapMaterializedValueFunc func(value interface{}) interface{}
+type MaterializeFunc func (left *Future, right *Future) *Future
+type MapMaterializedValueFunc func(value Any) Any
 
-func KeepLeft(left *Promise, right *Promise) *Promise {
+func KeepLeft(left *Future, right *Future) *Future {
 	return left
 }
 
-func KeepRight(left *Promise, right *Promise) *Promise {
+func KeepRight(left *Future, right *Future) *Future {
 	return right
 }
 
-func KeepBoth(left *Promise, right *Promise) *Promise {
+func KeepBoth(left *Future, right *Future) *Future {
 	return left
-}
-
-type Future interface {
-	Await() Result
 }

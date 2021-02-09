@@ -27,8 +27,8 @@ func (t *transformSinkStage) WireTo(stage UpstreamStage) SinkStage {
 	}
 }
 
-func (t *transformSinkStage) Run(ctx context.Context, mat MaterializeFunc) *core.Promise {
-	return t.Run(ctx, mat).FlatMap(t.f)
+func (t *transformSinkStage) Run(ctx context.Context, mat MaterializeFunc) *core.Future {
+	return t.Run(ctx, mat).Then(t.f)
 }
 
 func TransformSink(sink SinkStage, f MapMaterializedValueFunc) SinkStage {

@@ -2,6 +2,7 @@ package experiment
 
 import (
 	"context"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
 type RunnableGraph struct {
@@ -9,7 +10,7 @@ type RunnableGraph struct {
 	sinkStage   SinkStage
 }
 
-func (r *RunnableGraph) Run(ctx context.Context) Future {
+func (r *RunnableGraph) Run(ctx context.Context) *core.Future {
 	return r.sinkStage.Run(ctx, r.combine)
 }
 

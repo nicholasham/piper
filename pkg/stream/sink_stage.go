@@ -27,12 +27,11 @@ type SinkStageLogicFactory func(attributes *StageAttributes) SinkStageLogic
 var _ SinkStage = (*sinkStage)(nil)
 var _ SinkStageActions = (*sinkStage)(nil)
 
-
 type sinkStage struct {
 	attributes *StageAttributes
 	inlet      *Inlet
-	promise *core.Promise
-	factory SinkStageLogicFactory
+	promise    *core.Promise
+	factory    SinkStageLogicFactory
 }
 
 func (s *sinkStage) FailStage(cause error) {
@@ -64,7 +63,7 @@ func (s *sinkStage) Run(ctx context.Context) {
 			}
 
 			if !s.inlet.CompletionSignaled() {
-				logic.OnUpstreamReceive(element,s)
+				logic.OnUpstreamReceive(element, s)
 			}
 
 		}
@@ -96,9 +95,6 @@ func Sink(factory SinkStageLogicFactory) SinkStage {
 		attributes: attributes,
 		factory:    factory,
 		inlet:      NewInlet(attributes),
-		promise: core.NewPromise(),
+		promise:    core.NewPromise(),
 	}
 }
-
-
-

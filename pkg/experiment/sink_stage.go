@@ -48,8 +48,8 @@ func (s *sinkStage) WireTo(stage UpstreamStage) SinkStage {
 	return s
 }
 
-func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Promise {
-	inputReader, inputPromise := s.upstreamStage.Open(ctx, combine)
+func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Future {
+	inputReader, inputFuture := s.upstreamStage.Open(ctx, combine)
 	logic, outputPromise := s.factory(s.attributes)
 	go func() {
 		actions  := s.newActions(inputReader)
@@ -69,7 +69,7 @@ func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Prom
 		}
 		logic.OnUpstreamFinish(actions)
 	}()
-	return combine(inputPromise, outputPromise)
+	return combine(inputFuture, outputPromise.Future())
 }
 
 func (s *sinkStage) newActions(reader StreamReader) SinkStageActions {

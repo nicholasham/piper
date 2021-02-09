@@ -8,14 +8,14 @@ import (
 
 func TestOptional(t *testing.T) {
 
-	var add = func(number int) func(value T) T {
-		return func(value T) T {
+	var add = func(number int) func(value Any) Any {
+		return func(value Any) Any {
 			return value.(int) + number
 		}
 	}
 
-	var isEqualTo = func(expected T) func(actual T) bool {
-		return func(actual T) bool {
+	var isEqualTo = func(expected Any) func(actual Any) bool {
+		return func(actual Any) bool {
 			return expected == actual
 		}
 	}
@@ -31,14 +31,14 @@ func TestOptional(t *testing.T) {
 		assert.False(t, None().IsSome())
 	})
 
-	t.Run("Get returns value when has some value", func(t *testing.T) {
+	t.Run("Await returns value when has some value", func(t *testing.T) {
 		expected := 100
 		actual, err := Some(100).Get()
 		assert.NoError(t, err)
 		assert.Equal(t, expected, actual)
 	})
 
-	t.Run("Get returns error when none", func(t *testing.T) {
+	t.Run("Await returns error when none", func(t *testing.T) {
 
 		actual, err := None().Get()
 
@@ -61,19 +61,19 @@ func TestOptional(t *testing.T) {
 	})
 
 	t.Run("Exists returns true if the predicate matches the value ", func(t *testing.T) {
-		assert.True(t, Some(1).Exists(func(value T) bool {
+		assert.True(t, Some(1).Exists(func(value Any) bool {
 			return value.(int) == 1
 		}))
 	})
 
 	t.Run("Exists returns false if the predicate does not match the value ", func(t *testing.T) {
-		assert.False(t, Some(1).Exists(func(value T) bool {
+		assert.False(t, Some(1).Exists(func(value Any) bool {
 			return value.(int) == 2
 		}))
 	})
 
 	t.Run("Exists returns false when none ", func(t *testing.T) {
-		assert.False(t, None().Exists(func(value T) bool {
+		assert.False(t, None().Exists(func(value Any) bool {
 			return true
 		}))
 	})
@@ -92,7 +92,7 @@ func TestOptional(t *testing.T) {
 
 	t.Run("FlatMap returns mapped something", func(t *testing.T) {
 		expected := Some(2)
-		actual := Some(1).FlatMap(func(value T) Optional {
+		actual := Some(1).FlatMap(func(value Any) Optional {
 			return Some(2)
 		})
 		assert.Equal(t, expected, actual)
@@ -100,7 +100,7 @@ func TestOptional(t *testing.T) {
 
 	t.Run("FlatMap returns none when none", func(t *testing.T) {
 		expected := None()
-		actual := expected.FlatMap(func(value T) Optional {
+		actual := expected.FlatMap(func(value Any) Optional {
 			return Some(1)
 		})
 		assert.Equal(t, expected, actual)

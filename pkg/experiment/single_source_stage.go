@@ -13,7 +13,7 @@ type singleStage struct {
 	value      interface{}
 }
 
-func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Promise) {
+func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Future) {
 	outputPromise := core.NewPromise()
 	outputStream := NewStream()
 	go func(){
@@ -22,7 +22,7 @@ func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamRead
 		writer.Close()
 		outputPromise.TrySuccess(NotUsed)
 	}()
-	return outputStream.Reader(), outputPromise
+	return outputStream.Reader(), outputPromise.Future()
 
 }
 

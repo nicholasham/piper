@@ -29,7 +29,7 @@ func (u *unfoldFlowStage) OnUpstreamReceive(element Element, actions FlowStageAc
 		WhenValue(u.handleValue(actions))
 }
 
-func (u *unfoldFlowStage) handleValue(actions FlowStageActions) ValueAction { 
+func (u *unfoldFlowStage) handleValue(actions FlowStageActions) ValueAction {
 	return func(value interface{}) {
 		u.Lock()
 		defer u.Unlock()
@@ -52,7 +52,7 @@ func Unfold(state interface{}, f UnfoldFunc) FlowStage {
 
 func unfoldFactory(state interface{}, f UnfoldFunc) FlowStageLogicFactory {
 	return func(attributes *StageAttributes) FlowStageLogic {
-		return & unfoldFlowStage{
+		return &unfoldFlowStage{
 			result: core.Some(state),
 			f:      f,
 		}

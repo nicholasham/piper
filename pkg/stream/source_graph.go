@@ -18,14 +18,13 @@ func (g *SourceGraph) Via(that *FlowGraph) *FlowGraph {
 	return FromFlow(CompositeFlow(g.stage, that.stage))
 }
 
-func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph  {
+func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph {
 	return FromSource(CompositeFlow(g.stage, that))
 }
 
 func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
 	return runnable(g.stage, that.stage)
 }
-
 
 func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
 	return g.To(that).Run(ctx)
@@ -80,5 +79,3 @@ func (g *SourceGraph) Fold(zero interface{}, f AggregateFunc) *SourceGraph {
 func (g *SourceGraph) Unfold(state interface{}, f UnfoldFunc) *SourceGraph {
 	return g.viaFlow(Unfold(state, f))
 }
-
-

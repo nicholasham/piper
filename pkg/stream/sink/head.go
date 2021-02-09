@@ -6,7 +6,6 @@ import "github.com/nicholasham/piper/pkg/stream"
 var _ stream.SinkStageLogic = (*headSinkStageLogic)(nil)
 
 type headSinkStageLogic struct {
-
 }
 
 func (h *headSinkStageLogic) OnUpstreamStart(actions stream.SinkStageActions) {
@@ -22,9 +21,7 @@ func (h *headSinkStageLogic) OnUpstreamFinish(actions stream.SinkStageActions) {
 }
 
 func head() stream.SinkStageLogic {
-	return &headSinkStageLogic{
-
-	}
+	return &headSinkStageLogic{}
 }
 
 func HeadSink() stream.SinkStage {
@@ -33,11 +30,6 @@ func HeadSink() stream.SinkStage {
 
 func headFactory() stream.SinkStageLogicFactory {
 	return func(attributes *stream.StageAttributes) stream.SinkStageLogic {
-		return &headSinkStageLogic{
-		}
+		return &headSinkStageLogic{}
 	}
 }
-
-
-
-

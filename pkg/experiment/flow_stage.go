@@ -48,10 +48,10 @@ func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
 	return s
 }
 
-func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Promise) {
+func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Future) {
 	outputStream := NewStream()
 	outputPromise := core.NewPromise()
-	reader, inputPromise :=  s.upstreamStage.Open(ctx, KeepRight)
+	reader, inputFuture :=  s.upstreamStage.Open(ctx, KeepRight)
 	go func() {
 		writer:= outputStream.Writer()
 		defer writer.Close()
@@ -75,7 +75,7 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader
 		}
 		logic.OnUpstreamFinish(actions)
 	}()
-	return outputStream.Reader(), mat(inputPromise, outputPromise)
+	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
 }
 
 func (s *flowStage) newActions(inputStream StreamReader, outputStream StreamWriter) FlowStageActions {

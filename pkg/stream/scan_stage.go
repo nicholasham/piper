@@ -2,7 +2,6 @@ package stream
 
 import "sync"
 
-
 // verify scanFlowStage implements FlowStageLogic interface
 var _ FlowStageLogic = (*scanFlowStage)(nil)
 

@@ -1,6 +1,9 @@
 package experiment
 
-import "context"
+import (
+	"context"
+	"github.com/nicholasham/piper/pkg/core"
+)
 
 type SourceGraph struct {
 	stage SourceStage
@@ -34,7 +37,7 @@ func (g *SourceGraph) ToMaterialized(that *SinkGraph) func(combine MaterializeFu
 	}
 }
 
-func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) Future {
+func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) *core.Future {
 	return g.ToMaterialized(that)(KeepRight).Run(ctx)
 }
 

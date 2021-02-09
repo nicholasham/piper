@@ -5,5 +5,5 @@ import (
 )
 
 func Head() *experiment.SinkGraph{
-	return experiment.FromSink (HeadSink())
+	return experiment.FromSink(HeadSink())
 }

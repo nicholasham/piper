@@ -6,23 +6,21 @@ import (
 
 // Is a container for zero or one element of a given type
 type Optional struct {
-	value    T
+	value    Any
 	hasValue bool
 }
 
-type FlatMapFunc func(value T) Optional
-type MapFunc func(value T) T
-type PredicateFunc func(value T) bool
+type FlatMapFunc func(value Any) Optional
+type MapFunc func(value Any) Any
+type PredicateFunc func(value Any) bool
 
-type MapSome func(value T) R
-type MapNone func() R
-
-type T interface{}
+type MapSome func(value Any) Any
+type MapNone func() Any
 
 var EmptyError = fmt.Errorf("is empty")
 
 // Returns the option's value.
-func (o Optional) Get() (T, error) {
+func (o Optional) Get() (Any, error) {
 	if o.IsNone() {
 		return nil, EmptyError
 	}
@@ -93,7 +91,7 @@ func (o Optional) Map(f MapFunc) Optional {
 	return Some(f(o.value))
 }
 
-func (o Optional) Match(some MapSome, none MapNone) R {
+func (o Optional) Match(some MapSome, none MapNone) Any {
 	if o.IsNone() {
 		return none()
 	}
