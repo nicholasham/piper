@@ -1,14 +1,15 @@
 package core
 
 type Future struct {
+	f func() Result
 	resultChan chan Result
 }
 
 func (receiver *Future) Await() Result {
-	result := <-receiver.resultChan
 	go func() {
-		receiver.resultChan <- result
+		receiver.resultChan <- receiver.f()
 	}()
+	result := <-receiver.resultChan
 	return result
 }
 
@@ -54,11 +55,8 @@ func (receiver *Future) Alt(that *Future) *Future {
 }
 
 func NewFuture(f func() Result) *Future {
-	resultChan := make(chan Result, 1)
-	go func() {
-		resultChan <-  f()
-	}()
 	return &Future{
-		resultChan: resultChan,
+		f : f,
+		resultChan: make(chan Result),
 	}
 }

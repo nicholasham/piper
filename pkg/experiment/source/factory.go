@@ -9,6 +9,11 @@ func Single(value interface{}) *experiment.SourceGraph {
 	return experiment.FromSource(experiment.SingleSource(value))
 }
 
+func Empty() *experiment.SourceGraph {
+	return FromIterable(iterable.Empty())
+}
+
+
 func Range(start int, end int) *experiment.SourceGraph {
 	return FromIterable(iterable.Range(start, end))
 }
