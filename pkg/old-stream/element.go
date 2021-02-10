@@ -1,4 +1,4 @@
-package stream
+package old_stream
 
 import "fmt"
 
@@ -22,9 +22,7 @@ func ToElement(f func() (interface{}, error)) Element {
 	}
 }
 
-type notUsed struct {
-}
-var NotUsed interface{} = notUsed{}
+var NotUsed Element = Element{}
 
 func Value(value interface{}) Element {
 	return Element{value: value}

@@ -2,6 +2,7 @@ package stream
 
 import (
 	"context"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
 // verify mapConcat implements SourceStage interface
@@ -9,39 +10,37 @@ var _ SourceStage = (*singleStage)(nil)
 
 type singleStage struct {
 	attributes *StageAttributes
-	outlet     *Outlet
 	value      interface{}
+}
+
+func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Future) {
+	outputPromise := core.NewPromise()
+	outputStream := NewStream()
+	go func(){
+		writer := outputStream.Writer()
+		writer.SendValue(s.value)
+		writer.Close()
+		outputPromise.TrySuccess(NotUsed)
+	}()
+	return outputStream.Reader(), outputPromise.Future()
+
 }
 
 func (s *singleStage) Name() string {
 	return s.attributes.Name
 }
 
-func (s *singleStage) Run(_ context.Context) {
-	go func() {
-		s.outlet.SendValue(s.value)
-		s.outlet.Close()
-	}()
-}
-
 func (s *singleStage) With(options ...StageOption) Stage {
 	attributes := s.attributes.Apply(options...)
 	return &singleStage{
 		attributes: attributes,
-		outlet:     NewOutlet(attributes),
 		value:      s.value,
 	}
 }
 
-func (s *singleStage) Outlet() *Outlet {
-	return s.outlet
-}
-
-func SingleSource(value interface{}) SourceStage {
-	attributes := DefaultStageAttributes.Apply(Name("SingleSource"))
+func SingleStage(value interface{}) SourceStage {
 	return &singleStage{
-		attributes: attributes,
-		outlet:     NewOutlet(attributes),
+		attributes: DefaultStageAttributes,
 		value:      value,
 	}
 }

@@ -1,4 +1,4 @@
-package stream
+package old_stream
 
 import (
 	"github.com/nicholasham/piper/pkg/core/iterable"
@@ -43,12 +43,14 @@ func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 			}
 			return
 		}
-		iterable.ForEach(actions.SendValue)
+		iterable.ForEach(func(value interface{}) {
+			actions.SendValue(value)
+		})
 	}
 }
 
 func MapConcat(f MapConcatFunc) FlowStage {
-	return Flow(mapConcatFactory(f))
+	return LinearFlow(mapConcatFactory(f))
 }
 
 func mapConcatFactory(f MapConcatFunc) FlowStageLogicFactory {

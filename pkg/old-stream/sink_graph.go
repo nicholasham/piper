@@ -1,4 +1,4 @@
-package stream
+package old_stream
 
 type SinkGraph struct {
 	stage SinkStage
@@ -6,10 +6,6 @@ type SinkGraph struct {
 
 func (g *SinkGraph) With(options ...StageOption) *SinkGraph {
 	return FromSink(g.stage.With(options...).(SinkStage))
-}
-
-func (g SinkGraph) MapMaterializedValue(f MapMaterializedValueFunc) *SinkGraph  {
-	return FromSink(TransformSink(g.stage, f))
 }
 
 func FromSink(stage SinkStage) *SinkGraph {

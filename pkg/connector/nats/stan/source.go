@@ -4,25 +4,25 @@ import (
 	"context"
 
 	"github.com/nats-io/stan.go"
-	"github.com/nicholasham/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/old-stream"
 )
 
 // verify iteratorSource implements stream.SourceStage interface
-var _ stream.SourceStage = (*stanSourceStage)(nil)
+var _ old_stream.SourceStage = (*stanSourceStage)(nil)
 
 type stanSourceStage struct {
-	attributes          *stream.StageAttributes
-	outlet              *stream.Outlet
+	attributes          *old_stream.StageAttributes
+	outlet              *old_stream.Outlet
 	conn                stan.Conn
 	subject             string
 	group               string
 	subscriptionOptions []stan.SubscriptionOption
 }
 
-func (s *stanSourceStage) With(options ...stream.StageOption) stream.Stage {
+func (s *stanSourceStage) With(options ...old_stream.StageOption) old_stream.Stage {
 	attributes := s.attributes.Apply(options...)
 	return &stanSourceStage{
-		outlet:              stream.NewOutlet(attributes),
+		outlet:              old_stream.NewOutlet(attributes),
 		conn:                s.conn,
 		subject:             s.subject,
 		group:               s.group,
@@ -57,14 +57,14 @@ func (s *stanSourceStage) Run(ctx context.Context) {
 	}()
 }
 
-func (s *stanSourceStage) Outlet() *stream.Outlet {
+func (s *stanSourceStage) Outlet() *old_stream.Outlet {
 	return s.outlet
 }
 
-func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ...stream.StageOption) *stream.SourceGraph {
-	attributes := stream.DefaultStageAttributes.Apply(stream.Name("LinearFlowStage"))
-	return stream.FromSource(&stanSourceStage{
-		outlet:              stream.NewOutlet(attributes),
+func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption, options ...old_stream.StageOption) *old_stream.SourceGraph {
+	attributes := old_stream.DefaultStageAttributes.Apply(old_stream.Name("LinearFlowStage"))
+	return old_stream.FromSource(&stanSourceStage{
+		outlet:              old_stream.NewOutlet(attributes),
 		conn:                conn,
 		subject:             subject,
 		group:               group,

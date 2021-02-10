@@ -2,23 +2,21 @@ package stream
 
 import (
 	"context"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
 type RunnableGraph struct {
-	sourceStage SourceStage
+	combine MaterializeFunc
 	sinkStage   SinkStage
 }
 
-func (r *RunnableGraph) Run(ctx context.Context) Future {
-	r.sourceStage.Run(ctx)
-	r.sinkStage.Run(ctx)
-	return r.sinkStage.Result()
+func (r *RunnableGraph) Run(ctx context.Context) *core.Future {
+	return r.sinkStage.Run(ctx, r.combine)
 }
 
-func runnable(sourceStage SourceStage, sinkStage SinkStage) *RunnableGraph {
-	sinkStage.WireTo(sourceStage)
+func runnable(sinkStage SinkStage, combine MaterializeFunc) *RunnableGraph {
 	return &RunnableGraph{
-		sourceStage: sourceStage,
 		sinkStage:   sinkStage,
+		combine: combine,
 	}
 }

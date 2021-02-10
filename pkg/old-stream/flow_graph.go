@@ -1,4 +1,4 @@
-package stream
+package old_stream
 
 type FlowGraph struct {
 	stage FlowStage
@@ -13,8 +13,7 @@ func (g *FlowGraph) Named(name string) *FlowGraph {
 }
 
 func (g *FlowGraph) Via(that *FlowGraph) *FlowGraph {
-	that.stage.WireTo(g.stage)
-	return that
+	return FromFlow(CompositeFlow(g.stage, that.stage))
 }
 
 func FromFlow(stage FlowStage) *FlowGraph {
@@ -23,3 +22,14 @@ func FromFlow(stage FlowStage) *FlowGraph {
 	}
 }
 
+func (g *FlowGraph) Concat(that *FlowGraph) *FlowGraph {
+	return ConcatFlows(g, that)
+}
+
+func (g *FlowGraph) Interleave(segmentSize int, that *FlowGraph) *FlowGraph {
+	return InterleaveFlows(segmentSize, g, that)
+}
+
+func (g *FlowGraph) Merge(that *FlowGraph) *FlowGraph {
+	return MergeFlows(g, that)
+}
