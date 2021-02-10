@@ -15,7 +15,7 @@ func TestPromise(t *testing.T) {
 		assert.True(t, promise.TrySuccess(10))
 		assert.False(t, promise.TrySuccess(20))
 		assert.False(t, promise.TryFailure(fmt.Errorf("some error")))
-		assert.Equal(t, Success(10), <-promise.resultChan)
+		assert.Equal(t, Ok(10), <-promise.resultChan)
 	})
 
 	t.Run("can only write failure once ", func(t *testing.T) {
@@ -26,7 +26,7 @@ func TestPromise(t *testing.T) {
 		assert.True(t, promise.TryFailure(expectedError))
 		assert.False(t, promise.TryFailure(ignoredError))
 		assert.False(t, promise.TrySuccess(20))
-		assert.Equal(t, Failure(expectedError), <-promise.resultChan)
+		assert.Equal(t, Err(expectedError), <-promise.resultChan)
 	})
 
 }

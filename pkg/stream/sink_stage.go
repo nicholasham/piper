@@ -86,7 +86,7 @@ func (s *sinkStage) WireTo(stage OutputStage) SinkStage {
 }
 
 func (s *sinkStage) Result() Future {
-	return s.promise
+	return s.promise.Future()
 }
 
 func Sink(factory SinkStageLogicFactory) SinkStage {

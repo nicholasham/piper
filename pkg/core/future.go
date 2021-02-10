@@ -16,21 +16,21 @@ func (receiver *Future) Await() Result {
 func (receiver *Future) OnSuccess(f func(value Any)) {
 	go func() {
 		result := receiver.Await()
-		result.IfSuccess(f)
+		result.IfOk(f)
 	}()
 }
 
 func (receiver *Future) OnFailure(f func(err error)) {
 	go func() {
 		result := receiver.Await()
-		result.IfFailure(f)
+		result.IfErr(f)
 	}()
 }
 
 func (receiver *Future) Then(f func(value Any) Result) *Future {
 	return NewFuture(func() Result {
 		result := receiver.Await()
-		if result.IsSuccess() {
+		if result.IsOk() {
 			return f(result.value)
 		}
 		return result
@@ -39,9 +39,9 @@ func (receiver *Future) Then(f func(value Any) Result) *Future {
 
 func tryCompleteWith(p *Promise, f *Future) {
 	go func() {
-		f.Await().IfSuccess(func(value Any) {
+		f.Await().IfOk(func(value Any) {
 			p.TrySuccess(value)
-		}).IfFailure(func(err error) {
+		}).IfErr(func(err error) {
 			p.TryFailure(err)
 		})
 	}()

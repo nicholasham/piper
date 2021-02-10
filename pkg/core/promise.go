@@ -2,9 +2,7 @@ package core
 
 import "sync"
 
-// Until we get generics
-type Any interface {
-}
+// http://www.home.hs-karlsruhe.de/~suma0002/publications/events-to-futures.pdf
 
 type Promise struct {
 	completed  bool
@@ -28,7 +26,7 @@ func (p *Promise) TrySuccess(value Any) bool {
 	defer p.mu.Unlock()
 	if !p.completed {
 		go func() {
-			p.resultChan <- Success(value)
+			p.resultChan <- Ok(value)
 		}()
 		p.completed = true
 		return true
@@ -41,7 +39,7 @@ func (p *Promise) TryFailure(err error) bool {
 	defer p.mu.Unlock()
 	if !p.completed {
 		go func() {
-			p.resultChan <- Failure(err)
+			p.resultChan <- Err(err)
 		}()
 		p.completed = true
 		return true
@@ -56,4 +54,3 @@ func NewPromise() *Promise {
 	}
 }
 
-// http://www.home.hs-karlsruhe.de/~suma0002/publications/events-to-futures.pdf

@@ -1,15 +1,15 @@
 package core
 
-type ResultState int
+type resultState int
 
 const (
-	IsFailure ResultState = iota
-	IsSuccess
+	isFailure resultState = iota
+	isSuccess
 )
 
-// Type that represents two states. Value or Error
+// Type that is used to return and propagate errors. It represents two states. Value or Error
 type Result struct {
-	state ResultState
+	state resultState
 	err   error
 	value Any
 }
@@ -17,62 +17,75 @@ type Result struct {
 type MapSuccess func(value Any) Any
 type MapFailure func(err error) Any
 
-func Success(value Any) Result {
+func Ok(value Any) Result {
 	return Result{
-		state: IsSuccess,
+		state: isSuccess,
 		err:   nil,
 		value: value,
 	}
 }
 
-func Failure(err error) Result {
+func Err(err error) Result {
 	return Result{
-		state: IsFailure,
+		state: isFailure,
 		err:   err,
 		value: nil,
 	}
 }
 
-func (r Result) IsSuccess() bool {
-	return r.state == IsSuccess
+func (r Result) IsOk() bool {
+	return r.state == isSuccess
 }
 
-func (r Result) IsFailure() bool {
-	return r.state == IsFailure
+func (r Result) IsErr() bool {
+	return r.state == isFailure
 }
 
-func (r Result) IfSuccess(f func(value Any)) Result {
-	if r.IsSuccess() {
+func (r Result) Map(f MapSuccess) Result {
+	if r.IsOk() {
+		return Ok(f(r.value))
+	}
+	return r
+}
+
+func (r Result) Then(f func(value Any) Result) Result {
+	if r.IsOk() {
+		return f(r.value)
+	}
+	return r
+}
+
+func (r Result) OrElse(f func(err error) Result) Result {
+	if r.IsErr() {
+		return f(r.err)
+	}
+	return r
+}
+
+func (r Result) IfOk(f func(value Any)) Result {
+	if r.IsOk() {
 		f(r.value)
 	}
 	return r
 }
 
 func (r Result) Match(success MapSuccess, failure MapFailure) Any {
-	if r.IsFailure() {
+	if r.IsErr() {
 		return failure(r.err)
 	}
 	return success(r.value)
 }
 
-func (r Result) IfFailure(f func(err error)) Result {
-	if r.IsFailure() {
+func (r Result) IfErr(f func(err error)) Result {
+	if r.IsErr() {
 		f(r.err)
 	}
 	return r
 }
 
 func (r Result) Unwrap() (Any, error) {
-	if r.IsFailure() {
+	if r.IsErr() {
 		return nil, r.err
 	}
 	return r.value, nil
-}
-
-func WrapInResult(f func() (Any, error)) Result {
-	value, err := f()
-	if err != nil {
-		return Failure(err)
-	}
-	return Success(value)
 }

@@ -61,9 +61,9 @@ func (o Optional) IfNone(f func()) Optional {
 
 func (o Optional) ToResult(f func() error) Result {
 	return o.Match(func(value Any) Any {
-		return Success(value)
+		return Ok(value)
 	}, func() Any {
-		return Failure(f())
+		return Err(f())
 	}).(Result)
 }
 
