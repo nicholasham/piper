@@ -1,20 +1,20 @@
 package stream
 
 import (
-	. "github.com/nicholasham/piper/pkg/core"
+	"github.com/nicholasham/piper/pkg/core"
 )
 
-type MaterializeFunc func(left *Future, right *Future) *Future
-type MapMaterializedValueFunc func(value Any) Result
+type MaterializeFunc func(left *core.Future, right *core.Future) *core.Future
+type MapMaterializedValueFunc func(value core.Any) core.Result
 
-func KeepLeft(left *Future, right *Future) *Future {
+func KeepLeft(left *core.Future, right *core.Future) *core.Future {
 	return left
 }
 
-func KeepRight(left *Future, right *Future) *Future {
+func KeepRight(left *core.Future, right *core.Future) *core.Future {
 	return right
 }
 
-func KeepBoth(left *Future, right *Future) *Future {
+func KeepBoth(left *core.Future, right *core.Future) *core.Future {
 	return left
 }
