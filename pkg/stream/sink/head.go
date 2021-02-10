@@ -28,7 +28,7 @@ func (h *headOptionStageLogic) OnUpstreamReceive(element stream.Element, actions
 		WhenError(func(err error) {
 			h.promise.TryFailure(err)
 			actions.FailStage(err)
-	})
+		})
 }
 
 func (h *headOptionStageLogic) OnUpstreamFinish(_ stream.SinkStageActions) {

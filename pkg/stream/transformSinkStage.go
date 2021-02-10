@@ -10,20 +10,20 @@ var _ SinkStage = (*transformSinkStage)(nil)
 
 type transformSinkStage struct {
 	sinkStage SinkStage
-	f MapMaterializedValueFunc
+	f         MapMaterializedValueFunc
 }
 
 func (t *transformSinkStage) With(options ...StageOption) Stage {
 	return &transformSinkStage{
 		sinkStage: t.sinkStage.With(options...).(SinkStage),
-		f: t.f,
+		f:         t.f,
 	}
 }
 
 func (t *transformSinkStage) WireTo(stage UpstreamStage) SinkStage {
 	return &transformSinkStage{
 		sinkStage: t.sinkStage.WireTo(stage),
-		f: t.f,
+		f:         t.f,
 	}
 }
 
@@ -37,4 +37,3 @@ func transformSink(sink SinkStage, f MapMaterializedValueFunc) SinkStage {
 		f:         f,
 	}
 }
-

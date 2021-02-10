@@ -23,14 +23,13 @@ type SinkStageActions interface {
 
 type SinkStageLogicFactory func(attributes *StageAttributes) (SinkStageLogic, *core.Promise)
 
-
 // verify sinkStage implements SinkStage interface
 var _ SinkStage = (*sinkStage)(nil)
 
 type sinkStage struct {
 	attributes    *StageAttributes
 	upstreamStage UpstreamStage
-	factory SinkStageLogicFactory
+	factory       SinkStageLogicFactory
 }
 
 func (s *sinkStage) With(options ...StageOption) Stage {
@@ -42,7 +41,7 @@ func (s *sinkStage) With(options ...StageOption) Stage {
 }
 
 func (s *sinkStage) WireTo(stage UpstreamStage) SinkStage {
-	s.upstreamStage= stage
+	s.upstreamStage = stage
 	return s
 }
 
@@ -50,7 +49,7 @@ func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Futu
 	inputReader, inputFuture := s.upstreamStage.Open(ctx, combine)
 	logic, outputPromise := s.factory(s.attributes)
 	go func() {
-		actions  := s.newActions(inputReader)
+		actions := s.newActions(inputReader)
 		logic.OnUpstreamStart(actions)
 		for element := range inputReader.Elements() {
 
@@ -62,7 +61,7 @@ func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Futu
 			}
 
 			if !inputReader.Completing() {
-				logic.OnUpstreamReceive(element, actions )
+				logic.OnUpstreamReceive(element, actions)
 			}
 		}
 		logic.OnUpstreamFinish(actions)
@@ -71,12 +70,11 @@ func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Futu
 }
 
 func (s *sinkStage) newActions(reader Reader) SinkStageActions {
-	return & sinkStageActions{
-		logger:       s.attributes.Logger,
-		inputStream:  reader,
+	return &sinkStageActions{
+		logger:      s.attributes.Logger,
+		inputStream: reader,
 	}
 }
-
 
 // verify sinkStageActions implements SinkStageActions interface
 var _ SinkStageActions = (*sinkStageActions)(nil)
@@ -102,5 +100,3 @@ func Sink(factory SinkStageLogicFactory) SinkStage {
 		factory:       factory,
 	}
 }
-
-

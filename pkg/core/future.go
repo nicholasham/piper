@@ -1,7 +1,7 @@
 package core
 
 type Future struct {
-	f func() Result
+	f          func() Result
 	resultChan chan Result
 }
 
@@ -56,7 +56,7 @@ func (receiver *Future) Alt(that *Future) *Future {
 
 func NewFuture(f func() Result) *Future {
 	return &Future{
-		f : f,
+		f:          f,
 		resultChan: make(chan Result),
 	}
 }

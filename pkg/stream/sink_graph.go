@@ -8,7 +8,7 @@ func (g *SinkGraph) With(options ...StageOption) *SinkGraph {
 	return FromSink(g.stage.With(options...).(SinkStage))
 }
 
-func (g SinkGraph) MapMaterializedValue(f MapMaterializedValueFunc) *SinkGraph  {
+func (g SinkGraph) MapMaterializedValue(f MapMaterializedValueFunc) *SinkGraph {
 	return FromSink(transformSink(g.stage, f))
 }
 

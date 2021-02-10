@@ -4,7 +4,7 @@ import (
 	. "github.com/nicholasham/piper/pkg/core"
 )
 
-type MaterializeFunc func (left *Future, right *Future) *Future
+type MaterializeFunc func(left *Future, right *Future) *Future
 type MapMaterializedValueFunc func(value Any) Result
 
 func KeepLeft(left *Future, right *Future) *Future {

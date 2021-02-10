@@ -13,7 +13,6 @@ func Empty() *stream.SourceGraph {
 	return FromIterable(iterable.Empty())
 }
 
-
 func Range(start int, end int) *stream.SourceGraph {
 	return FromIterable(iterable.Range(start, end))
 }

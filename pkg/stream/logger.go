@@ -28,4 +28,3 @@ func (d *defaultLogger) Error(err error, msg string, keysAndValues ...interface{
 	keysAndValues = append(keysAndValues, "error", err)
 	d.Info(msg, keysAndValues...)
 }
-

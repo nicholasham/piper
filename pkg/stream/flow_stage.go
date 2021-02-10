@@ -5,8 +5,6 @@ import (
 	"github.com/nicholasham/piper/pkg/core"
 )
 
-
-
 type FlowStageLogic interface {
 	SupportsParallelism() bool
 	// Called when starting to receive elements from upstream
@@ -25,7 +23,7 @@ type FlowStageActions interface {
 	// Fails a stage on logs the cause of failure.
 	FailStage(cause error)
 	// Completes the stage with a materialised value
-	CompleteStage(value interface{})
+	CompleteStage()
 }
 
 type FlowStageLogicFactory func(attributes *StageAttributes) FlowStageLogic
@@ -55,14 +53,14 @@ func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
 func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
 	outputStream := NewStream()
 	outputPromise := core.NewPromise()
-	reader, inputFuture :=  s.upstreamStage.Open(ctx, KeepRight)
+	reader, inputFuture := s.upstreamStage.Open(ctx, KeepRight)
 	go func() {
-		writer:= outputStream.Writer()
+		writer := outputStream.Writer()
 		defer writer.Close()
 		logic := s.factory(s.attributes)
 		actions := s.newActions(reader, writer)
 		logic.OnUpstreamStart(actions)
-		for element := range reader.Elements(){
+		for element := range reader.Elements() {
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
@@ -83,7 +81,7 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 }
 
 func (s *flowStage) newActions(inputStream Reader, outputStream Writer) FlowStageActions {
-	return & flowStageActions{inputStream: inputStream, outputStream: outputStream}
+	return &flowStageActions{inputStream: inputStream, outputStream: outputStream}
 }
 
 // verify flowStageActions implements FlowStageActions interface
@@ -108,7 +106,7 @@ func (f *flowStageActions) FailStage(cause error) {
 	f.inputStream.Complete()
 }
 
-func (f *flowStageActions) CompleteStage(value interface{}) {
+func (f *flowStageActions) CompleteStage() {
 	f.inputStream.Complete()
 }
 
@@ -119,9 +117,3 @@ func Flow(factory FlowStageLogicFactory) FlowStage {
 		factory:       factory,
 	}
 }
-
-
-
-
-
-

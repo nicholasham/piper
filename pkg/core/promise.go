@@ -7,7 +7,7 @@ import "sync"
 type Promise struct {
 	completed  bool
 	resultChan chan Result
-	mu sync.RWMutex
+	mu         sync.RWMutex
 }
 
 func (p *Promise) Future() *Future {
@@ -53,4 +53,3 @@ func NewPromise() *Promise {
 		resultChan: make(chan Result, 1),
 	}
 }
-

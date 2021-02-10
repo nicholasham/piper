@@ -9,7 +9,7 @@ import (
 func TestResult(t *testing.T) {
 
 	t.Run("IsOk is true when in success state", func(t *testing.T) {
-		 Ok(10).IsOk()
+		Ok(10).IsOk()
 	})
 
 	t.Run("IsErr true when in error state", func(t *testing.T) {
@@ -72,8 +72,6 @@ func TestResult(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-
-
 	t.Run("OrElse handles the error and continues computation", func(t *testing.T) {
 		result := Err(fmt.Errorf("some error")).OrElse(func(err error) Result {
 			t.Logf("handled: %v", err)
@@ -94,12 +92,11 @@ func TestResult(t *testing.T) {
 
 		value, err := result.Unwrap()
 
-		assert.Equal(t , 50, value)
+		assert.Equal(t, 50, value)
 		assert.NoError(t, err)
 	})
 
-
-		t.Run("Match allows returning result from success or failure ", func(t *testing.T) {
+	t.Run("Match allows returning result from success or failure ", func(t *testing.T) {
 
 		onSuccess := func(value Any) Any {
 			return value.(int) * 10
@@ -143,4 +140,4 @@ func TestResult(t *testing.T) {
 		assert.Equal(t, 0, actual)
 	})
 
-	}
+}

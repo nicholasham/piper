@@ -6,8 +6,8 @@ import (
 )
 
 type RunnableGraph struct {
-	combine MaterializeFunc
-	sinkStage   SinkStage
+	combine   MaterializeFunc
+	sinkStage SinkStage
 }
 
 func (r *RunnableGraph) Run(ctx context.Context) *core.Future {
@@ -16,7 +16,7 @@ func (r *RunnableGraph) Run(ctx context.Context) *core.Future {
 
 func runnable(sinkStage SinkStage, combine MaterializeFunc) *RunnableGraph {
 	return &RunnableGraph{
-		sinkStage:   sinkStage,
-		combine: combine,
+		sinkStage: sinkStage,
+		combine:   combine,
 	}
 }

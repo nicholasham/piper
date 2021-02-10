@@ -47,7 +47,7 @@ func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	}
 }
 
-func mapConcatFlow(f MapConcatFunc) FlowStage {
+func mapConcatStage(f MapConcatFunc) FlowStage {
 	return Flow(mapConcatFactory(f))
 }
 

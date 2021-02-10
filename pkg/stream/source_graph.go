@@ -22,7 +22,7 @@ func (g *SourceGraph) Via(that *FlowGraph) *FlowGraph {
 	return that
 }
 
-func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph  {
+func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph {
 	return FromSource(that.WireTo(g.stage))
 }
 
@@ -41,8 +41,40 @@ func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) *core.Future
 	return g.ToMaterialized(that)(KeepRight).Run(ctx)
 }
 
+func (g *SourceGraph) Drop(number int) *SourceGraph {
+	return g.viaFlow(dropStage(number))
+}
+
+func (g *SourceGraph) Filter(f FilterFunc) *SourceGraph {
+	return g.viaFlow(filterStage(f))
+}
+
+func (g *SourceGraph) Fold(zero interface{}, f AggregateFunc) *SourceGraph {
+	return g.viaFlow(foldStage(zero, f))
+}
+
+func (g *SourceGraph) Map(f MapFunc) *SourceGraph {
+	return g.viaFlow(mapStage(f))
+}
+
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
-	return g.viaFlow(mapConcatFlow(f))
+	return g.viaFlow(mapConcatStage(f))
+}
+
+func (g *SourceGraph) Scan(zero interface{}, f AggregateFunc) *SourceGraph {
+	return g.viaFlow(scanStage(zero, f))
+}
+
+func (g *SourceGraph) Take(number int) *SourceGraph {
+	return g.viaFlow(takeStage(number))
+}
+
+func (g *SourceGraph) TakeWhile(f FilterFunc) *SourceGraph {
+	return g.viaFlow(takeWhileStage(f))
+}
+
+func (g *SourceGraph) Unfold(state interface{}, f UnfoldFunc) *SourceGraph {
+	return g.viaFlow(unfoldStage(state, f))
 }
 
 func FromSource(stage SourceStage) *SourceGraph {
@@ -50,5 +82,3 @@ func FromSource(stage SourceStage) *SourceGraph {
 		stage: stage,
 	}
 }
-
-

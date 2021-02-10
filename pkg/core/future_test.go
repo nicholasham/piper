@@ -29,5 +29,4 @@ func TestAwait(t *testing.T) {
 		assert.Equal(t, Err(fmt.Errorf("some error")), result)
 	})
 
-
 }
