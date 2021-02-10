@@ -42,7 +42,7 @@ func (g *SourceGraph) RunWith(ctx context.Context, that *SinkGraph) *core.Future
 }
 
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
-	return g.viaFlow(MapConcat(f))
+	return g.viaFlow(mapConcatFlow(f))
 }
 
 func FromSource(stage SourceStage) *SourceGraph {

@@ -27,6 +27,6 @@ type SinkStage interface {
 }
 
 type UpstreamStage interface {
-	Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *Future)
+	Open(ctx context.Context, mat MaterializeFunc) (Reader, *Future)
 }
 

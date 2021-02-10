@@ -18,7 +18,7 @@ func (m *mapConcatFlowLogic) SupportsParallelism() bool {
 	return true
 }
 
-func (m *mapConcatFlowLogic) OnUpstreamStart(actions FlowStageActions) {
+func (m *mapConcatFlowLogic) OnUpstreamStart(_ FlowStageActions) {
 }
 
 func (m *mapConcatFlowLogic) OnUpstreamReceive(element Element, actions FlowStageActions) {
@@ -27,7 +27,7 @@ func (m *mapConcatFlowLogic) OnUpstreamReceive(element Element, actions FlowStag
 		WhenValue(m.handleValue(actions))
 }
 
-func (m *mapConcatFlowLogic) OnUpstreamFinish(actions FlowStageActions) {
+func (m *mapConcatFlowLogic) OnUpstreamFinish(_ FlowStageActions) {
 }
 
 func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
@@ -47,7 +47,7 @@ func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	}
 }
 
-func MapConcat(f MapConcatFunc) FlowStage {
+func mapConcatFlow(f MapConcatFunc) FlowStage {
 	return Flow(mapConcatFactory(f))
 }
 

@@ -3,17 +3,17 @@ package stream
 import "sync"
 
 type Stream interface {
-	Reader() StreamReader
-	Writer() StreamWriter
+	Reader() Reader
+	Writer() Writer
 }
 
-type StreamReader interface {
+type Reader interface {
 	Elements() <-chan Element
 	Complete()
 	Completing() bool
 }
 
-type StreamWriter interface {
+type Writer interface {
 	Close()
 	SendValue(value interface{})
 	SendError(err error)
@@ -23,8 +23,8 @@ type StreamWriter interface {
 
 // verify stream implements Stream interface
 var _ Stream = (*stream)(nil)
-var _ StreamWriter = (*stream)(nil)
-var _ StreamReader = (*stream)(nil)
+var _ Writer = (*stream)(nil)
+var _ Reader = (*stream)(nil)
 
 type stream struct {
 	elements           chan Element
@@ -80,11 +80,11 @@ func (s *stream) send(element Element) {
 	s.elements <- element
 }
 
-func (s *stream) Reader() StreamReader {
+func (s *stream) Reader() Reader {
 	return s
 }
 
-func (s *stream) Writer() StreamWriter {
+func (s *stream) Writer() Writer {
 	return s
 }
 

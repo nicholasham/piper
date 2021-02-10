@@ -9,7 +9,7 @@ func (g *SinkGraph) With(options ...StageOption) *SinkGraph {
 }
 
 func (g SinkGraph) MapMaterializedValue(f MapMaterializedValueFunc) *SinkGraph  {
-	return FromSink(TransformSink(g.stage, f))
+	return FromSink(transformSink(g.stage, f))
 }
 
 func FromSink(stage SinkStage) *SinkGraph {

@@ -5,7 +5,7 @@ import (
 	"github.com/nicholasham/piper/pkg/core"
 )
 
-// verify mapConcat implements SourceStage interface
+// verify mapConcatFlow implements SourceStage interface
 var _ SourceStage = (*singleStage)(nil)
 
 type singleStage struct {
@@ -13,7 +13,7 @@ type singleStage struct {
 	value      interface{}
 }
 
-func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Future) {
+func (s *singleStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
 	outputPromise := core.NewPromise()
 	outputStream := NewStream()
 	go func(){

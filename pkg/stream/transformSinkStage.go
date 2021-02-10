@@ -31,7 +31,7 @@ func (t *transformSinkStage) Run(ctx context.Context, mat MaterializeFunc) *core
 	return t.sinkStage.Run(ctx, mat).Then(t.f)
 }
 
-func TransformSink(sink SinkStage, f MapMaterializedValueFunc) SinkStage {
+func transformSink(sink SinkStage, f MapMaterializedValueFunc) SinkStage {
 	return &transformSinkStage{
 		sinkStage: sink,
 		f:         f,

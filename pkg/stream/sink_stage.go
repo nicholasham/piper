@@ -70,7 +70,7 @@ func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Futu
 	return combine(inputFuture, outputPromise.Future())
 }
 
-func (s *sinkStage) newActions(reader StreamReader) SinkStageActions {
+func (s *sinkStage) newActions(reader Reader) SinkStageActions {
 	return & sinkStageActions{
 		logger:       s.attributes.Logger,
 		inputStream:  reader,
@@ -82,8 +82,8 @@ func (s *sinkStage) newActions(reader StreamReader) SinkStageActions {
 var _ SinkStageActions = (*sinkStageActions)(nil)
 
 type sinkStageActions struct {
-	logger Logger
-	inputStream StreamReader
+	logger      Logger
+	inputStream Reader
 }
 
 func (s *sinkStageActions) FailStage(cause error) {

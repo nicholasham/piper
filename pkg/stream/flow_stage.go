@@ -52,7 +52,7 @@ func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
 	return s
 }
 
-func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader, *core.Future) {
+func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
 	outputStream := NewStream()
 	outputPromise := core.NewPromise()
 	reader, inputFuture :=  s.upstreamStage.Open(ctx, KeepRight)
@@ -82,7 +82,7 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (StreamReader
 	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
 }
 
-func (s *flowStage) newActions(inputStream StreamReader, outputStream StreamWriter) FlowStageActions {
+func (s *flowStage) newActions(inputStream Reader, outputStream Writer) FlowStageActions {
 	return & flowStageActions{inputStream: inputStream, outputStream: outputStream}
 }
 
@@ -90,9 +90,9 @@ func (s *flowStage) newActions(inputStream StreamReader, outputStream StreamWrit
 var _ FlowStageActions = (*flowStageActions)(nil)
 
 type flowStageActions struct {
-	logger Logger
-	inputStream StreamReader
-	outputStream StreamWriter
+	logger       Logger
+	inputStream  Reader
+	outputStream Writer
 }
 
 func (f *flowStageActions) SendError(cause error) {
