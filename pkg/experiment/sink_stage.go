@@ -31,7 +31,6 @@ type sinkStage struct {
 	attributes    *StageAttributes
 	upstreamStage UpstreamStage
 	factory SinkStageLogicFactory
-	mapMaterializedValue MapMaterializedValueFunc
 }
 
 func (s *sinkStage) With(options ...StageOption) Stage {
@@ -39,7 +38,6 @@ func (s *sinkStage) With(options ...StageOption) Stage {
 		attributes:    s.attributes.Apply(options...),
 		upstreamStage: s.upstreamStage,
 		factory:       s.factory,
-		mapMaterializedValue: s.mapMaterializedValue,
 	}
 }
 
@@ -84,7 +82,6 @@ func (s *sinkStage) newActions(reader StreamReader) SinkStageActions {
 var _ SinkStageActions = (*sinkStageActions)(nil)
 
 type sinkStageActions struct {
-	mapMaterialisedValue MapMaterializedValueFunc
 	logger Logger
 	inputStream StreamReader
 }

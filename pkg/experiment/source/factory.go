@@ -6,7 +6,7 @@ import (
 )
 
 func Single(value interface{}) *experiment.SourceGraph {
-	return experiment.FromSource(experiment.SingleSource(value))
+	return experiment.FromSource(experiment.SingleStage(value))
 }
 
 func Empty() *experiment.SourceGraph {

@@ -38,7 +38,7 @@ func (s *singleStage) With(options ...StageOption) Stage {
 	}
 }
 
-func SingleSource(value interface{}) SourceStage {
+func SingleStage(value interface{}) SourceStage {
 	return &singleStage{
 		attributes: DefaultStageAttributes,
 		value:      value,

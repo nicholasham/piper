@@ -40,7 +40,11 @@ type flowStage struct {
 }
 
 func (s *flowStage) With(options ...StageOption) Stage {
-	panic("implement me")
+	return &flowStage{
+		attributes:    s.attributes.Apply(options...),
+		upstreamStage: s.upstreamStage,
+		factory:       s.factory,
+	}
 }
 
 func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
