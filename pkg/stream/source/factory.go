@@ -13,9 +13,14 @@ func Empty() *stream.SourceGraph {
 	return FromIterable(iterable.Empty())
 }
 
+func List(values ... interface{}) *stream.SourceGraph {
+	return FromIterable(iterable.Slice(values))
+}
+
 func Range(start int, end int) *stream.SourceGraph {
 	return FromIterable(iterable.Range(start, end))
 }
+
 
 func FromIterable(iterable iterable.Iterable) *stream.SourceGraph {
 	return Single(iterable).
