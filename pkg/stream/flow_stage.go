@@ -2,6 +2,7 @@ package stream
 
 import (
 	"context"
+	"github.com/gammazero/workerpool"
 	"github.com/nicholasham/piper/pkg/core"
 )
 
@@ -58,6 +59,7 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 		writer := outputStream.Writer()
 		defer writer.Close()
 		logic := s.factory(s.attributes)
+		wp := s.createWorkerPool(logic)
 		actions := s.newActions(reader, writer)
 		logic.OnUpstreamStart(actions)
 		for element := range reader.Elements() {
@@ -71,13 +73,25 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 			}
 
 			if !reader.Completing() {
-				logic.OnUpstreamReceive(element, actions)
+				submitToPoolInClosure := func(element Element, actions FlowStageActions) func() {
+					return func() {
+						logic.OnUpstreamReceive(element, actions)
+					}
+				}
+				wp.Submit(submitToPoolInClosure(element, actions))
 			}
-
 		}
+		wp.StopWait()
 		logic.OnUpstreamFinish(actions)
 	}()
 	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
+}
+
+func (s *flowStage) createWorkerPool(logic FlowStageLogic) *workerpool.WorkerPool {
+	if logic.SupportsParallelism() {
+		return workerpool.New(1)
+	}
+	return workerpool.New(s.attributes.Parallelism)
 }
 
 func (s *flowStage) newActions(inputStream Reader, outputStream Writer) FlowStageActions {
