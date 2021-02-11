@@ -1,23 +1,50 @@
 package fileIO
 
 import (
-	"context"
 	"fmt"
+	"github.com/nicholasham/piper/pkg/core"
 	"os"
 
-	"github.com/nicholasham/piper/pkg/zz/stream"
-	"github.com/nicholasham/piper/pkg/zz/stream/sink"
+	"github.com/nicholasham/piper/pkg/stream"
 )
 
-// verify fileCollector implements CollectorLogic interface
-var _ sink.CollectorLogic = (*fileCollector)(nil)
+// verify fileSinkStageLogic implements SinkStageLogic interface
+var _ stream.SinkStageLogic = (*fileSinkStageLogic)(nil)
 
 var ByteArrayError = fmt.Errorf("expected element value to be a byte array")
 
-type fileCollector struct {
+type fileSinkStageLogic struct {
+	promise *core.Promise
 	filePath string
 	file     *os.File
 	factory  FileFactory
+}
+
+func (f *fileSinkStageLogic) OnUpstreamStart(actions stream.SinkStageActions) {
+	file, err := f.factory(f.filePath)
+	if err != nil {
+		actions.FailStage(err)
+	}
+	f.file = file
+}
+
+func (f *fileSinkStageLogic) OnUpstreamReceive(element stream.Element, actions stream.SinkStageActions) {
+	element.WhenValue(func(value interface{}) {
+		bytes, ok := value.([]byte)
+		if !ok {
+			actions.FailStage(ByteArrayError)
+		}
+		_, err := f.file.Write(bytes)
+		if err != nil {
+			actions.FailStage(err)
+		}
+	})
+	element.WhenError(actions.FailStage)
+}
+
+func (f *fileSinkStageLogic) OnUpstreamFinish(actions stream.SinkStageActions) {
+	f.file.Close()
+	f.promise.TrySuccess(stream.NotUsed)
 }
 
 type FileFactory func(filePath string) (*os.File, error)
@@ -36,36 +63,17 @@ func Custom(flag int, perm os.FileMode) FileFactory {
 	}
 }
 
-func (f *fileCollector) Start(ctx context.Context, actions sink.CollectActions) {
-	file, err := f.factory(f.filePath)
-	if err != nil {
-		actions.FailStage(err)
+func createFileSinkLogic(filePath string, factory FileFactory) stream.SinkStageLogicFactory {
+	return func(attributes *stream.StageAttributes) (stream.SinkStageLogic, *core.Promise) {
+		promise := core.NewPromise()
+		return &fileSinkStageLogic{
+			promise: promise,
+			filePath: filePath,
+			factory:  factory,
+		}, promise
 	}
-	f.file = file
-}
-
-func (f *fileCollector) Collect(ctx context.Context, element stream.Element, actions sink.CollectActions) {
-	element.WhenValue(func(value interface{}) {
-		bytes, ok := value.([]byte)
-		if !ok {
-			actions.FailStage(ByteArrayError)
-		}
-		_, err := f.file.Write(bytes)
-		if err != nil {
-			actions.FailStage(err)
-		}
-	})
-	element.WhenError(actions.FailStage)
-}
-
-func (f *fileCollector) End(ctx context.Context, actions sink.CollectActions) {
-	f.file.Close()
 }
 
 func ToPath(filePath string, factory FileFactory) *stream.SinkGraph {
-	return sink.Collector("FileSink",
-		&fileCollector{
-			filePath: filePath,
-			factory:  factory,
-		})
+	return stream.FromSink(stream.Sink(createFileSinkLogic(filePath, factory)))
 }

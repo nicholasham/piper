@@ -2,13 +2,12 @@ package fileIO
 
 import (
 	"context"
+	"github.com/nicholasham/piper/pkg/stream"
+	"github.com/nicholasham/piper/pkg/stream/source"
 	"testing"
 
 	"github.com/nicholasham/piper/pkg/connector/fileIO/testfs"
 	"github.com/nicholasham/piper/pkg/types/list"
-	"github.com/nicholasham/piper/pkg/zz/stream"
-	"github.com/nicholasham/piper/pkg/zz/stream/flow"
-	"github.com/nicholasham/piper/pkg/zz/stream/source"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,11 +22,11 @@ func TestFileSink(t *testing.T) {
 		targetFile := fs.GetPath("test.txt")
 
 		result := source.
-			List(expectedLines).
-			Via(flow.Map(ByteString)).
+			List(expectedLines...).
+			Map(ByteString).
 			RunWith(context.Background(), ToPath(targetFile, Create))
 
-		value, err := result.Await()
+		value, err := result.Await().Unwrap()
 
 		assert.NoError(t, err)
 		assert.Equal(t, stream.NotUsed, value)

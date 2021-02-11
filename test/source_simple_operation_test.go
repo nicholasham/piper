@@ -3,9 +3,9 @@ package test
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core/iterable"
+	"github.com/nicholasham/piper/pkg/stream"
 	"github.com/nicholasham/piper/pkg/stream/sink"
 	"github.com/nicholasham/piper/pkg/stream/source"
-	"github.com/nicholasham/piper/pkg/stream"
 
 	"testing"
 
@@ -30,6 +30,7 @@ func TestMap(t *testing.T) {
 	assert.NoError(t, err)
 	assert.EqualValues(t, iterable.Slice(2, 4, 6, 8, 10), values)
 }
+
 //
 //func TestMapWithWorkerPool(t *testing.T) {
 //	defer goleak.VerifyNone(t)
