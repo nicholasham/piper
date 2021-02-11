@@ -1,6 +1,6 @@
 package iterable
 
-// verify headSinkStageLogic implements SinkStageLogic interface
+// verify rangeIterator implements Iterator interface
 var _ Iterator = (*rangeIterator)(nil)
 
 type rangeIterator struct {

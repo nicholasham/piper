@@ -6,6 +6,9 @@ type Iterable interface {
 	Iterator() Iterator
 	// Applies a function f to all items in the iterable
 	ForEach(f func(item interface{}))
+
+	// Appends all items in the iterable to a slice
+	ToSlice() []interface{}
 }
 
 // verify iterable implements Iterable interface
@@ -13,6 +16,14 @@ var _ Iterable = (*iterable)(nil)
 
 type iterable struct {
 	newIterator func() Iterator
+}
+
+func (i *iterable) ToSlice() []interface{} {
+	var items []interface{}
+	i.ForEach(func(item interface{}) {
+		items = append(items, item)
+	})
+	return items
 }
 
 func NewIterable(f func() Iterator) Iterable {
