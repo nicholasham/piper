@@ -18,6 +18,10 @@ func Head() *stream.SinkGraph {
 		})
 }
 
+func Ignore() *stream.SinkGraph {
+	return stream.FromSink(ignoreStage())
+}
+
 func Slice() *stream.SinkGraph {
 	return stream.FromSink(sliceStage())
 }
