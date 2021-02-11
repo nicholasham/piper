@@ -37,7 +37,7 @@ func (h *headOptionStageLogic) OnUpstreamFinish(_ stream.SinkStageActions) {
 	}
 }
 
-func HeadOptionStage() stream.SinkStage {
+func headOptionStage() stream.SinkStage {
 	return stream.Sink(createHeadOptionLogic)
 }
 

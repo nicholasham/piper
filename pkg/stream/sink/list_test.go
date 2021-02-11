@@ -11,27 +11,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHead(t *testing.T) {
+func TestSlice(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
 	t.Run("Must yield first value", func(t *testing.T) {
-		future := source.Range(1, 100).RunWith(context.Background(), Head())
+		future := source.Range(1, 10).RunWith(context.Background(), Slice())
 		value, error := future.Await().Unwrap()
 		assert.NoError(t, error)
-		assert.Equal(t, 1, value)
+		assert.Equal(t,  []interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, value)
 	})
 
-	t.Run("Must yield error when empty source", func(t *testing.T) {
-		future := source.Empty().RunWith(context.Background(), Head())
+	t.Run("Must yield empty list when empty source", func(t *testing.T) {
+		future := source.Empty().RunWith(context.Background(), Slice())
 		value, error := future.Await().Unwrap()
-		assert.Error(t, error)
-		assert.Nil(t, value)
-		assert.Equal(t, HeadOfEmptyStream, error)
+		assert.NoError(t, error)
+		assert.Equal(t,  []interface{}{}, value)
 	})
 
 	t.Run("Must yield error when error in source", func(t *testing.T) {
 		expectedErr := fmt.Errorf("some error occured")
-		future := source.Failed(expectedErr).RunWith(context.Background(), Head())
+		future := source.Failed(expectedErr).RunWith(context.Background(), Slice())
 		value, error := future.Await().Unwrap()
 		assert.Error(t, error)
 		assert.Nil(t, value)

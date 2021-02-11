@@ -6,7 +6,11 @@ import (
 )
 
 func Single(value interface{}) *stream.SourceGraph {
-	return stream.FromSource(stream.SingleStage(value))
+	return stream.FromSource(singleStage(value))
+}
+
+func Failed(err error) *stream.SourceGraph {
+	return stream.FromSource(failedStage(err))
 }
 
 func Empty() *stream.SourceGraph {

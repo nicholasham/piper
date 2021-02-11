@@ -14,7 +14,7 @@ var _ stream.SinkStageLogic = (*fileSinkStageLogic)(nil)
 var ByteArrayError = fmt.Errorf("expected element value to be a byte array")
 
 type fileSinkStageLogic struct {
-	promise *core.Promise
+	promise  *core.Promise
 	filePath string
 	file     *os.File
 	factory  FileFactory
@@ -67,7 +67,7 @@ func createFileSinkLogic(filePath string, factory FileFactory) stream.SinkStageL
 	return func(attributes *stream.StageAttributes) (stream.SinkStageLogic, *core.Promise) {
 		promise := core.NewPromise()
 		return &fileSinkStageLogic{
-			promise: promise,
+			promise:  promise,
 			filePath: filePath,
 			factory:  factory,
 		}, promise

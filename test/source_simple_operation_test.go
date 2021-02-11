@@ -2,7 +2,6 @@ package test
 
 import (
 	"context"
-	"github.com/nicholasham/piper/pkg/core/iterable"
 	"github.com/nicholasham/piper/pkg/stream"
 	"github.com/nicholasham/piper/pkg/stream/sink"
 	"github.com/nicholasham/piper/pkg/stream/source"
@@ -12,6 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
 )
+
+func List(values ...interface{}) []interface{} {
+	return values
+}
 
 func TestMap(t *testing.T) {
 	defer goleak.VerifyNone(t)
@@ -23,12 +26,12 @@ func TestMap(t *testing.T) {
 	result := source.
 		List(1, 2, 3, 4, 5).
 		Map(mapping).With(stream.Parallelism(5000)).
-		RunWith(context.Background(), sink.Head())
+		RunWith(context.Background(), sink.Slice())
 
 	values, err := result.Await().Unwrap()
 
 	assert.NoError(t, err)
-	assert.EqualValues(t, iterable.Slice(2, 4, 6, 8, 10), values)
+	assert.EqualValues(t, List(2, 4, 6, 8, 10), values)
 }
 
 //
@@ -45,7 +48,7 @@ func TestMap(t *testing.T) {
 //	result := source.
 //		Range(1, size, 1, attribute.OutputBuffer(100)).
 //		Via(flow.Map(mapping, attribute.Parallelism(100))).
-//		To(sink.List()).
+//		To(sink.Slice()).
 //		Run(context.Background())
 //
 //	values, err := result.Await()
@@ -62,9 +65,9 @@ func TestMap(t *testing.T) {
 //	}
 //
 //	result := source.
-//		List(of.Integers(1, 2, 3, 4, 5)).
+//		Slice(of.Integers(1, 2, 3, 4, 5)).
 //		Via(flow.MapConcat(mapping)).
-//		To(sink.List()).
+//		To(sink.Slice()).
 //		Run(context.Background())
 //
 //	values, err := result.Await()
@@ -82,11 +85,11 @@ func TestMap(t *testing.T) {
 //	expected := of.Integers(0, 1, 3, 6, 10, 15)
 //
 //	result := source.
-//		List(of.Integers(1, 2, 3, 4, 5)).
+//		Slice(of.Integers(1, 2, 3, 4, 5)).
 //		//Log("Before Scan").
 //		Via(flow.Scan(0, addOne)).
 //		//Log("After Scan").
-//		To(sink.List()).Run(context.Background())
+//		To(sink.Slice()).Run(context.Background())
 //
 //	values, err := result.Await()
 //
@@ -128,9 +131,9 @@ func TestMap(t *testing.T) {
 //	expected := of.Integers(2, 4, 6, 8, 10)
 //
 //	result := source.
-//		List(of.Integers(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)).
+//		Slice(of.Integers(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)).
 //		Via(flow.Filter(evenNumbersOnly)).
-//		To(sink.List()).
+//		To(sink.Slice()).
 //		Run(context.Background())
 //
 //	values, err := result.Await()
@@ -148,7 +151,7 @@ func TestMap(t *testing.T) {
 //	result := source.
 //		Range(1, 100000000, 1, attribute.OutputBuffer(100)).
 //		Via(flow.Take(10)).
-//		To(sink.List()).
+//		To(sink.Slice()).
 //		Run(context.Background())
 //
 //	values, err := result.Await()

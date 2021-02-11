@@ -9,10 +9,10 @@ import (
 var _ FlowStage = (*divertToFlowStage)(nil)
 
 type divertToFlowStage struct {
-	attributes *StageAttributes
+	attributes    *StageAttributes
 	upstreamStage UpstreamStage
 	diversionSink SinkStage
-	divert core.PredicateFunc
+	divert        core.PredicateFunc
 }
 
 func (d *divertToFlowStage) With(options ...StageOption) Stage {
@@ -44,10 +44,10 @@ func (d *divertToFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Read
 			}
 
 			if !reader.Completing() {
-				if element.IsValue() && d.divert(element.Value()){
+				if element.IsValue() && d.divert(element.Value()) {
 					element.
 						WhenValue(mainWriter.SendValue)
-				}else {
+				} else {
 					element.
 						WhenValue(mainWriter.SendValue).
 						WhenError(mainWriter.SendError)
@@ -69,7 +69,6 @@ func (d *divertToFlowStage) WireTo(stage UpstreamStage) FlowStage {
 	d.upstreamStage = stage
 	return d
 }
-
 
 // verify diversionUpstream implements UpstreamStage interface
 var _ UpstreamStage = (*diversionUpstream)(nil)

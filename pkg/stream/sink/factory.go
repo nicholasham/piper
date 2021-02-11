@@ -6,7 +6,7 @@ import (
 )
 
 func HeadOption() *stream.SinkGraph {
-	return stream.FromSink(HeadOptionStage())
+	return stream.FromSink(headOptionStage())
 }
 
 func Head() *stream.SinkGraph {
@@ -16,4 +16,8 @@ func Head() *stream.SinkGraph {
 				return HeadOfEmptyStream
 			})
 		})
+}
+
+func Slice() *stream.SinkGraph {
+	return stream.FromSink(sliceStage())
 }

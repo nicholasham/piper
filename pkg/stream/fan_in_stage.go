@@ -48,10 +48,6 @@ func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {
 	}
 }
 
-func (receiver *fanInFlowStage) Name() string {
-	return receiver.attributes.Name
-}
-
 func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStage {
 	attributes := DefaultStageAttributes.Apply(Name("FanIn"))
 	flow := fanInFlowStage{
