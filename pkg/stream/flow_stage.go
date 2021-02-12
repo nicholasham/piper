@@ -25,6 +25,8 @@ type FlowStageActions interface {
 	FailStage(cause error)
 	// Completes the stage with a materialised value
 	CompleteStage()
+
+	StageIsCompleted() bool
 }
 
 type FlowStageLogicFactory func(attributes *StageAttributes) FlowStageLogic
@@ -108,6 +110,21 @@ type flowStageActions struct {
 	logger Logger
 	reader Reader
 	writer Writer
+}
+
+func (f *flowStageActions) StageIsCompleted() bool {
+	readerClosed := f.reader.Completing()
+	writerClosed := f.writer.Closed()
+
+	if readerClosed {
+		println("reader closed")
+	}
+
+	if writerClosed {
+		println("writer closed")
+	}
+
+	return readerClosed
 }
 
 func (f *flowStageActions) SendError(cause error) {

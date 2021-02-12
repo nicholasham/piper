@@ -130,7 +130,7 @@ func TestTake(t *testing.T) {
 	expected := [] interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 	result := source.
-		Range(1, 100000000).
+		Range(1, 1000000000).
 		Take(10).
 		To(sink.Slice()).
 		Run(context.Background())

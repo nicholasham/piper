@@ -43,7 +43,12 @@ func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 			}
 			return
 		}
-		iterable.ForEach(actions.SendValue)
+		iterable.ForEach(func(item interface{}) {
+			if actions.StageIsCompleted() {
+				return
+			}
+			actions.SendValue(item)
+		})
 	}
 }
 
