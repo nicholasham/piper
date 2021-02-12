@@ -1,5 +1,10 @@
 package stream
 
+import (
+	"context"
+	"github.com/nicholasham/piper/pkg/core"
+)
+
 type FlowGraph struct {
 	stage FlowStage
 }
@@ -25,6 +30,30 @@ func (g *FlowGraph) Named(name string) *FlowGraph {
 func (g *FlowGraph) Via(that *FlowGraph) *FlowGraph {
 	that.stage.WireTo(g.stage)
 	return that
+}
+
+func (g *FlowGraph) To(that *SinkGraph) *RunnableGraph {
+	return g.ToMaterialized(that)(KeepLeft)
+}
+
+func (g *FlowGraph) ToMaterialized(that *SinkGraph) func(combine MaterializeFunc) *RunnableGraph {
+	return func(combine MaterializeFunc) *RunnableGraph {
+		that.stage.WireTo(g.stage)
+		return runnable(that.stage, combine)
+	}
+}
+
+func (g *FlowGraph) RunWith(ctx context.Context, that *SinkGraph) *core.Future {
+	return g.ToMaterialized(that)(KeepRight).Run(ctx)
+}
+
+func (g *FlowGraph) AlsoTo(that *SinkGraph) *FlowGraph {
+	return g.viaFlow(diversion(that.stage, alsoToStrategy()))
+}
+
+
+func (g *FlowGraph) DivertTo(that *SinkGraph, when core.PredicateFunc) *FlowGraph {
+return g.viaFlow(diversion(that.stage, divertToStrategy(when)))
 }
 
 func (g *FlowGraph) Drop(number int) *FlowGraph {

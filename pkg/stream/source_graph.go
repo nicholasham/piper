@@ -30,6 +30,14 @@ func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
 	return g.ToMaterialized(that)(KeepLeft)
 }
 
+func (g *SourceGraph) AlsoTo(that *SinkGraph) *SourceGraph {
+	return g.viaFlow(diversion(that.stage, alsoToStrategy()))
+}
+
+func (g *SourceGraph) DivertTo(that *SinkGraph, when core.PredicateFunc) *SourceGraph {
+	return g.viaFlow(diversion(that.stage, divertToStrategy(when)))
+}
+
 func (g *SourceGraph) ToMaterialized(that *SinkGraph) func(combine MaterializeFunc) *RunnableGraph {
 	return func(combine MaterializeFunc) *RunnableGraph {
 		that.stage.WireTo(g.stage)
