@@ -41,9 +41,13 @@ type diversionFlowStage struct {
 	strategy        diversionStrategy
 }
 
+func (d *diversionFlowStage) Named(name string) Stage {
+	return d.With(Name(name))
+}
+
 func (d *diversionFlowStage) With(options ...StageOption) Stage {
 	return &diversionFlowStage{
-		attributes:      d.attributes.Apply(options...),
+		attributes:      d.attributes.With(options...),
 		upstreamStage:   d.upstreamStage,
 		diversionSink:   d.diversionSink,
 		diversionSource: d.diversionSource,
@@ -52,7 +56,7 @@ func (d *diversionFlowStage) With(options ...StageOption) Stage {
 }
 
 func (d *diversionFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
-	outputStream := NewStream()
+	outputStream := NewStream(d.attributes.Name)
 	outputPromise := core.NewPromise()
 	reader, inputFuture := d.upstreamStage.Open(ctx, KeepRight)
 	go func() {
@@ -101,17 +105,18 @@ func (d *diversionSourceStage) OpenWriter() Writer {
 	return d.stream.Writer()
 }
 
-func newDiversionStage() *diversionSourceStage {
-	return & diversionSourceStage{stream: NewStream()}
+func newDiversionStage(attributes  *StageAttributes) *diversionSourceStage {
+	return & diversionSourceStage{stream: NewStream(attributes.Name + "-diversion")}
 }
 
 
 func diversion(diversionSink SinkStage, strategy diversionStrategy) FlowStage {
+	attributes := DefaultStageAttributes.With(Name("diverted-stage"))
 	return &diversionFlowStage{
-		attributes:      DefaultStageAttributes,
+		attributes:      attributes,
 		upstreamStage:   nil,
 		diversionSink:   diversionSink,
-		diversionSource: newDiversionStage(),
+		diversionSource: newDiversionStage(attributes) ,
 		strategy:        strategy,
 	}
 }

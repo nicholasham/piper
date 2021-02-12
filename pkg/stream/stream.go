@@ -1,6 +1,9 @@
 package stream
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type Stream interface {
 	Reader() Reader
@@ -27,6 +30,7 @@ var _ Writer = (*stream)(nil)
 var _ Reader = (*stream)(nil)
 
 type stream struct {
+	name string
 	elements           chan Element
 	done               chan struct{}
 	completeOnce       sync.Once
@@ -54,13 +58,15 @@ func (s *stream) Elements() <-chan Element {
 
 func (s *stream) Complete() {
 	s.completeOnce.Do(func() {
-		close(s.done)
+		fmt.Println("Completing stream " + s.name)
 		s.completionSignaled = true
+		close(s.done)
 	})
 }
 
 func (s *stream) Close() {
 	s.closeOnce.Do(func() {
+		fmt.Println("Closing stream  "+ s.name)
 		s.closed = true
 		close(s.elements)
 	})
@@ -88,8 +94,9 @@ func (s *stream) Writer() Writer {
 	return s
 }
 
-func NewStream() Stream {
+func NewStream(name string) Stream {
 	return &stream{
+		name: name,
 		done:     make(chan struct{}),
 		elements: make(chan Element),
 	}

@@ -7,6 +7,7 @@ import (
 
 type Stage interface {
 	With(options ...StageOption) Stage
+	Named(name string) Stage
 }
 
 type SourceStage interface {

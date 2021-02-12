@@ -22,7 +22,7 @@ type stanSourceStage struct {
 func (s *stanSourceStage) Open(ctx context.Context, mat stream.MaterializeFunc) (stream.Reader, *core.Future) {
 	logger := s.attributes.Logger
 	outputPromise := core.NewPromise()
-	outputStream := stream.NewStream()
+	outputStream := stream.NewStream(s.attributes.Name)
 	go func() {
 		writer := outputStream.Writer()
 		defer writer.Close()

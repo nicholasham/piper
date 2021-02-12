@@ -17,8 +17,12 @@ type fanInFlowStage struct {
 	fanIn          FanInStrategy
 }
 
+func (receiver *fanInFlowStage) Named(name string) Stage {
+	return receiver.With(Name(name))
+}
+
 func (receiver *fanInFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
-	outputStream := NewStream()
+	outputStream := NewStream(receiver.attributes.Name)
 	outputPromise := core.NewPromise()
 
 	var inlets []Reader
@@ -40,7 +44,7 @@ func (receiver *fanInFlowStage) WireTo(stage UpstreamStage) FlowStage {
 }
 
 func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {
-	options := receiver.attributes.Apply(opts...)
+	options := receiver.attributes.With(opts...)
 	return &fanInFlowStage{
 		attributes:     options,
 		upstreamStages: receiver.upstreamStages,
@@ -49,7 +53,7 @@ func (receiver *fanInFlowStage) With(opts ...StageOption) Stage {
 }
 
 func FanInFlow(stages []SourceStage, strategy FanInStrategy) FlowStage {
-	attributes := DefaultStageAttributes.Apply(Name("FanIn"))
+	attributes := DefaultStageAttributes.With(Name("FanIn"))
 	flow := fanInFlowStage{
 		attributes:     attributes,
 		fanIn:          strategy,

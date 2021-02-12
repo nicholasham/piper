@@ -53,7 +53,7 @@ func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 }
 
 func mapConcatStage(f MapConcatFunc) FlowStage {
-	return Flow(mapConcatFactory(f))
+	return Flow(mapConcatFactory(f)).Named("MapConcatStage").(FlowStage)
 }
 
 func mapConcatFactory(f MapConcatFunc) FlowStageLogicFactory {

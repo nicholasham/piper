@@ -15,15 +15,19 @@ type failedSourceStage struct {
 	err error
 }
 
+func (f *failedSourceStage) Named(name string) stream.Stage {
+	return f.With(stream.Name(name))
+}
+
 func (f *failedSourceStage) With(options ...stream.StageOption) stream.Stage {
 	return &failedSourceStage{
-		attributes: f.attributes.Apply(options...),
+		attributes: f.attributes.With(options...),
 	}
 }
 
 func (f *failedSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (stream.Reader, *core.Future) {
 	outputPromise := core.NewPromise()
-	outputStream := stream.NewStream()
+	outputStream := stream.NewStream(f.attributes.Name)
 	go func() {
 		writer := outputStream.Writer()
 		defer writer.Close()

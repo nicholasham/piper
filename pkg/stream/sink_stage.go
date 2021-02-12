@@ -32,9 +32,13 @@ type sinkStage struct {
 	factory       SinkStageLogicFactory
 }
 
+func (s *sinkStage) Named(name string) Stage {
+	return s.With(Name(name))
+}
+
 func (s *sinkStage) With(options ...StageOption) Stage {
 	return &sinkStage{
-		attributes:    s.attributes.Apply(options...),
+		attributes:    s.attributes.With(options...),
 		upstreamStage: s.upstreamStage,
 		factory:       s.factory,
 	}

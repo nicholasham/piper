@@ -40,9 +40,13 @@ type flowStage struct {
 	factory       FlowStageLogicFactory
 }
 
+func (s *flowStage) Named(name string) Stage {
+	return s.With(Name(name))
+}
+
 func (s *flowStage) With(options ...StageOption) Stage {
 	return &flowStage{
-		attributes:    s.attributes.Apply(options...),
+		attributes:    s.attributes.With(options...),
 		upstreamStage: s.upstreamStage,
 		factory:       s.factory,
 	}
@@ -54,7 +58,7 @@ func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
 }
 
 func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
-	outputStream := NewStream()
+	outputStream := NewStream(s.attributes.Name)
 	outputPromise := core.NewPromise()
 	reader, inputFuture := s.upstreamStage.Open(ctx, KeepRight)
 	go func() {
@@ -113,18 +117,7 @@ type flowStageActions struct {
 }
 
 func (f *flowStageActions) StageIsCompleted() bool {
-	readerClosed := f.reader.Completing()
-	writerClosed := f.writer.Closed()
-
-	if readerClosed {
-		println("reader closed")
-	}
-
-	if writerClosed {
-		println("writer closed")
-	}
-
-	return readerClosed
+	return f.writer.Closed()
 }
 
 func (f *flowStageActions) SendError(cause error) {

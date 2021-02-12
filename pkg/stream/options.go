@@ -8,11 +8,15 @@ type StageAttributes struct {
 	Decider          Decider
 }
 
-func (s *StageAttributes) Apply(options ...StageOption) *StageAttributes {
+func (s *StageAttributes) apply(options ...StageOption) *StageAttributes {
 	for _, apply := range options {
 		apply(s)
 	}
 	return s
+}
+
+func (s *StageAttributes) With(options ...StageOption)  *StageAttributes {
+	return s.Copy().apply(options...)
 }
 
 func (s *StageAttributes) Copy() *StageAttributes {

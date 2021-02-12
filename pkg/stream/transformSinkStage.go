@@ -13,6 +13,10 @@ type transformSinkStage struct {
 	f         MapMaterializedValueFunc
 }
 
+func (t *transformSinkStage) Named(name string) Stage {
+	return t.With(Name(name))
+}
+
 func (t *transformSinkStage) With(options ...StageOption) Stage {
 	return &transformSinkStage{
 		sinkStage: t.sinkStage.With(options...).(SinkStage),

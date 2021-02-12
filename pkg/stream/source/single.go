@@ -14,9 +14,13 @@ type singleSourceStage struct {
 	value      interface{}
 }
 
+func (s *singleSourceStage) Named(name string) stream.Stage {
+	return s.With(stream.Name(name))
+}
+
 func (s *singleSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (stream.Reader, *core.Future) {
 	outputPromise := core.NewPromise()
-	outputStream := stream.NewStream()
+	outputStream := stream.NewStream(s.attributes.Name)
 	go func() {
 		writer := outputStream.Writer()
 		defer writer.Close()
@@ -28,14 +32,14 @@ func (s *singleSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (s
 
 func (s *singleSourceStage) With(options ...stream.StageOption) stream.Stage {
 	return &singleSourceStage{
-		attributes: s.attributes.Apply(options...),
+		attributes: s.attributes.With(options...),
 		value:      s.value,
 	}
 }
 
 func singleStage(value interface{}) stream.SourceStage {
 	return &singleSourceStage{
-		attributes: stream.DefaultStageAttributes,
+		attributes: stream.DefaultStageAttributes.With(stream.Name("SingleSource")),
 		value:      value,
 	}
 }
