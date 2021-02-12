@@ -33,7 +33,7 @@ func (g *FlowGraph) Via(that *FlowGraph) *FlowGraph {
 }
 
 func (g *FlowGraph) To(that *SinkGraph) *RunnableGraph {
-	return g.ToMaterialized(that)(KeepLeft)
+	return g.ToMaterialized(that)(KeepRight)
 }
 
 func (g *FlowGraph) ToMaterialized(that *SinkGraph) func(combine MaterializeFunc) *RunnableGraph {

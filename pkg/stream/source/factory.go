@@ -17,7 +17,7 @@ func Empty() *stream.SourceGraph {
 	return FromIterable(iterable.Empty())
 }
 
-func List(values ...interface{}) *stream.SourceGraph {
+func Slice(values ...interface{}) *stream.SourceGraph {
 	return FromIterable(iterable.Slice(values...))
 }
 

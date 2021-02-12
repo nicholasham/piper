@@ -26,9 +26,11 @@ func (t *takeFlowLogic) OnUpstreamReceive(element Element, actions FlowStageActi
 func (t *takeFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	return func(value interface{}) {
 		current := int(atomic.AddUint64(&t.op, 1))
-		if current <= t.number {
-			actions.SendValue(value)
+		if current > t.number {
+			actions.CompleteStage()
+			return
 		}
+		actions.SendValue(value)
 	}
 }
 

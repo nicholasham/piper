@@ -22,7 +22,7 @@ func TestFileSink(t *testing.T) {
 		targetFile := fs.GetPath("test.txt")
 
 		result := source.
-			List("a\n", "b\n", "c\n", "d\n", "e\n", "f\n").
+			Slice("a\n", "b\n", "c\n", "d\n", "e\n", "f\n").
 			Map(ByteString).
 			RunWith(context.Background(), ToPath(targetFile, Create))
 

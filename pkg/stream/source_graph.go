@@ -27,7 +27,7 @@ func (g *SourceGraph) viaFlow(that FlowStage) *SourceGraph {
 }
 
 func (g *SourceGraph) To(that *SinkGraph) *RunnableGraph {
-	return g.ToMaterialized(that)(KeepLeft)
+	return g.ToMaterialized(that)(KeepRight)
 }
 
 func (g *SourceGraph) AlsoTo(that *SinkGraph) *SourceGraph {

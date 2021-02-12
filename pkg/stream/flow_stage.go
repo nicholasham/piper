@@ -83,6 +83,9 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 		}
 		wp.StopWait()
 		logic.OnUpstreamFinish(actions)
+		if !outputPromise.IsCompleted() {
+			outputPromise.TrySuccess(NotUsed)
+		}
 	}()
 	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
 }
@@ -95,33 +98,33 @@ func (s *flowStage) createWorkerPool(logic FlowStageLogic) *workerpool.WorkerPoo
 }
 
 func (s *flowStage) newActions(inputStream Reader, outputStream Writer) FlowStageActions {
-	return &flowStageActions{inputStream: inputStream, outputStream: outputStream}
+	return &flowStageActions{reader: inputStream, writer: outputStream}
 }
 
 // verify flowStageActions implements FlowStageActions interface
 var _ FlowStageActions = (*flowStageActions)(nil)
 
 type flowStageActions struct {
-	logger       Logger
-	inputStream  Reader
-	outputStream Writer
+	logger Logger
+	reader Reader
+	writer Writer
 }
 
 func (f *flowStageActions) SendError(cause error) {
-	f.outputStream.SendError(cause)
+	f.writer.SendError(cause)
 }
 
 func (f *flowStageActions) SendValue(value interface{}) {
-	f.outputStream.SendValue(value)
+	f.writer.SendValue(value)
 }
 
 func (f *flowStageActions) FailStage(cause error) {
 	f.logger.Error(cause, "failed stage because")
-	f.inputStream.Complete()
+	f.reader.Complete()
 }
 
 func (f *flowStageActions) CompleteStage() {
-	f.inputStream.Complete()
+	f.reader.Complete()
 }
 
 func Flow(factory FlowStageLogicFactory) FlowStage {
