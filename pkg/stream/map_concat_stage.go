@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"fmt"
 	"github.com/nicholasham/piper/pkg/core/iterable"
 )
 
@@ -45,6 +46,7 @@ func (m *mapConcatFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 		}
 		iterable.ForEach(func(item interface{}) {
 			if actions.StageIsCompleted() {
+				fmt.Println("Stage is complete")
 				return
 			}
 			actions.SendValue(item)

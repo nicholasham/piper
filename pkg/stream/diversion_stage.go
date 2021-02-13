@@ -10,23 +10,17 @@ type diversionStrategy func( element Element, mainWriter Writer, alternateWriter
 var divertToStrategy = func(when core.PredicateFunc) diversionStrategy {
 	return func(element Element, mainWriter Writer, alternateWriter Writer) {
 		if element.IsValue() && when(element.Value()) {
-			element.
-				WhenValue(mainWriter.SendValue)
+			mainWriter.Send(element)
 		} else {
-			element.
-				WhenValue(mainWriter.SendValue).
-				WhenError(mainWriter.SendError)
+			alternateWriter.Send(element)
 		}
 	}
 }
 
 var alsoToStrategy = func() diversionStrategy {
 	return func(element Element, mainWriter Writer, alternateWriter Writer) {
-		element.
-			WhenValue(mainWriter.SendValue).
-			WhenValue(alternateWriter.SendValue).
-			WhenError(mainWriter.SendError).
-			WhenError(alternateWriter.SendError)
+		mainWriter.Send(element)
+		alternateWriter.Send(element)
 	}
 }
 

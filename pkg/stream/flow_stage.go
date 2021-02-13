@@ -2,6 +2,7 @@ package stream
 
 import (
 	"context"
+	"fmt"
 	"github.com/gammazero/workerpool"
 	"github.com/nicholasham/piper/pkg/core"
 )
@@ -68,12 +69,15 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 		wp := s.createWorkerPool(logic)
 		actions := s.newActions(reader, writer)
 		logic.OnUpstreamStart(actions)
+
 		for element := range reader.Elements() {
+
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
 				reader.Complete()
 			case <-writer.Done():
+				fmt.Println(fmt.Sprintf("Stage done %v", s.attributes.Name))
 				reader.Complete()
 			default:
 			}
@@ -93,7 +97,9 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 			outputPromise.TrySuccess(NotUsed)
 		}
 	}()
+
 	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
+
 }
 
 func (s *flowStage) createWorkerPool(logic FlowStageLogic) *workerpool.WorkerPool {
@@ -121,11 +127,11 @@ func (f *flowStageActions) StageIsCompleted() bool {
 }
 
 func (f *flowStageActions) SendError(cause error) {
-	f.writer.SendError(cause)
+	f.writer.Send(Error(cause))
 }
 
 func (f *flowStageActions) SendValue(value interface{}) {
-	f.writer.SendValue(value)
+	f.writer.Send(Value(value))
 }
 
 func (f *flowStageActions) FailStage(cause error) {

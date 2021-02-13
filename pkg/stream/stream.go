@@ -18,8 +18,7 @@ type Reader interface {
 
 type Writer interface {
 	Close()
-	SendValue(value interface{})
-	SendError(err error)
+	Send(element Element)
 	Closed() bool
 	Done() chan struct{}
 }
@@ -59,28 +58,20 @@ func (s *stream) Elements() <-chan Element {
 func (s *stream) Complete() {
 	s.completeOnce.Do(func() {
 		fmt.Println("Completing stream " + s.name)
-		s.completionSignaled = true
 		close(s.done)
+		s.completionSignaled = true
 	})
 }
 
 func (s *stream) Close() {
 	s.closeOnce.Do(func() {
 		fmt.Println("Closing stream  "+ s.name)
-		s.closed = true
 		close(s.elements)
+		s.closed = true
 	})
 }
 
-func (s *stream) SendValue(value interface{}) {
-	s.send(Value(value))
-}
-
-func (s *stream) SendError(err error) {
-	s.send(Error(err))
-}
-
-func (s *stream) send(element Element) {
+func (s *stream) Send(element Element) {
 	s.Lock()
 	defer s.Unlock()
 	s.elements <- element
