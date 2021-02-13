@@ -24,7 +24,7 @@ func (s *singleSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (s
 	go func() {
 		writer := outputStream.Writer()
 		defer writer.Close()
-		writer.SendValue(s.value)
+		writer.Send(stream.Value(s.value))
 		outputPromise.TrySuccess(stream.NotUsed)
 	}()
 	return outputStream.Reader(), outputPromise.Future()
