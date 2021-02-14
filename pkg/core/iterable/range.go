@@ -4,20 +4,20 @@ package iterable
 var _ Iterator = (*rangeIterator)(nil)
 
 type rangeIterator struct {
-	start   int
 	end     int
 	step    int
 	current int
 }
 
 func (r *rangeIterator) HasNext() bool {
-	return r.current < (r.end * r.step)
+	return r.current <= (r.end * r.step)
 }
 
 func (r *rangeIterator) Next() interface{} {
 	if r.HasNext() {
+		item := r.current
 		r.current = r.current + r.step
-		return r.current
+		return item
 	}
 	return nil
 }
@@ -29,10 +29,9 @@ func Range(start int, end int) Iterable {
 func SteppedRange(start int, end int, step int) Iterable {
 	return NewIterable(func() Iterator {
 		return &rangeIterator{
-			start:   start,
 			end:     end,
 			step:    step,
-			current: 0,
+			current: start,
 		}
 	})
 }

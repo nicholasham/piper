@@ -14,6 +14,8 @@ type Iterable interface {
 
 	// Creates an iterable that iterates items while teh p is satisfied
 	TakeWhile(f  core.PredicateFunc ) Iterable
+
+	Filter(f  core.PredicateFunc ) Iterable
 }
 
 // verify iterable implements Iterable interface
@@ -21,6 +23,10 @@ var _ Iterable = (*iterable)(nil)
 
 type iterable struct {
 	newIterator func() Iterator
+}
+
+func (i *iterable) Filter(f core.PredicateFunc) Iterable {
+	return filter(f, i.Iterator())
 }
 
 func (i *iterable) ToSlice() []interface{} {
