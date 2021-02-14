@@ -27,10 +27,9 @@ func (f *failedSourceStage) With(options ...stream.StageOption) stream.Stage {
 
 func (f *failedSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (stream.Reader, *core.Future) {
 	outputPromise := core.NewPromise()
-	outputStream := stream.NewStream(f.attributes.Name)
+	outputStream := stream.NewStream()
 	go func() {
 		writer := outputStream.Writer()
-		defer writer.Close()
 		writer.Send(stream.Error(f.err))
 		outputPromise.TryFailure(f.err)
 	}()

@@ -20,10 +20,9 @@ func (s *singleSourceStage) Named(name string) stream.Stage {
 
 func (s *singleSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (stream.Reader, *core.Future) {
 	outputPromise := core.NewPromise()
-	outputStream := stream.NewStream(s.attributes.Name)
+	outputStream := stream.NewStream()
 	go func() {
 		writer := outputStream.Writer()
-		defer writer.Close()
 		writer.Send(stream.Value(s.value))
 		outputPromise.TrySuccess(stream.NotUsed)
 	}()

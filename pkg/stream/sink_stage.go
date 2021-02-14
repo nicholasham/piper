@@ -55,7 +55,7 @@ func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Futu
 	go func() {
 		actions := s.newActions(inputReader)
 		logic.OnUpstreamStart(actions)
-		for element := range inputReader.Elements() {
+		for element := range inputReader.Read() {
 
 			select {
 			case <-ctx.Done():

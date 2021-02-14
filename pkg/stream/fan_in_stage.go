@@ -22,7 +22,7 @@ func (receiver *fanInFlowStage) Named(name string) Stage {
 }
 
 func (receiver *fanInFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
-	outputStream := NewStream(receiver.attributes.Name)
+	outputStream := NewStream()
 	outputPromise := core.NewPromise()
 
 	var inlets []Reader
@@ -89,15 +89,16 @@ func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy) *FlowGraph {
 func ConcatStrategy() FanInStrategy {
 	return func(ctx context.Context, inletReaders []Reader, outletWriter Writer) {
 		go func() {
-			defer outletWriter.Close()
 			for _, inlet := range inletReaders {
-				for element := range inlet.Elements() {
+				for element := range inlet.Read() {
 
 					select {
 					case <-ctx.Done():
 						inlet.Complete()
+						break
 					case <-outletWriter.Done():
 						inlet.Complete()
+						break
 					default:
 
 					}
@@ -118,13 +119,15 @@ func MergeStrategy() FanInStrategy {
 
 		f := func(inlet Reader, outlet Writer) {
 			defer wg.Done()
-			for element := range inlet.Elements() {
+			for element := range inlet.Read() {
 
 				select {
 				case <-ctx.Done():
 					inlet.Complete()
+					return
 				case <-outlet.Done():
 					inlet.Complete()
+					return
 				default:
 				}
 
@@ -142,7 +145,6 @@ func MergeStrategy() FanInStrategy {
 
 		go func() {
 			wg.Wait()
-			outletReader.Close()
 		}()
 	}
 }
@@ -150,7 +152,6 @@ func MergeStrategy() FanInStrategy {
 func InterleaveStrategy(segmentSize int) FanInStrategy {
 	return func(ctx context.Context, inletReaders []Reader, outletWriter Writer) {
 		go func() {
-			defer outletWriter.Close()
 			interleaveRecursively(ctx, segmentSize, inletReaders, outletWriter)
 		}()
 	}
@@ -177,7 +178,7 @@ func sendOutSegment(ctx context.Context, segmentSize int, inletReader Reader, ou
 			return false
 		case <-outletWriter.Done():
 			return false
-		case element, ok := <-inletReader.Elements():
+		case element, ok := <-inletReader.Read():
 			if !ok {
 				return false
 			}

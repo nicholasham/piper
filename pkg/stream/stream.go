@@ -10,19 +10,6 @@ type Stream interface {
 	Writer() Writer
 }
 
-type Reader interface {
-	Elements() <-chan Element
-	Complete()
-	Completing() bool
-}
-
-type Writer interface {
-	Close()
-	Send(element Element)
-	Closed() bool
-	Done() chan struct{}
-}
-
 // verify stream implements Stream interface
 var _ Stream = (*stream)(nil)
 var _ Writer = (*stream)(nil)
@@ -51,7 +38,7 @@ func (s *stream) Completing() bool {
 	return s.completionSignaled
 }
 
-func (s *stream) Elements() <-chan Element {
+func (s *stream) Read() <-chan Element {
 	return s.elements
 }
 
@@ -65,7 +52,7 @@ func (s *stream) Complete() {
 
 func (s *stream) Close() {
 	s.closeOnce.Do(func() {
-		fmt.Println("Closing stream  "+ s.name)
+		fmt.Println("Done stream  "+ s.name)
 		close(s.elements)
 		s.closed = true
 	})
@@ -85,7 +72,7 @@ func (s *stream) Writer() Writer {
 	return s
 }
 
-func NewStream(name string) Stream {
+func NewStreamOld(name string) Stream {
 	return &stream{
 		name: name,
 		done:     make(chan struct{}),

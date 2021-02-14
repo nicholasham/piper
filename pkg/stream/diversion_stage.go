@@ -50,21 +50,21 @@ func (d *diversionFlowStage) With(options ...StageOption) Stage {
 }
 
 func (d *diversionFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
-	outputStream := NewStream(d.attributes.Name)
+	outputStream := NewStream()
 	outputPromise := core.NewPromise()
 	reader, inputFuture := d.upstreamStage.Open(ctx, KeepRight)
 	go func() {
 		diversionWriter := d.diversionSource.OpenWriter()
 		mainWriter := outputStream.Writer()
-		defer diversionWriter.Close()
-		defer mainWriter.Close()
-		for element := range reader.Elements() {
+		for element := range reader.Read() {
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
 				reader.Complete()
+				break
 			case <-mainWriter.Done():
 				reader.Complete()
+				break
 			default:
 			}
 
@@ -86,7 +86,7 @@ func (d *diversionFlowStage) WireTo(stage UpstreamStage) FlowStage {
 var _ UpstreamStage = (*diversionSourceStage)(nil)
 
 type diversionSourceStage struct {
-	stream Stream
+	stream *Stream2
 }
 
 func (d *diversionSourceStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
@@ -100,7 +100,7 @@ func (d *diversionSourceStage) OpenWriter() Writer {
 }
 
 func newDiversionStage(attributes  *StageAttributes) *diversionSourceStage {
-	return & diversionSourceStage{stream: NewStream(attributes.Name + "-diversion")}
+	return & diversionSourceStage{stream: NewStream()}
 }
 
 

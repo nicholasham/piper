@@ -59,26 +59,37 @@ func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
 }
 
 func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
-	outputStream := NewStream(s.attributes.Name)
+	outputStream := NewStream()
 	outputPromise := core.NewPromise()
 	reader, inputFuture := s.upstreamStage.Open(ctx, KeepRight)
 	go func() {
+		fmt.Println("running " + s.attributes.Name)
 		writer := outputStream.Writer()
-		defer writer.Close()
 		logic := s.factory(s.attributes)
 		wp := s.createWorkerPool(logic)
 		actions := s.newActions(reader, writer)
 		logic.OnUpstreamStart(actions)
 
-		for element := range reader.Elements() {
+		for element := range reader.Read() {
+
+			select {
+			case <-writer.Done():
+				fmt.Println(fmt.Sprintf("Stage done %v", s.attributes.Name))
+				reader.Complete()
+				break
+			default:
+
+			}
 
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
 				reader.Complete()
+				break
 			case <-writer.Done():
 				fmt.Println(fmt.Sprintf("Stage done %v", s.attributes.Name))
 				reader.Complete()
+				break
 			default:
 			}
 
@@ -91,11 +102,14 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 				wp.Submit(submitToPoolInClosure(element, actions))
 			}
 		}
+		fmt.Println("stopping " + s.attributes.Name)
 		wp.StopWait()
 		logic.OnUpstreamFinish(actions)
 		if !outputPromise.IsCompleted() {
 			outputPromise.TrySuccess(NotUsed)
 		}
+
+		fmt.Println("stopped " + s.attributes.Name)
 	}()
 
 	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
@@ -123,7 +137,7 @@ type flowStageActions struct {
 }
 
 func (f *flowStageActions) StageIsCompleted() bool {
-	return f.writer.Closed()
+	return f.reader.Completing()
 }
 
 func (f *flowStageActions) SendError(cause error) {
