@@ -13,20 +13,21 @@ type filterIterator struct {
 }
 
 func (t *filterIterator) HasNext() bool {
-	for t.iterator.HasNext() {
-		head :=  t.iterator.Next()
-		if t.p(head) {
-			t.head = head
+	for  {
+		if !t.iterator.HasNext()  {
+			return false
+		}
+		t.head =  t.iterator.Next()
+		if t.p(t.head) {
 			t.headDefined = true
 			return true
 		}
 	}
-	return false
 }
 
 func (t *filterIterator) Next() interface{} {
-	if t.HasNext() {
-		t.headDefined = true
+	if t.headDefined {
+		t.headDefined = false
 		return t.head
 	}
 	return Empty().Iterator().Next()

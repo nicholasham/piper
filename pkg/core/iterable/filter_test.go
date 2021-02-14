@@ -8,7 +8,7 @@ import (
 
 func TestFilter(t *testing.T) {
 
-	numbers := Range(0, 10)
+	numbers := Range(1, 10)
 
 	inMultiplesOf := func(multiple int) core.PredicateFunc {
 		return func(value core.Any) bool {
@@ -21,7 +21,7 @@ func TestFilter(t *testing.T) {
 	})
 
 	t.Run("It returns nil when nothing matches filter", func(t *testing.T) {
-		assert.Equal(t, Empty().ToSlice(), numbers.Filter(inMultiplesOf(100)).ToSlice())
+		assert.Equal(t, Empty().ToSlice(), numbers.Filter(inMultiplesOf(11)).ToSlice())
 	})
 
 
