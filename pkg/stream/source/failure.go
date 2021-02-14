@@ -31,7 +31,7 @@ func (f *failedSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (s
 	go func() {
 		writer := outputStream.Writer()
 		defer writer.Close()
-		writer.SendError(f.err)
+		writer.Send(stream.Error(f.err))
 		outputPromise.TryFailure(f.err)
 	}()
 	return outputStream.Reader(), outputPromise.Future()

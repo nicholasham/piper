@@ -1,14 +1,19 @@
 package iterable
 
+import "github.com/nicholasham/piper/pkg/core"
+
 // Provides a set of options to create iterable values
 type Iterable interface {
-	// Creates a new iterator over all elements contained in this iterable object.
+	// Creates a new tail over all elements contained in this iterable object.
 	Iterator() Iterator
 	// Applies a function f to all items in the iterable
 	ForEach(f func(item interface{}))
 
 	// Appends all items in the iterable to a slice
 	ToSlice() []interface{}
+
+	// Creates an iterable that iterates items while teh p is satisfied
+	TakeWhile(f  core.PredicateFunc ) Iterable
 }
 
 // verify iterable implements Iterable interface
@@ -39,4 +44,8 @@ func (i *iterable) ForEach(f func(item interface{})) {
 	for iterator.HasNext() {
 		f(iterator.Next())
 	}
+}
+
+func  (i *iterable)  TakeWhile(f  core.PredicateFunc ) Iterable {
+	return takeWhile(f, i.Iterator())
 }
