@@ -22,7 +22,7 @@ func (t *takeIterator) Next() interface{} {
 	return t.iterator.Next()
 }
 
-func Take(number int, iterator Iterator) Iterable {
+func take(number int, iterator Iterator) Iterable {
 	return NewIterable(func() Iterator {
 		return &takeIterator{
 			iterator: iterator,
