@@ -19,6 +19,8 @@ type Iterable interface {
 
 	Map(f core.MapFunc) Iterable
 
+	Drop(number int) Iterable
+
 	Take(number int) Iterable
 }
 
@@ -29,8 +31,12 @@ type iterable struct {
 	newIterator func() Iterator
 }
 
+func (i *iterable) Drop(number int) Iterable {
+	return drop(number, i.Iterator())
+}
+
 func (i *iterable) Take(number int) Iterable {
-	return Take(number, i.Iterator())
+	return take(number, i.Iterator())
 }
 
 func (i *iterable) Map(f core.MapFunc) Iterable {

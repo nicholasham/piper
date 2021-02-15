@@ -15,7 +15,10 @@ func (t *dropIterator) HasNext() bool {
 }
 
 func (t *dropIterator) Next() interface{} {
-	t.dropped ++
+	for t.dropped < t.number && t.HasNext() {
+		t.iterator.Next()
+		t.dropped ++
+	}
 	return t.iterator.Next()
 }
 
