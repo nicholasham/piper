@@ -16,6 +16,10 @@ type Iterable interface {
 	TakeWhile(f  core.PredicateFunc ) Iterable
 
 	Filter(f  core.PredicateFunc ) Iterable
+
+	Map(f core.MapFunc) Iterable
+
+	Take(number int) Iterable
 }
 
 // verify iterable implements Iterable interface
@@ -23,6 +27,14 @@ var _ Iterable = (*iterable)(nil)
 
 type iterable struct {
 	newIterator func() Iterator
+}
+
+func (i *iterable) Take(number int) Iterable {
+	return Take(number, i.Iterator())
+}
+
+func (i *iterable) Map(f core.MapFunc) Iterable {
+	return mapping(f, i.Iterator())
 }
 
 func (i *iterable) Filter(f core.PredicateFunc) Iterable {
