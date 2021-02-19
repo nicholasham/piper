@@ -13,17 +13,27 @@ type takeWhileIterator struct {
 }
 
 func (t *takeWhileIterator) HasNext() bool {
-	t.head = t.tail.Next()
-	if t.head != nil && t.p(t.head) {
-		t.headDefined = true
-	}else {
-		t.tail = Empty().Iterator()
+	if !t.headDefined {
+		if t.tail.HasNext() {
+			t.head = t.tail.Next()
+			if t.p(t.head) {
+				t.headDefined = true
+			}else {
+				t.tail = Empty().Iterator()
+			}
+
+			if t.headDefined {
+				return true
+			}
+		}
+		return false
 	}
-	return t.headDefined
+
+	return true
 }
 
 func (t *takeWhileIterator) Next() interface{} {
-	if t.headDefined && t.tail.HasNext() {
+	if t.HasNext() {
 		t.headDefined = false
 		return t.head
 	}else {

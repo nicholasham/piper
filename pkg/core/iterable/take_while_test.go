@@ -16,13 +16,18 @@ func TestTakeWhile(t *testing.T) {
 		}
 	}
 
-	t.Run("It returns the elements from the list as long as the condition is satisfied.", func(t *testing.T) {
+	t.Run("next returns the elements from the list as long as the condition is satisfied.", func(t *testing.T) {
 		assert.Equal(t, Range(0, 5).ToSlice(), numbers.TakeWhile(inRange(0, 5)).ToSlice())
 		assert.Equal(t, Range(0, 10).ToSlice(), numbers.TakeWhile(inRange(0,10)).ToSlice())
 	})
 
-	t.Run("It returns nil when not in range", func(t *testing.T) {
-		assert.Equal(t, Empty().ToSlice(), numbers.TakeWhile(inRange(51, 52)).ToSlice())
+	t.Run("iterator next returns nil when not in range", func(t *testing.T) {
+		iterator := numbers.TakeWhile(inRange(51, 52)).Iterator()
+		assert.Nil(t, iterator.Next())
+	})
+
+	t.Run("iterator has next returns false when not in range", func(t *testing.T) {
+		assert.False(t, numbers.TakeWhile(inRange(51, 52)).Iterator().HasNext())
 	})
 
 
