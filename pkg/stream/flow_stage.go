@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gammazero/workerpool"
 	"github.com/nicholasham/piper/pkg/core"
+	"sync"
 )
 
 type FlowStageLogic interface {
@@ -58,38 +59,44 @@ func (s *flowStage) WireTo(stage UpstreamStage) FlowStage {
 	return s
 }
 
-func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
+func (s *flowStage) Open(ctx context.Context, wg *sync.WaitGroup, mat MaterializeFunc) (*Receiver, *core.Future) {
 	outputStream := NewStream(s.attributes.Name)
 	outputPromise := core.NewPromise()
-	reader, inputFuture := s.upstreamStage.Open(ctx, KeepRight)
+	receiver, inputFuture := s.upstreamStage.Open(ctx, wg, KeepRight)
+	wg.Add(1)
 	go func() {
-		writer := outputStream.Writer()
-		defer writer.Close()
+		sender := outputStream.Sender()
 		logic := s.factory(s.attributes)
 		wp := s.createWorkerPool(logic)
-		actions := s.newActions(reader, writer)
+		actions := s.newActions(receiver, sender)
 		logic.OnUpstreamStart(actions)
 
-		for element := range reader.Elements() {
+		defer func() {
+			wp.StopWait()
+			sender.Close()
+			wg.Done()
+		}()
+
+		for element := range receiver.Receive() {
 
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
-				reader.Complete()
-			case <-writer.Done():
+				receiver.Done()
+				return
+			case <-sender.Done():
 				fmt.Println(fmt.Sprintf("Stage done %v", s.attributes.Name))
-				reader.Complete()
+				receiver.Done()
+				return
 			default:
 			}
 
-			if !reader.Completing() {
-				submitToPoolInClosure := func(element Element, actions FlowStageActions) func() {
-					return func() {
-						logic.OnUpstreamReceive(element, actions)
-					}
+			submitToPoolInClosure := func(element Element, actions FlowStageActions) func() {
+				return func() {
+					logic.OnUpstreamReceive(element, actions)
 				}
-				wp.Submit(submitToPoolInClosure(element, actions))
 			}
+			wp.Submit(submitToPoolInClosure(element, actions))
 		}
 		wp.StopWait()
 		logic.OnUpstreamFinish(actions)
@@ -98,7 +105,7 @@ func (s *flowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *cor
 		}
 	}()
 
-	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
+	return outputStream.Receiver(), mat(inputFuture, outputPromise.Future())
 
 }
 
@@ -109,38 +116,38 @@ func (s *flowStage) createWorkerPool(logic FlowStageLogic) *workerpool.WorkerPoo
 	return workerpool.New(s.attributes.Parallelism)
 }
 
-func (s *flowStage) newActions(inputStream Reader, outputStream Writer) FlowStageActions {
-	return &flowStageActions{reader: inputStream, writer: outputStream}
+func (s *flowStage) newActions(receiver *Receiver, sender *Sender) FlowStageActions {
+	return &flowStageActions{receiver: receiver, sender: sender}
 }
 
 // verify flowStageActions implements FlowStageActions interface
 var _ FlowStageActions = (*flowStageActions)(nil)
 
 type flowStageActions struct {
-	logger Logger
-	reader Reader
-	writer Writer
+	logger   Logger
+	receiver *Receiver
+	sender   *Sender
 }
 
 func (f *flowStageActions) StageIsCompleted() bool {
-	return f.writer.Closed()
+	return f.sender.IsDone()
 }
 
 func (f *flowStageActions) SendError(cause error) {
-	f.writer.Send(Error(cause))
+	f.sender.TrySend(Error(cause))
 }
 
 func (f *flowStageActions) SendValue(value interface{}) {
-	f.writer.Send(Value(value))
+	f.sender.TrySend(Value(value))
 }
 
 func (f *flowStageActions) FailStage(cause error) {
 	f.logger.Error(cause, "failed stage because")
-	f.reader.Complete()
+	f.receiver.Done()
 }
 
 func (f *flowStageActions) CompleteStage() {
-	f.reader.Complete()
+	f.receiver.Done()
 }
 
 func Flow(factory FlowStageLogicFactory) FlowStage {

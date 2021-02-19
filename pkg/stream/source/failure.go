@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/stream"
+	"sync"
 )
 
 // verify failedSourceStage implements stream.SourceStage interface
@@ -25,16 +26,20 @@ func (f *failedSourceStage) With(options ...stream.StageOption) stream.Stage {
 	}
 }
 
-func (f *failedSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (stream.Reader, *core.Future) {
+func (f *failedSourceStage) Open(_ context.Context, wg *sync.WaitGroup, _ stream.MaterializeFunc) (*stream.Receiver, *core.Future) {
 	outputPromise := core.NewPromise()
 	outputStream := stream.NewStream(f.attributes.Name)
+	wg.Add(1)
 	go func() {
-		writer := outputStream.Writer()
-		defer writer.Close()
-		writer.Send(stream.Error(f.err))
+		writer := outputStream.Sender()
+		defer func() {
+			writer.Close()
+			wg.Done()
+		}()
+		writer.TrySend(stream.Error(f.err))
 		outputPromise.TryFailure(f.err)
 	}()
-	return outputStream.Reader(), outputPromise.Future()
+	return outputStream.Receiver(), outputPromise.Future()
 }
 
 

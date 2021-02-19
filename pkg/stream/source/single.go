@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/stream"
+	"sync"
 )
 
 // verify singleSourceStage implements stream.SourceStage interface
@@ -18,16 +19,20 @@ func (s *singleSourceStage) Named(name string) stream.Stage {
 	return s.With(stream.Name(name))
 }
 
-func (s *singleSourceStage) Open(_ context.Context, _ stream.MaterializeFunc) (stream.Reader, *core.Future) {
+func (s *singleSourceStage) Open(_ context.Context, wg *sync.WaitGroup, _ stream.MaterializeFunc) (*stream.Receiver, *core.Future) {
 	outputPromise := core.NewPromise()
 	outputStream := stream.NewStream(s.attributes.Name)
+	wg.Add(1)
 	go func() {
-		writer := outputStream.Writer()
-		defer writer.Close()
-		writer.Send(stream.Value(s.value))
+		writer := outputStream.Sender()
+		defer func() {
+			writer.Close()
+			wg.Done()
+		}()
+		writer.TrySend(stream.Value(s.value))
 		outputPromise.TrySuccess(stream.NotUsed)
 	}()
-	return outputStream.Reader(), outputPromise.Future()
+	return outputStream.Receiver(), outputPromise.Future()
 }
 
 func (s *singleSourceStage) With(options ...stream.StageOption) stream.Stage {

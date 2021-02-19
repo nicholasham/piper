@@ -66,7 +66,8 @@ func (i *iterable) Iterator() Iterator {
 func (i *iterable) ForEach(f func(item interface{})) {
 	iterator := i.newIterator()
 	for iterator.HasNext() {
-		f(iterator.Next())
+		value := iterator.Next()
+		f(value)
 	}
 }
 

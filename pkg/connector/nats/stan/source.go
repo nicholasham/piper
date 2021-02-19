@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/stream"
+	"sync"
 
 	"github.com/nats-io/stan.go"
 )
@@ -19,24 +20,28 @@ type stanSourceStage struct {
 	subscriptionOptions []stan.SubscriptionOption
 }
 
-func (s *stanSourceStage) Open(ctx context.Context, mat stream.MaterializeFunc) (stream.Reader, *core.Future) {
+func (s *stanSourceStage) Named(name string) stream.Stage {
+	return s.With(stream.Name(name))
+}
+
+func (s *stanSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat stream.MaterializeFunc) (stream.Receiver, *core.Future) {
 	logger := s.attributes.Logger
 	outputPromise := core.NewPromise()
 	outputStream := stream.NewStream(s.attributes.Name)
 	go func() {
-		writer := outputStream.Writer()
+		writer := outputStream.Sender()
 		defer writer.Close()
 
 		sub, err := s.conn.QueueSubscribe(s.subject, s.group, func(msg *stan.Msg) {
 			select {
 			case <-ctx.Done():
-				writer.SendError(ctx.Err())
+				writer.Send(stream.Error(ctx.Err()))
 				msg.Sub.Unsubscribe()
 			case <-writer.Done():
 				msg.Sub.Unsubscribe()
 			default:
 			}
-			writer.SendValue(msg)
+			writer.Send(stream.Value(msg))
 		}, s.subscriptionOptions...)
 
 		if err != nil {
@@ -45,12 +50,12 @@ func (s *stanSourceStage) Open(ctx context.Context, mat stream.MaterializeFunc) 
 		}
 		sub.Close()
 	}()
-	return outputStream.Reader(), outputPromise.Future()
+	return outputStream.Receiver(), outputPromise.Future()
 }
 
 func (s *stanSourceStage) With(options ...stream.StageOption) stream.Stage {
 	return &stanSourceStage{
-		attributes:          s.attributes.Apply(options...),
+		attributes:          s.attributes.With(options...),
 		conn:                s.conn,
 		subject:             s.subject,
 		group:               s.group,
@@ -60,7 +65,7 @@ func (s *stanSourceStage) With(options ...stream.StageOption) stream.Stage {
 
 func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption) *stream.SourceGraph {
 	return stream.FromSource(&stanSourceStage{
-		attributes:          stream.DefaultStageAttributes.Apply(stream.Name("StanSource")),
+		attributes:          stream.DefaultStageAttributes.With(stream.Name("StanSource")),
 		conn:                conn,
 		subject:             subject,
 		group:               group,

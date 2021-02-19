@@ -9,7 +9,7 @@ import (
 // verify fanInFlowStage implements FlowStage interface
 var _ FlowStage = (*fanInFlowStage)(nil)
 
-type FanInStrategy func(ctx context.Context, inletReaders []Reader, outletWriter Writer)
+type FanInStrategy func(ctx context.Context, receivers []*Receiver, sender *Sender)
 
 type fanInFlowStage struct {
 	attributes     *StageAttributes
@@ -21,21 +21,21 @@ func (receiver *fanInFlowStage) Named(name string) Stage {
 	return receiver.With(Name(name))
 }
 
-func (receiver *fanInFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
+func (receiver *fanInFlowStage) Open(ctx context.Context, wg *sync.WaitGroup, mat MaterializeFunc) (*Receiver, *core.Future) {
 	outputStream := NewStream(receiver.attributes.Name)
 	outputPromise := core.NewPromise()
 
-	var inlets []Reader
+	var inlets []*Receiver
 
 	for _, stage := range receiver.upstreamStages {
-		reader, _ := stage.Open(ctx, mat)
+		reader, _ := stage.Open(ctx, wg, mat)
 		inlets = append(inlets, reader)
 	}
 
-	receiver.fanIn(ctx, inlets, outputStream.Writer())
+	receiver.fanIn(ctx, inlets, outputStream.Sender())
 
 	outputPromise.TrySuccess(NotUsed)
-	return outputStream.Reader(), outputPromise.Future()
+	return outputStream.Receiver(), outputPromise.Future()
 }
 
 func (receiver *fanInFlowStage) WireTo(stage UpstreamStage) FlowStage {
@@ -87,24 +87,23 @@ func CombineFlows(graphs []*FlowGraph, strategy FanInStrategy) *FlowGraph {
 }
 
 func ConcatStrategy() FanInStrategy {
-	return func(ctx context.Context, inletReaders []Reader, outletWriter Writer) {
+	return func(ctx context.Context, inletReaders []*Receiver, outletWriter *Sender) {
 		go func() {
 			defer outletWriter.Close()
 			for _, inlet := range inletReaders {
-				for element := range inlet.Elements() {
+				for element := range inlet.Receive() {
 
 					select {
 					case <-ctx.Done():
-						inlet.Complete()
+						inlet.Done()
 					case <-outletWriter.Done():
-						inlet.Complete()
+						inlet.Done()
 					default:
 
 					}
 
-					if !inlet.Completing() {
-						outletWriter.Send(element)
-					}
+					outletWriter.TrySend(element)
+
 				}
 			}
 		}()
@@ -112,79 +111,76 @@ func ConcatStrategy() FanInStrategy {
 }
 
 func MergeStrategy() FanInStrategy {
-	return func(ctx context.Context, inletReaders []Reader, outletReader Writer) {
+	return func(ctx context.Context, receivers []*Receiver, senders *Sender) {
 		wg := sync.WaitGroup{}
-		wg.Add(len(inletReaders))
+		wg.Add(len(receivers))
 
-		f := func(inlet Reader, outlet Writer) {
+		f := func(receiver *Receiver, sender *Sender) {
 			defer wg.Done()
-			for element := range inlet.Elements() {
+			for element := range receiver.Receive() {
 
 				select {
 				case <-ctx.Done():
-					inlet.Complete()
-				case <-outlet.Done():
-					inlet.Complete()
+					receiver.Done()
+				case <-sender.Done():
+					receiver.Done()
 				default:
 				}
 
-				if !inlet.Completing() {
-					outlet.Send(element)
-				}
+				sender.TrySend(element)
+
 			}
 		}
 
 		go func() {
-			for _, inlet := range inletReaders {
-				go f(inlet, outletReader)
+			for _, inlet := range receivers {
+				go f(inlet, senders)
 			}
 		}()
 
 		go func() {
 			wg.Wait()
-			outletReader.Close()
+			senders.Close()
 		}()
 	}
 }
 
 func InterleaveStrategy(segmentSize int) FanInStrategy {
-	return func(ctx context.Context, inletReaders []Reader, outletWriter Writer) {
+	return func(ctx context.Context, receivers []*Receiver, sender *Sender) {
 		go func() {
-			defer outletWriter.Close()
-			interleaveRecursively(ctx, segmentSize, inletReaders, outletWriter)
+			defer sender.Close()
+			interleaveRecursively(ctx, segmentSize, receivers, sender)
 		}()
 	}
 }
 
-func interleaveRecursively(ctx context.Context, segmentSize int, inletReaders []Reader, outletWriter Writer) {
-	var openInletReaders []Reader
-	for _, inletReader := range inletReaders {
-		if sendOutSegment(ctx, segmentSize, inletReader, outletWriter) {
-			openInletReaders = append(openInletReaders, inletReader)
+func interleaveRecursively(ctx context.Context, segmentSize int, receivers []*Receiver, sender *Sender) {
+	var openReceivers []*Receiver
+	for _, receiver := range receivers {
+		if sendOutSegment(ctx, segmentSize, receiver, sender) {
+			openReceivers = append(openReceivers, receiver)
 		}
 	}
 
-	if len(openInletReaders) > 0 {
-		interleaveRecursively(ctx, segmentSize, openInletReaders, outletWriter)
+	if len(openReceivers) > 0 {
+		interleaveRecursively(ctx, segmentSize, openReceivers, sender)
 	}
 }
 
-func sendOutSegment(ctx context.Context, segmentSize int, inletReader Reader, outletWriter Writer) bool {
+func sendOutSegment(ctx context.Context, segmentSize int, receiver *Receiver, sender *Sender) bool {
 	segmentCount := 0
 	for {
 		select {
 		case <-ctx.Done():
 			return false
-		case <-outletWriter.Done():
+		case <-sender.Done():
 			return false
-		case element, ok := <-inletReader.Elements():
+		case element, ok := <-receiver.Receive():
 			if !ok {
 				return false
 			}
 
-			if !inletReader.Completing() {
-				outletWriter.Send(element)
-			}
+			sender.TrySend(element)
 
 			segmentCount++
 

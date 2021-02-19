@@ -3,6 +3,7 @@ package stream
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core"
+	"sync"
 )
 
 // verify transformSinkStage implements SinkStage interface
@@ -31,8 +32,8 @@ func (t *transformSinkStage) WireTo(stage UpstreamStage) SinkStage {
 	}
 }
 
-func (t *transformSinkStage) Run(ctx context.Context, mat MaterializeFunc) *core.Future {
-	return t.sinkStage.Run(ctx, mat).Then(t.f)
+func (t *transformSinkStage) Run(ctx context.Context, wg *sync.WaitGroup, mat MaterializeFunc) *core.Future {
+	return t.sinkStage.Run(ctx,wg, mat).Then(t.f)
 }
 
 func transformSink(sink SinkStage, f MapMaterializedValueFunc) SinkStage {

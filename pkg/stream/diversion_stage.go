@@ -3,24 +3,25 @@ package stream
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core"
+	"sync"
 )
 
-type diversionStrategy func( element Element, mainWriter Writer, alternateWriter Writer)
+type diversionStrategy func( element Element, mainWriter *Sender, alternateWriter *Sender)
 
 var divertToStrategy = func(when core.PredicateFunc) diversionStrategy {
-	return func(element Element, mainWriter Writer, alternateWriter Writer) {
+	return func(element Element, mainWriter *Sender, alternateWriter *Sender) {
 		if element.IsValue() && when(element.Value()) {
-			mainWriter.Send(element)
+			mainWriter.TrySend(element)
 		} else {
-			alternateWriter.Send(element)
+			alternateWriter.TrySend(element)
 		}
 	}
 }
 
 var alsoToStrategy = func() diversionStrategy {
-	return func(element Element, mainWriter Writer, alternateWriter Writer) {
-		mainWriter.Send(element)
-		alternateWriter.Send(element)
+	return func(element Element, mainWriter *Sender, alternateWriter *Sender) {
+		mainWriter.TrySend(element)
+		alternateWriter.TrySend(element)
 	}
 }
 
@@ -49,31 +50,33 @@ func (d *diversionFlowStage) With(options ...StageOption) Stage {
 	}
 }
 
-func (d *diversionFlowStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
+func (d *diversionFlowStage) Open(ctx context.Context, wg *sync.WaitGroup, mat MaterializeFunc) (*Receiver, *core.Future) {
 	outputStream := NewStream(d.attributes.Name)
 	outputPromise := core.NewPromise()
-	reader, inputFuture := d.upstreamStage.Open(ctx, KeepRight)
+	reader, inputFuture := d.upstreamStage.Open(ctx, wg, KeepRight)
+	wg.Add(1)
 	go func() {
 		diversionWriter := d.diversionSource.OpenWriter()
-		mainWriter := outputStream.Writer()
-		defer diversionWriter.Close()
-		defer mainWriter.Close()
-		for element := range reader.Elements() {
+		mainWriter := outputStream.Sender()
+		defer func() {
+			diversionWriter.Close()
+			mainWriter.Close()
+			wg.Done()
+		}()
+		for element := range reader.Receive() {
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
-				reader.Complete()
+				reader.Done()
 			case <-mainWriter.Done():
-				reader.Complete()
+				reader.Done()
 			default:
 			}
 
-			if !reader.Completing() {
-				d.strategy(element, mainWriter, diversionWriter)
-			}
+			d.strategy(element, mainWriter, diversionWriter)
 		}
 	}()
-	return outputStream.Reader(), mat(inputFuture, outputPromise.Future())
+	return outputStream.Receiver(), mat(inputFuture, outputPromise.Future())
 }
 
 func (d *diversionFlowStage) WireTo(stage UpstreamStage) FlowStage {
@@ -86,17 +89,17 @@ func (d *diversionFlowStage) WireTo(stage UpstreamStage) FlowStage {
 var _ UpstreamStage = (*diversionSourceStage)(nil)
 
 type diversionSourceStage struct {
-	stream Stream
+	stream *Stream
 }
 
-func (d *diversionSourceStage) Open(ctx context.Context, mat MaterializeFunc) (Reader, *core.Future) {
+func (d *diversionSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat MaterializeFunc) (*Receiver, *core.Future) {
 	promise := core.NewPromise()
 	promise.TrySuccess(NotUsed)
-	return d.stream.Reader(), promise.Future()
+	return d.stream.Receiver(), promise.Future()
 }
 
-func (d *diversionSourceStage) OpenWriter() Writer {
-	return d.stream.Writer()
+func (d *diversionSourceStage) OpenWriter() *Sender {
+	return d.stream.Sender()
 }
 
 func newDiversionStage(attributes  *StageAttributes) *diversionSourceStage {

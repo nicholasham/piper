@@ -3,6 +3,7 @@ package stream
 import (
 	"context"
 	"github.com/nicholasham/piper/pkg/core"
+	"sync"
 )
 
 type SinkStageLogic interface {
@@ -49,34 +50,38 @@ func (s *sinkStage) WireTo(stage UpstreamStage) SinkStage {
 	return s
 }
 
-func (s *sinkStage) Run(ctx context.Context, combine MaterializeFunc) *core.Future {
-	inputReader, inputFuture := s.upstreamStage.Open(ctx, combine)
+func (s *sinkStage) Run(ctx context.Context, wg *sync.WaitGroup, combine MaterializeFunc) *core.Future {
+	upstreamReceiver, inputFuture := s.upstreamStage.Open(ctx, wg, combine)
 	logic, outputPromise := s.factory(s.attributes)
+	wg.Add(1)
 	go func() {
-		actions := s.newActions(inputReader)
+		actions := s.newActions(upstreamReceiver)
 		logic.OnUpstreamStart(actions)
-		for element := range inputReader.Elements() {
+		defer func() {
+			wg.Done()
+		}()
+		for element := range upstreamReceiver.Receive() {
 
 			select {
 			case <-ctx.Done():
 				outputPromise.TryFailure(ctx.Err())
-				inputReader.Complete()
+				upstreamReceiver.Done()
+				return
 			default:
 			}
 
-			if !inputReader.Completing() {
-				logic.OnUpstreamReceive(element, actions)
-			}
+			logic.OnUpstreamReceive(element, actions)
+
 		}
 		logic.OnUpstreamFinish(actions)
 	}()
 	return combine(inputFuture, outputPromise.Future())
 }
 
-func (s *sinkStage) newActions(reader Reader) SinkStageActions {
+func (s *sinkStage) newActions(upstreamReceiver *Receiver) SinkStageActions {
 	return &sinkStageActions{
-		logger:      s.attributes.Logger,
-		inputStream: reader,
+		logger:           s.attributes.Logger,
+		upstreamReceiver: upstreamReceiver,
 	}
 }
 
@@ -84,17 +89,17 @@ func (s *sinkStage) newActions(reader Reader) SinkStageActions {
 var _ SinkStageActions = (*sinkStageActions)(nil)
 
 type sinkStageActions struct {
-	logger      Logger
-	inputStream Reader
+	logger           Logger
+	upstreamReceiver *Receiver
 }
 
 func (s *sinkStageActions) FailStage(cause error) {
 	s.logger.Error(cause, "failed stage because")
-	s.inputStream.Complete()
+	s.upstreamReceiver.Done()
 }
 
 func (s *sinkStageActions) CompleteStage() {
-	s.inputStream.Complete()
+	s.upstreamReceiver.Done()
 }
 
 func Sink(factory SinkStageLogicFactory) SinkStage {
