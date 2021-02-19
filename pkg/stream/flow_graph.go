@@ -69,7 +69,7 @@ func (g *FlowGraph) Fold(zero interface{}, f AggregateFunc) *FlowGraph {
 }
 
 func (g *FlowGraph) Map(f MapFunc) *FlowGraph {
-	return g.viaFlow(mapStage(f))
+	return g.viaFlow(MapStage(f))
 }
 
 func (g *FlowGraph) MapConcat(f MapConcatFunc) *FlowGraph {

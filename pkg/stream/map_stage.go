@@ -43,7 +43,7 @@ func (f *mapFlowLogic) handleValue(actions FlowStageActions) ValueAction {
 	}
 }
 
-func mapStage(f MapFunc) FlowStage {
+func MapStage(f MapFunc) FlowStage {
 	return Flow(mapFactory(f))
 }
 

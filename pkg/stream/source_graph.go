@@ -62,7 +62,7 @@ func (g *SourceGraph) Fold(zero interface{}, f AggregateFunc) *SourceGraph {
 }
 
 func (g *SourceGraph) Map(f MapFunc) *SourceGraph {
-	return g.viaFlow(mapStage(f))
+	return g.viaFlow(MapStage(f))
 }
 
 func (g *SourceGraph) MapConcat(f MapConcatFunc) *SourceGraph {
