@@ -13,10 +13,11 @@ func TestEmpty(t *testing.T) {
 		assert.False(t, sut.Iterator().HasNext())
 	})
 
-	t.Run("Next returns empty error", func(t *testing.T) {
+	t.Run("Next panics", func(t *testing.T) {
 		sut := Empty()
-		value := sut.Iterator().Next()
-		assert.Nil(t, value)
+		assert.Panics(t, func() {
+			sut.Iterator().Next()
+		})
 	})
 
 }

@@ -27,10 +27,9 @@ func TestTakeWhile(t *testing.T) {
 	})
 
 	t.Run("iterator has next returns false when not in range", func(t *testing.T) {
-		assert.False(t, numbers.TakeWhile(inRange(51, 52)).Iterator().HasNext())
+		iterator := numbers.TakeWhile(inRange(51, 52)).Iterator()
+		assert.False(t, iterator.HasNext())
 	})
-
-
 
 }
 

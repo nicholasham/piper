@@ -3,6 +3,7 @@ package iterable
 // verify emptyIterator implements Iterator interface
 var _ Iterator = (*emptyIterator)(nil)
 
+
 type emptyIterator struct {
 }
 
@@ -11,7 +12,7 @@ func (e *emptyIterator) HasNext() bool {
 }
 
 func (e *emptyIterator) Next() interface{} {
-	return nil
+	panic("next was called on empty iterator")
 }
 
 func Empty() Iterable {
