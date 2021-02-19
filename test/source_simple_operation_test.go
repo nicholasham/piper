@@ -35,9 +35,6 @@ func TestMap(t *testing.T) {
 	assert.EqualValues(t, List(2, 4, 6, 8, 10), values)
 }
 
-
-
-
 func TestMapConcat(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
