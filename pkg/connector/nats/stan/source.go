@@ -24,24 +24,24 @@ func (s *stanSourceStage) Named(name string) stream.Stage {
 	return s.With(stream.Name(name))
 }
 
-func (s *stanSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat stream.MaterializeFunc) (stream.Receiver, *core.Future) {
+func (s *stanSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat stream.MaterializeFunc) (*stream.Receiver, *core.Future) {
 	logger := s.attributes.Logger
 	outputPromise := core.NewPromise()
 	outputStream := stream.NewStream(s.attributes.Name)
 	go func() {
-		writer := outputStream.Sender()
-		defer writer.Close()
+		sender := outputStream.Sender()
+		defer sender.Close()
 
 		sub, err := s.conn.QueueSubscribe(s.subject, s.group, func(msg *stan.Msg) {
 			select {
 			case <-ctx.Done():
-				writer.Send(stream.Error(ctx.Err()))
+				sender.TrySend(stream.Error(ctx.Err()))
 				msg.Sub.Unsubscribe()
-			case <-writer.Done():
+			case <-sender.Done():
 				msg.Sub.Unsubscribe()
 			default:
 			}
-			writer.Send(stream.Value(msg))
+			sender.TrySend(stream.Value(msg))
 		}, s.subscriptionOptions...)
 
 		if err != nil {
