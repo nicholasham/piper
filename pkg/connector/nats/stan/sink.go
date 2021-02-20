@@ -46,3 +46,7 @@ func createPublishLogic (conn stan.Conn, subject string) stream.SinkStageLogicFa
 	}
 }
 
+func Sink(conn stan.Conn, subject string) * stream.SinkGraph {
+	return stream.FromSink(publishStage(conn, subject))
+}
+

@@ -15,7 +15,7 @@ func (t *mapIterator) HasNext() bool {
 }
 
 func (t *mapIterator) Next() interface{} {
-	return t.f(t.Next())
+	return t.f(t.iterator.Next())
 }
 
 func mapping(f core.MapFunc, iterator Iterator) Iterable {

@@ -19,7 +19,7 @@ func (r *rangeIterator) Next() interface{} {
 		r.current = r.current + r.step
 		return item
 	}
-	return nil
+	panic("next was called when has no next value, always check there is a next value by calling HasNext.")
 }
 
 func Range(start int, end int) Iterable {
