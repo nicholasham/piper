@@ -64,6 +64,10 @@ func (s *Sender) IsDone() bool {
 }
 
 func (s *Sender) TrySend(element Element) bool {
+	if s.IsDone() {
+		return false
+	}
+
 	select {
 	case <- s.stream.done:
 		return false

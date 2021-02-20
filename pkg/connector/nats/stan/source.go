@@ -30,37 +30,43 @@ func (s *stanSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat stre
 	outputStream := stream.NewStream(s.attributes.Name)
 	go func() {
 		sender := outputStream.Sender()
-		defer sender.Close()
+
 		wg.Add(1)
 
 		sub, err := s.conn.QueueSubscribe(s.subject, s.group, func(msg *stan.Msg) {
 			sender.TrySend(stream.Value(msg))
 		}, s.subscriptionOptions...)
 
+		defer func() {
+			sub.Close()
+			sender.Close()
+			wg.Done()
+		}()
+
 		if err != nil {
 			logger.Error(err, "failed subscribing")
 			return
 		}
 
-		go func() {
-			for {
+		for {
+			select {
+			case <-ctx.Done():
+				logger.Info("context cancelled...")
+				sender.TrySend(stream.Error(ctx.Err()))
+				sub.Unsubscribe()
+				return
+			default:
 				select {
-				case <-ctx.Done():
-					sender.TrySend(stream.Error(ctx.Err()))
-					wg.Done()
-					sub.Unsubscribe()
-					return
 				case <-sender.Done():
-					wg.Done()
+					logger.Info("stan sender done cancelled...")
 					sub.Unsubscribe()
 					return
 				default:
+
 				}
 			}
-		}()
+		}
 
-		wg.Wait()
-		sub.Close()
 	}()
 	return outputStream.Receiver(), outputPromise.Future()
 }
