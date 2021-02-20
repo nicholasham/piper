@@ -31,23 +31,35 @@ func (s *stanSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat stre
 	go func() {
 		sender := outputStream.Sender()
 		defer sender.Close()
+		wg.Add(1)
 
 		sub, err := s.conn.QueueSubscribe(s.subject, s.group, func(msg *stan.Msg) {
-			select {
-			case <-ctx.Done():
-				sender.TrySend(stream.Error(ctx.Err()))
-				msg.Sub.Unsubscribe()
-			case <-sender.Done():
-				msg.Sub.Unsubscribe()
-			default:
-			}
 			sender.TrySend(stream.Value(msg))
 		}, s.subscriptionOptions...)
 
 		if err != nil {
-			logger.Error(err, "failed consuming from nats")
+			logger.Error(err, "failed subscribing")
 			return
 		}
+
+		go func() {
+			for {
+				select {
+				case <-ctx.Done():
+					sender.TrySend(stream.Error(ctx.Err()))
+					wg.Done()
+					sub.Unsubscribe()
+					return
+				case <-sender.Done():
+					wg.Done()
+					sub.Unsubscribe()
+					return
+				default:
+				}
+			}
+		}()
+
+		wg.Wait()
 		sub.Close()
 	}()
 	return outputStream.Receiver(), outputPromise.Future()
@@ -63,7 +75,7 @@ func (s *stanSourceStage) With(options ...stream.StageOption) stream.Stage {
 	}
 }
 
-func Source(conn stan.Conn, group string, subject string, subscriptionOptions []stan.SubscriptionOption) *stream.SourceGraph {
+func Source(conn stan.Conn, subject string, group string, subscriptionOptions ...stan.SubscriptionOption) *stream.SourceGraph {
 	return stream.FromSource(&stanSourceStage{
 		attributes:          stream.DefaultStageAttributes.With(stream.Name("StanSource")),
 		conn:                conn,
