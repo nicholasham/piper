@@ -43,6 +43,10 @@ func (r *Receiver) Done() {
 	r.stream.Done()
 }
 
+func (r *Receiver) IsDone() bool {
+	return r.stream.IsDone()
+}
+
 func (r *Receiver) Receive() chan Element {
 	return r.stream.elements
 }

@@ -55,15 +55,11 @@ func (s *stanSourceStage) Open(ctx context.Context, wg *sync.WaitGroup, mat stre
 				sender.TrySend(stream.Error(ctx.Err()))
 				sub.Unsubscribe()
 				return
+			case <-sender.Done():
+				logger.Info("stan sender done...")
+				sub.Unsubscribe()
+				return
 			default:
-				select {
-				case <-sender.Done():
-					logger.Info("stan sender done cancelled...")
-					sub.Unsubscribe()
-					return
-				default:
-
-				}
 			}
 		}
 
