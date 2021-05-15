@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"github.com/nicholasham/piper/pkg/core"
 	"github.com/nicholasham/piper/pkg/core/iterable"
+	"github.com/nicholasham/piper/pkg/stream"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/goleak"
 	"sync"
 	"testing"
 	"time"
 )
+
+
+func Count2(ctx context.Context, done chan struct{}, upstream chan stream.Element) chan stream.Element {
+
+}
 
 func Count(ctx context.Context, wg *sync.WaitGroup, outlet *Receiver) *core.Future {
 	promise := core.NewPromise()
